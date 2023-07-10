@@ -4,27 +4,23 @@
 \alias{kldest_density}
 \title{Density-based estimation of Kullback-Leibler divergence}
 \usage{
-kldest_density(X, Y, h = NULL, K = dnorm)
+kldest_density(X, Y, hX = NULL, hY = NULL)
 }
 \arguments{
-\item{X}{A numeric vector or matrix, representing the sample from the true
-distribution.}
+\item{X, Y}{\code{n}-by-\code{d} and \code{m}-by-\code{d} matrices, representing \code{n} samples from
+the true distribution P and \code{m} samples from the approximate distribution
+Q, both in \code{d} dimensions. Vector input is treated as a column matrix.}
 
-\item{Y}{A numeric vector or matrix, representing the sample from the true
-distribution. If \code{X} and \code{Y} matrices, they must have the same
-number of columns \code{d}.}
-
-\item{h}{A positive scalar or length \code{d} vector, representing the bandwidth
-parameter (possibly different in each component). The default \code{NULL} uses
-Scott's rule (EMBED LATEX?)}
-
-\item{K}{A density function representing the kernel to be used. Defaults to a Gaussian kernel.}
+\item{hX, hY}{Positive scalars or length \code{d} vectors, representing bandwidth
+parameters (possibly different in each component) for the density estimates
+of P and Q, respectively. The default \code{NULL} uses Scott's rule,
+\deqn{h_i = \frac{\sigma_i}{n^{1/(d+4)}}}}
 }
 \value{
-A scalar, the estimated Kullback-Leibler divergence
+A scalar, the estimated Kullback-Leibler divergence \eqn{D_{KL}(P||Q)}.
 }
 \description{
-This estimation method approximates the unknown densities p and q by a kernel
+This estimation method approximates the unknown densities P and Q by a kernel
 density estimate, using a sample size- and dimension-dependent bandwidth parameter
 and a Gaussian kernel.
 }

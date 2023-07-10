@@ -15,6 +15,9 @@ kl_divergence_exponential(lambda1, lambda2)
 A scalar (the Kullback-Leibler divergence)
 }
 \description{
-This function computes $D_{KL}(p||q)$, where $p\sim \text{Exp}(\lambda_1)$
-and $q\sim \text{Exp}(\lambda_2)$, in rate parametrization.
+This function computes \eqn{D_{KL}(p||q)}, where \eqn{p\sim \text{Exp}(\lambda_1)}
+and \eqn{q\sim \text{Exp}(\lambda_2)}, in rate parametrization.
+}
+\examples{
+kl_divergence_exponential(lambda1 = 1, lambda2 = 2)
 }

@@ -8,4 +8,8 @@
 \description{
 More about what it does (maybe more than one line) Use four spaces when indenting paragraphs within the Description.
 }
+\author{
+\strong{Maintainer}: Niklas Hartung \email{niklas.hartung@gmail.com} (\href{https://orcid.org/0000-0002-4000-6525}{ORCID})
+
+}
 \keyword{internal}

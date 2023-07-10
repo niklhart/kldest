@@ -2,7 +2,9 @@ Package: kldest
 Type: Package
 Title: Sample-based estimation of Kullback-Leibler divergence
 Version: 0.1.0
-Author: Niklas Hartung
+Authors@R: 
+    person("Niklas", "Hartung", , "niklas.hartung@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-4000-6525"))
 Maintainer: Niklas Hartung <niklas.hartung@gmail.com>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
@@ -10,3 +12,8 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
+Roxygen: list(markdown = TRUE)
+Imports: 
+    stats,    
+    RANN
+

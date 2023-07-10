@@ -19,6 +19,11 @@ kl_divergence_gaussian(mu1, sigma1, mu2, sigma2)
 A scalar (the Kullback-Leibler divergence)
 }
 \description{
-This function computes $D_{KL}(p||q)$, where $p\sim \mathcal{N}(\mu_1,\Sigma_1)$
-and $q\sim \mathcal{N}(\mu_2,\Sigma_2)$.
+This function computes \eqn{D_{KL}(p||q)}, where \eqn{p\sim \mathcal{N}(\mu_1,\Sigma_1)}
+and \eqn{q\sim \mathcal{N}(\mu_2,\Sigma_2)}.
+}
+\examples{
+kl_divergence_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
+kl_divergence_gaussian(mu1 = rep(0,2), sigma1 = diag(2),
+                       mu2 = rep(1,2), sigma2 = matrix(c(1,0.5,0.5,1), nrow = 2))
 }
