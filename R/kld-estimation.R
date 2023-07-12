@@ -19,10 +19,20 @@
 #' # KL-D between two samples from 1D Gaussians:
 #' X <- rnorm(100)
 #' Y <- rnorm(100, mean = 1, sd = 2)
-#' kl_divergence_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
+#' kl_div_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
+#' kldest_density(X,Y)
+#' # KL-D between two samples from 2D Gaussians:
+#' X1 <- rnorm(100)
+#' X2 <- rnorm(100)
+#' Y1 <- rnorm(100)
+#' Y2 <- Y1 + rnorm(100)
+#' X <- cbind(X1,X2)
+#' Y <- cbind(Y1,Y2)
+#' kl_div_gaussian(mu1 = rep(0,2), sigma1 = diag(2), mu2 = rep(0,2),
+#'                 sigma2 = matrix(c(1,1,1,2),nrow=2))
 #' kldest_density(X,Y)
 #' @export
-kldest_density <- function(X, Y, hX = NULL, hY = NULL) {
+kldest_density <- function(X, Y, hX = NULL, hY = NULL, rule = c("Silverman","Scott")) {
 
     # input processing
     X <- as.matrix(X)
@@ -32,26 +42,138 @@ kldest_density <- function(X, Y, hX = NULL, hY = NULL) {
     m <- nrow(Y)
     stopifnot(ncol(Y) == d)
 
-    # Scott's rule for bandwidth parameters
+    # Use heuristics rule for bandwidth parameters, if unspecified
+    rule <- match.arg(rule)
     if (is.null(hX)) {
         sd_X <- apply(X, MARGIN = 2, FUN = sd)
-        hX   <- sd_X/n^(1/(d+4))
+        hX <- switch(rule,
+                     Silverman = sd_X*(4/((d+2)*n))^(1/(d+4)),
+                     Scott     =  sd_X/n^(1/(d+4))
+        )
     }
     if (is.null(hY)) {
         sd_Y <- apply(Y, MARGIN = 2, FUN = sd)
-        hY   <- sd_Y/m^(1/(d+4))
+        hY <- switch(rule,
+                     Silverman = sd_Y*(4/((d+2)*n))^(1/(d+4)),
+                     Scott     =  sd_Y/n^(1/(d+4))
+        )
     }
 
-    # Gaussian kernel
-    kX <- function(x) t(dnorm(t(x-X), sd = hX))
-    kY <- function(x) t(dnorm(t(x-Y), sd = hY))
+    p_X <- numeric(n)
+    q_X <- numeric(n)
 
-    # Density estimate
-    pX <- Vectorize(function(x) colMeans(kX(x)))
-    pY <- Vectorize(function(y) colMeans(kY(y)))
+    for (i in 1:n) {
+        kXi <- vapply(seq_len(d),
+                     FUN = function(k) dnorm(X[i,k], mean = X[ ,k], sd = hX[k]),
+                     FUN.VALUE = numeric(n))
+        kYi <- vapply(seq_len(d),
+                     FUN = function(k) dnorm(X[i,k], mean = Y[ ,k], sd = hY[k]),
+                     FUN.VALUE = numeric(m))
+
+        p_X[i] <- mean(apply(kXi, MARGIN = 1, FUN = prod))
+        q_X[i] <- mean(apply(kYi, MARGIN = 1, FUN = prod))
+    }
+
+    # KL-divergence using estimated densities
+    mean(log(p_X/q_X))
+
+}
+
+
+#' Vectorized version of kldest_density, currently under development
+#' @export
+kldest_density_vectorized <- function(X, Y, hX = NULL, hY = NULL, rule = c("Silverman","Scott")) {
+
+    # input processing
+    X <- as.matrix(X)
+    Y <- as.matrix(Y)
+    n <- nrow(X)
+    d <- ncol(X)
+    m <- nrow(Y)
+    stopifnot(ncol(Y) == d)
+
+    # Use heuristics rule for bandwidth parameters, if unspecified
+    rule <- match.arg(rule)
+    if (is.null(hX)) {
+        sd_X <- apply(X, MARGIN = 2, FUN = sd)
+        hX <- switch(rule,
+                     Silverman = sd_X*(4/((d+2)*n))^(1/(d+4)),
+                     Scott     =  sd_X/n^(1/(d+4))
+        )
+    }
+    if (is.null(hY)) {
+        sd_Y <- apply(Y, MARGIN = 2, FUN = sd)
+        hY <- switch(rule,
+                     Silverman = sd_Y*(4/((d+2)*n))^(1/(d+4)),
+                     Scott     =  sd_Y/n^(1/(d+4))
+        )
+    }
+
+    kXX <- vapply(1:d,
+                  FUN = function(k) dnorm(outer(X[ ,k], X[ ,k], FUN = "-"),
+                                          sd = hX[k]),
+                  FUN.VALUE = matrix(0,nrow=n,ncol=n))
+    kXY <- vapply(1:d,
+                  FUN = function(k) dnorm(outer(X[ ,k], Y[ ,k], FUN = "-"),
+                                          sd = hY[k]),
+                  FUN.VALUE = matrix(0,nrow=n,ncol=m))
+
+    p_X <- rowMeans(apply(kXX, MARGIN = 1:2, FUN = prod))
+    q_X <- rowMeans(apply(kXY, MARGIN = 1:2, FUN = prod))
+
+    # KL-divergence using estimated densities
+    mean(log(p_X/q_X))
+
+}
+
+
+
+#' 1-D density-based estimation of Kullback-Leibler divergence
+#'
+#' @description
+#' This estimation method approximates the densities of the unknown distributions
+#' \eqn{P} and \eqn{Q} by a kernel density estimate using function 'density'.
+#'
+#' @param X,Y  Numeric vectors or single-column matrices, representing samples
+#'    from the true distribution \eqn{P} and the approximate distribution
+#'    \eqn{Q}, respectively.
+#' @returns A scalar, the estimated Kullback-Leibler divergence \eqn{D_{KL}(P||Q)}.
+#' @examples
+#' # KL-D between two samples from 1D Gaussians:
+#' X <- rnorm(100)
+#' Y <- rnorm(100, mean = 1, sd = 2)
+#' kl_div_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
+#' kldest_density1(X,Y)
+#' @export
+kldest_density1 <- function(X, Y) {
+
+    # input processing
+    X <- as.vector(X)
+    Y <- as.vector(Y)
+
+    # using base R's density function
+    pX <- approxfun(density(X))
+    pY <- approxfun(density(Y))
 
     # KL-divergence using estimated densities
     mean(log(pX(X)/pY(X)))
+}
+
+#' Kernel density estimation in 1-6 dimensions using package 'ks'.
+#'
+#' NOTE: seems to be extremely slow...
+kldest_density6 <- function(X, Y) {
+
+    # input processing
+    X <- as.matrix(X)
+    Y <- as.matrix(Y)
+    n <- nrow(X)
+    d <- ncol(X)
+    m <- nrow(Y)
+    stopifnot(ncol(Y) == d)
+
+    # KL-divergence using estimated densities
+    mean(log(pX$estimate/predict(pY,x=X)))
 }
 
 #' Universal 1-nearest neighbour divergence estimator from Wang et al. (2009).

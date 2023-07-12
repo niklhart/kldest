@@ -8,8 +8,8 @@ kl_generalized_knn_eps(X, Y, max.k = 50, warn.max.k = TRUE)
 }
 \arguments{
 \item{X, Y}{\code{n}-by-\code{d} and \code{m}-by-\code{d} matrices, representing \code{n} samples from
-the true distribution P and \code{m} samples from the approximate distribution
-Q, both in \code{d} dimensions. Vector input is treated as a column matrix.}
+the true distribution \eqn{P} and \code{m} samples from the approximate distribution
+\eqn{Q}, both in \code{d} dimensions. Vector input is treated as a column matrix.}
 
 \item{max.k}{Maximum numbers of nearest neighbours to compute (default: \code{50})}
 

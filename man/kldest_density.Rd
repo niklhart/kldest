@@ -4,12 +4,12 @@
 \alias{kldest_density}
 \title{Density-based estimation of Kullback-Leibler divergence}
 \usage{
-kldest_density(X, Y, hX = NULL, hY = NULL)
+kldest_density(X, Y, hX = NULL, hY = NULL, rule = c("Silverman", "Scott"))
 }
 \arguments{
 \item{X, Y}{\code{n}-by-\code{d} and \code{m}-by-\code{d} matrices, representing \code{n} samples from
-the true distribution P and \code{m} samples from the approximate distribution
-Q, both in \code{d} dimensions. Vector input is treated as a column matrix.}
+the true distribution \eqn{P} and \code{m} samples from the approximate distribution
+\eqn{Q}, both in \code{d} dimensions. Vector input is treated as a column matrix.}
 
 \item{hX, hY}{Positive scalars or length \code{d} vectors, representing bandwidth
 parameters (possibly different in each component) for the density estimates
@@ -20,14 +20,24 @@ of P and Q, respectively. The default \code{NULL} uses Scott's rule,
 A scalar, the estimated Kullback-Leibler divergence \eqn{D_{KL}(P||Q)}.
 }
 \description{
-This estimation method approximates the unknown densities P and Q by a kernel
-density estimate, using a sample size- and dimension-dependent bandwidth parameter
-and a Gaussian kernel.
+This estimation method approximates the densities of the unknown distributions
+\eqn{P} and \eqn{Q} by a kernel density estimate, using a sample size- and
+dimension-dependent bandwidth parameter and a Gaussian kernel.
 }
 \examples{
 # KL-D between two samples from 1D Gaussians:
 X <- rnorm(100)
 Y <- rnorm(100, mean = 1, sd = 2)
-kl_divergence_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
+kl_div_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
+kldest_density(X,Y)
+# KL-D between two samples from 2D Gaussians:
+X1 <- rnorm(100)
+X2 <- rnorm(100)
+Y1 <- rnorm(100)
+Y2 <- Y1 + rnorm(100)
+X <- cbind(X1,X2)
+Y <- cbind(Y1,Y2)
+kl_div_gaussian(mu1 = rep(0,2), sigma1 = diag(2), mu2 = rep(0,2),
+                sigma2 = matrix(c(1,1,1,2),nrow=2))
 kldest_density(X,Y)
 }

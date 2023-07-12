@@ -8,8 +8,8 @@ kl_universal_1nn(X, Y)
 }
 \arguments{
 \item{X, Y}{\code{n}-by-\code{d} and \code{m}-by-\code{d} matrices, representing \code{n} samples from
-the true distribution P and \code{m} samples from the approximate distribution
-Q, both in \code{d} dimensions. Vector input is treated as a column matrix.}
+the true distribution \eqn{P} and \code{m} samples from the approximate distribution
+\eqn{Q}, both in \code{d} dimensions. Vector input is treated as a column matrix.}
 }
 \value{
 A scalar, the estimated Kullback-Leibler divergence \eqn{D_{KL}(P||Q)}.
@@ -27,7 +27,7 @@ Adapted for R from python code at https://gist.github.com/atabakd/ed0f7581f8510c
 # KL-D between two samples from 1D Gaussians:
 X <- rnorm(1000)
 Y <- rnorm(1000, mean = 1, sd = 2)
-kl_divergence_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
+kl_div_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
 kldest_density(X, Y)
 kl_universal_1nn(X, Y)
 kl_generalized_knn_eps(X, Y)

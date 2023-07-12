@@ -1,0 +1,251 @@
+---
+title: "Test KL divergence methods (dimension-dependency)"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{algorithm-performance-dimensionality-dependent}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(kldest)
+set.seed(123456)
+```
+
+
+## Reproducing Figures in Wang et al. (2009)
+
+### Fig 1 (Testing for Exponential distribution)
+
+Simulation study design
+
+```{r}
+lambda1 <- 1
+lambda2 <- 1/12         # Exp(12) in Wang et al. refers to shape parametrization
+n <- c(10,50,100,200,500,1000,2000,5000,10000)
+```
+
+True KL divergence
+
+```{r}
+(kl_true <- kl_div_exponential(lambda1, lambda2))
+```
+
+Sampling and estimation
+
+```{r}
+nrep <- 25
+kl_est <- matrix(NA, nrow = nrep, ncol = length(n))
+for (i in seq_along(n)) {
+    for (j in 1:nrep) {
+        X <- as.matrix(rexp(n = n[i], rate = lambda1))
+        Y <- as.matrix(rexp(n = n[i], rate = lambda2))
+        kl_est[j,i] <- kl_universal_1nn(X, Y)
+    }
+}
+```
+
+Plotting
+
+```{r}
+kl_mean <- colMeans(kl_est)
+plot(x = n, y = kl_mean, type = "l", log = "x", ylab = "KL divergence",
+     main = "Reproducing Figure 1 (1D exponentials)",
+     ylim = range(c(kl_mean, kl_true)))
+abline(h = kl_true, lty = 2)
+```
+Plotting (variant)
+
+```{r}
+boxplot(kl_est, names = n, xlab = "Sample size", ylab = "KL divergence",
+     main = "Reproducing Figure 1 (1D exponentials)")
+abline(h = kl_true, lty = 2)
+```
+
+### Fig 2 (4-D Gaussians)
+
+Simulation study design
+
+```{r}
+D <- 4
+paramTrue   <- list(mu = c(0.1,0.3,0.6,0.9), sigma = constDiagMatrix(dim = D, diag = 1, offDiag = 0.5))
+paramApprox <- list(mu = c(0,  0,  0,  0  ), sigma = constDiagMatrix(dim = D, diag = 1, offDiag = 0.1))
+```
+
+
+True KL divergence
+
+```{r}
+kl_true <- kl_div_gaussian(
+    mu1    = paramTrue$mu, 
+    sigma1 = paramTrue$sigma, 
+    mu2    = paramApprox$mu, 
+    sigma2 = paramApprox$sigma
+)
+kl_true
+```
+
+Sampling and estimation
+
+```{r}
+n <- c(10,50,100,200,500,1000,2000,5000,10000,20000,50000,100000)
+nrep <- 25
+kl_est <- matrix(NA, nrow = nrep, ncol = length(n))
+for (i in seq_along(n)) {
+    for (j in 1:nrep) {
+        X <- MASS::mvrnorm(n = n[i], mu = paramTrue$mu,   Sigma = paramTrue$sigma)
+        Y <- MASS::mvrnorm(n = n[i], mu = paramApprox$mu, Sigma = paramApprox$sigma)
+        kl_est[j,i] <- kl_universal_1nn(X, Y)
+    }
+}
+```
+
+Plotting
+
+```{r}
+kl_mean <- colMeans(kl_est)
+plot(x = n, y = kl_mean, type = "l", log = "x", ylab = "KL divergence",
+     main = "Reproducing Figure 2 (4-D Gaussians)",
+     ylim = range(c(kl_mean, kl_true)))
+abline(h = kl_true, lty = 2)
+```
+
+Plotting (variant)
+
+```{r}
+boxplot(kl_est, names = n, xlab = "Sample size", ylab = "KL divergence",
+     main = "Reproducing Figure 2 (3-D Gaussians)")
+abline(h = kl_true, lty = 2)
+```
+
+
+### Fig 3 (10-D Gaussians)
+
+Simulation study design
+
+```{r}
+D <- 10
+paramTrue   <- list(mu = rep(0, D), sigma = constDiagMatrix(dim = D, diag = 1, offDiag = 0.9))
+paramApprox <- list(mu = rep(0, D), sigma = constDiagMatrix(dim = D, diag = 1, offDiag = 0.1))
+```
+
+
+True KL divergence
+
+```{r}
+kl_true <- kl_div_gaussian(
+    mu1    = paramTrue$mu, 
+    sigma1 = paramTrue$sigma, 
+    mu2    = paramApprox$mu, 
+    sigma2 = paramApprox$sigma
+)
+kl_true
+```
+
+Sampling and estimation
+
+```{r}
+n <- c(10,50,100,200,500,1000,2000,5000,10000,20000,50000)
+nrep <- 25
+kl_est <- matrix(NA, nrow = nrep, ncol = length(n))
+for (i in seq_along(n)) {
+    for (j in 1:nrep) {
+        X <- MASS::mvrnorm(n = n[i], mu = paramTrue$mu,   Sigma = paramTrue$sigma)
+        Y <- MASS::mvrnorm(n = n[i], mu = paramApprox$mu, Sigma = paramApprox$sigma)
+        kl_est[j,i] <- kl_universal_1nn(X, Y)
+    }
+}
+```
+
+Plotting
+
+```{r}
+kl_mean <- colMeans(kl_est)
+plot(x = n, y = kl_mean, type = "l", log = "x", ylab = "KL divergence",
+     main = "Reproducing Figure 3 (10-D Gaussians)",
+     ylim = range(c(kl_mean, kl_true)))
+abline(h = kl_true, lty = 2)
+```
+
+Plotting (variant)
+
+```{r}
+boxplot(kl_est, names = n, xlab = "Sample size", ylab = "KL divergence",
+     main = "Reproducing Figure 3 (10-D Gaussians)")
+abline(h = kl_true, lty = 2)
+```
+
+### Figure 5 (10-D correlated Gaussians)
+
+Simulation study design
+
+```{r}
+D <- 10
+Sigma <- constDiagMatrix(dim = D, diag = 1, offDiag = 0.999)
+paramTrue   <- list(mu = rep(0, D), sigma = Sigma)
+paramApprox <- list(mu = rep(1, D), sigma = Sigma)
+```
+
+True KL divergence
+
+```{r}
+kl_true <- kl_div_gaussian(
+    mu1    = paramTrue$mu, 
+    sigma1 = paramTrue$sigma, 
+    mu2    = paramApprox$mu, 
+    sigma2 = paramApprox$sigma
+)
+kl_true
+```
+
+Sampling and estimation
+
+```{r}
+n <- c(20,50,100,200,500,1000,2000,5000,10000)
+nrep <- 25
+kl_est1 <- matrix(NA, nrow = nrep, ncol = length(n))
+kl_est2 <- matrix(NA, nrow = nrep, ncol = length(n))
+for (i in seq_along(n)) {
+    for (j in 1:nrep) {
+        X <- MASS::mvrnorm(n = n[i], mu = paramTrue$mu,   Sigma = paramTrue$sigma)
+        Y <- MASS::mvrnorm(n = n[i], mu = paramApprox$mu, Sigma = paramApprox$sigma)
+        kl_est1[j,i] <- kl_universal_1nn(X, Y)
+        kl_est2[j,i] <- kl_generalized_knn_eps(X, Y, max.k = min(n[i]-1,50), warn.max.k = FALSE)
+    }
+}
+```
+
+Plotting
+
+```{r}
+kl_mean1 <- colMeans(kl_est1)
+kl_mean2 <- colMeans(kl_est2)
+plot(x = n, y = kl_mean1, type = "l", log = "x", ylab = "KL divergence",
+     main = "Reproducing Figure 5 (10-D correlated Gaussians)",
+     ylim = range(c(kl_mean1, kl_mean2, kl_true)))
+lines(x = n, y = kl_mean2, col = "blue")
+abline(h = kl_true, lty = 2)
+legend("topright", 
+       legend = c("1-NN","NN (eps(1))","True KL-Div."),
+       lty = c(1,1,2),
+       col = c("black","blue","black"))
+```
+
+Plotting (variant), `TODO`: xticks look horrible...
+
+```{r}
+boxplot(kl_est1, names = n, xlab = "Sample size", ylab = "KL divergence",
+     main = "Reproducing Figure 5 (10-D correlated Gaussians)", at = 1:length(n)-0.2, boxwex = 0.25)
+boxplot(kl_est2, add = TRUE, at = 1:length(n)+0.2, boxwex = 0.25, col = "blue", ann = FALSE)
+abline(h = kl_true, lty = 2)
+```
+
+
+

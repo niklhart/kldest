@@ -4,7 +4,7 @@
 #'
 #' This function computes \eqn{D_{KL}(p||q)}, where \eqn{p\sim \mathcal{N}(\mu_1,\Sigma_1)}
 #' and \eqn{q\sim \mathcal{N}(\mu_2,\Sigma_2)}.
-#' @inherit
+#'
 #' @param mu1 A numeric vector (mean of true Gaussian)
 #' @param sigma1 A s.p.d. matrix (Covariance matrix of true Gaussian)
 #' @param mu2 A numeric vector (mean of approximate Gaussian)
@@ -47,5 +47,36 @@ kl_div_exponential <- function(lambda1, lambda2) {
 
     log(lambda1) - log(lambda2) + lambda2 / lambda1 - 1
 
+}
+
+#' Analytical KL divergence for two discrete distributions
+#'
+#' @param P,Q Numerical arrays with the same dimensions, representing discrete
+#'     probability distributions
+#' @returns A scalar (the Kullback-Leibler divergence)
+#' @export
+#' @examples
+#' # 1-D example
+#' P <- 1:4/10
+#' Q <- rep(0.25,4)
+#' kl_div_discrete(P,Q)
+#'
+#' # The above example in 2-D
+#' P <- matrix(1:4/10,nrow=2)
+#' Q <- matrix(0.25,nrow=2,ncol=2)
+#' kl_div_discrete(P,Q)
+#'
+kl_div_discrete <- function(P,Q) {
+
+    # Input checking
+    P <- as.array(P)
+    Q <- as.array(Q)
+    if (any(dim(P) != dim(Q))) stop("Inputs must have the same dimensions.")
+    if (any(P < 0 | Q < 0)) stop("Input arrays must be nonnegative.")
+    if ((sum(P) != 1) || sum(Q) != 1) stop("Input arrays must sum up to 1.")
+
+    # Calculation, taking care of edge case P[i] == 0:
+    posP <- P > 0
+    sum(P[posP] * log(P[posP]/Q[posP]))
 }
 
