@@ -1,20 +1,15 @@
 ---
-title: "Test KL divergence methods (dimension-dependency)"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{algorithm-performance-dimensionality-dependent}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+title: "Algorithm performance in large dimensions"
+author: "Niklas Hartung"
+date: "`r Sys.Date()`"
+output: html_document
 ---
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r setup}
+```{r}
 library(kldest)
 set.seed(123456)
 ```
@@ -35,19 +30,19 @@ n <- c(10,50,100,200,500,1000,2000,5000,10000)
 True KL divergence
 
 ```{r}
-(kl_true <- kl_div_exponential(lambda1, lambda2))
+(kld_true <- kld_exponential(lambda1, lambda2))
 ```
 
 Sampling and estimation
 
 ```{r}
 nrep <- 25
-kl_est <- matrix(NA, nrow = nrep, ncol = length(n))
+kld <- matrix(NA, nrow = nrep, ncol = length(n))
 for (i in seq_along(n)) {
     for (j in 1:nrep) {
         X <- as.matrix(rexp(n = n[i], rate = lambda1))
         Y <- as.matrix(rexp(n = n[i], rate = lambda2))
-        kl_est[j,i] <- kl_universal_1nn(X, Y)
+        kld[j,i] <- kld_est_1nn(X, Y)
     }
 }
 ```
@@ -55,18 +50,18 @@ for (i in seq_along(n)) {
 Plotting
 
 ```{r}
-kl_mean <- colMeans(kl_est)
-plot(x = n, y = kl_mean, type = "l", log = "x", ylab = "KL divergence",
+kld_mean <- colMeans(kld)
+plot(x = n, y = kld_mean, type = "l", log = "x", ylab = "KL divergence",
      main = "Reproducing Figure 1 (1D exponentials)",
-     ylim = range(c(kl_mean, kl_true)))
-abline(h = kl_true, lty = 2)
+     ylim = range(c(kld_mean, kld_true)))
+abline(h = kld_true, lty = 2)
 ```
 Plotting (variant)
 
 ```{r}
-boxplot(kl_est, names = n, xlab = "Sample size", ylab = "KL divergence",
-     main = "Reproducing Figure 1 (1D exponentials)")
-abline(h = kl_true, lty = 2)
+boxplot(kld, names = n, xlab = "Sample size", ylab = "KL divergence",
+     main = "Variant of Figure 1  (1D exponentials) showing variance")
+abline(h = kld_true, lty = 2)
 ```
 
 ### Fig 2 (4-D Gaussians)
@@ -83,13 +78,13 @@ paramApprox <- list(mu = c(0,  0,  0,  0  ), sigma = constDiagMatrix(dim = D, di
 True KL divergence
 
 ```{r}
-kl_true <- kl_div_gaussian(
+kld_true <- kld_gaussian(
     mu1    = paramTrue$mu, 
     sigma1 = paramTrue$sigma, 
     mu2    = paramApprox$mu, 
     sigma2 = paramApprox$sigma
 )
-kl_true
+kld_true
 ```
 
 Sampling and estimation
@@ -97,12 +92,12 @@ Sampling and estimation
 ```{r}
 n <- c(10,50,100,200,500,1000,2000,5000,10000,20000,50000,100000)
 nrep <- 25
-kl_est <- matrix(NA, nrow = nrep, ncol = length(n))
+kld <- matrix(NA, nrow = nrep, ncol = length(n))
 for (i in seq_along(n)) {
     for (j in 1:nrep) {
         X <- MASS::mvrnorm(n = n[i], mu = paramTrue$mu,   Sigma = paramTrue$sigma)
         Y <- MASS::mvrnorm(n = n[i], mu = paramApprox$mu, Sigma = paramApprox$sigma)
-        kl_est[j,i] <- kl_universal_1nn(X, Y)
+        kld[j,i] <- kld_est_1nn(X, Y)
     }
 }
 ```
@@ -110,19 +105,19 @@ for (i in seq_along(n)) {
 Plotting
 
 ```{r}
-kl_mean <- colMeans(kl_est)
-plot(x = n, y = kl_mean, type = "l", log = "x", ylab = "KL divergence",
+kld_mean <- colMeans(kld)
+plot(x = n, y = kld_mean, type = "l", log = "x", ylab = "KL divergence",
      main = "Reproducing Figure 2 (4-D Gaussians)",
-     ylim = range(c(kl_mean, kl_true)))
-abline(h = kl_true, lty = 2)
+     ylim = range(c(kld_mean, kld_true)))
+abline(h = kld_true, lty = 2)
 ```
 
 Plotting (variant)
 
 ```{r}
-boxplot(kl_est, names = n, xlab = "Sample size", ylab = "KL divergence",
-     main = "Reproducing Figure 2 (3-D Gaussians)")
-abline(h = kl_true, lty = 2)
+boxplot(kld, names = n, xlab = "Sample size", ylab = "KL divergence",
+     main = "Variant of Figure 2 (4-D Gaussians) showing variance")
+abline(h = kld_true, lty = 2)
 ```
 
 
@@ -140,13 +135,13 @@ paramApprox <- list(mu = rep(0, D), sigma = constDiagMatrix(dim = D, diag = 1, o
 True KL divergence
 
 ```{r}
-kl_true <- kl_div_gaussian(
+kld_true <- kld_gaussian(
     mu1    = paramTrue$mu, 
     sigma1 = paramTrue$sigma, 
     mu2    = paramApprox$mu, 
     sigma2 = paramApprox$sigma
 )
-kl_true
+kld_true
 ```
 
 Sampling and estimation
@@ -154,12 +149,12 @@ Sampling and estimation
 ```{r}
 n <- c(10,50,100,200,500,1000,2000,5000,10000,20000,50000)
 nrep <- 25
-kl_est <- matrix(NA, nrow = nrep, ncol = length(n))
+kld <- matrix(NA, nrow = nrep, ncol = length(n))
 for (i in seq_along(n)) {
     for (j in 1:nrep) {
         X <- MASS::mvrnorm(n = n[i], mu = paramTrue$mu,   Sigma = paramTrue$sigma)
         Y <- MASS::mvrnorm(n = n[i], mu = paramApprox$mu, Sigma = paramApprox$sigma)
-        kl_est[j,i] <- kl_universal_1nn(X, Y)
+        kld[j,i] <- kld_est_1nn(X, Y)
     }
 }
 ```
@@ -167,19 +162,19 @@ for (i in seq_along(n)) {
 Plotting
 
 ```{r}
-kl_mean <- colMeans(kl_est)
-plot(x = n, y = kl_mean, type = "l", log = "x", ylab = "KL divergence",
+kld_mean <- colMeans(kld)
+plot(x = n, y = kld_mean, type = "l", log = "x", ylab = "KL divergence",
      main = "Reproducing Figure 3 (10-D Gaussians)",
-     ylim = range(c(kl_mean, kl_true)))
-abline(h = kl_true, lty = 2)
+     ylim = range(c(kld_mean, kld_true)))
+abline(h = kld_true, lty = 2)
 ```
 
 Plotting (variant)
 
 ```{r}
-boxplot(kl_est, names = n, xlab = "Sample size", ylab = "KL divergence",
-     main = "Reproducing Figure 3 (10-D Gaussians)")
-abline(h = kl_true, lty = 2)
+boxplot(kld, names = n, xlab = "Sample size", ylab = "KL divergence",
+     main = "Variant of Figure 3 (10-D Gaussians) showing variance")
+abline(h = kld_true, lty = 2)
 ```
 
 ### Figure 5 (10-D correlated Gaussians)
@@ -196,13 +191,13 @@ paramApprox <- list(mu = rep(1, D), sigma = Sigma)
 True KL divergence
 
 ```{r}
-kl_true <- kl_div_gaussian(
+kld_true <- kld_gaussian(
     mu1    = paramTrue$mu, 
     sigma1 = paramTrue$sigma, 
     mu2    = paramApprox$mu, 
     sigma2 = paramApprox$sigma
 )
-kl_true
+kld_true
 ```
 
 Sampling and estimation
@@ -210,14 +205,14 @@ Sampling and estimation
 ```{r}
 n <- c(20,50,100,200,500,1000,2000,5000,10000)
 nrep <- 25
-kl_est1 <- matrix(NA, nrow = nrep, ncol = length(n))
-kl_est2 <- matrix(NA, nrow = nrep, ncol = length(n))
+kld1 <- matrix(NA, nrow = nrep, ncol = length(n))
+kld2 <- matrix(NA, nrow = nrep, ncol = length(n))
 for (i in seq_along(n)) {
     for (j in 1:nrep) {
         X <- MASS::mvrnorm(n = n[i], mu = paramTrue$mu,   Sigma = paramTrue$sigma)
         Y <- MASS::mvrnorm(n = n[i], mu = paramApprox$mu, Sigma = paramApprox$sigma)
-        kl_est1[j,i] <- kl_universal_1nn(X, Y)
-        kl_est2[j,i] <- kl_generalized_knn_eps(X, Y, max.k = min(n[i]-1,50), warn.max.k = FALSE)
+        kld1[j,i] <- kld_est_1nn(X, Y)
+        kld2[j,i] <- kld_est_gknn(X, Y, max.k = min(n[i]-1,50), warn.max.k = FALSE)
     }
 }
 ```
@@ -225,15 +220,15 @@ for (i in seq_along(n)) {
 Plotting
 
 ```{r}
-kl_mean1 <- colMeans(kl_est1)
-kl_mean2 <- colMeans(kl_est2)
-plot(x = n, y = kl_mean1, type = "l", log = "x", ylab = "KL divergence",
+kld_mean1 <- colMeans(kld1)
+kld_mean2 <- colMeans(kld2)
+plot(x = n, y = kld_mean1, type = "l", log = "x", ylab = "KL divergence",
      main = "Reproducing Figure 5 (10-D correlated Gaussians)",
-     ylim = range(c(kl_mean1, kl_mean2, kl_true)))
-lines(x = n, y = kl_mean2, col = "blue")
-abline(h = kl_true, lty = 2)
+     ylim = range(c(kld_mean1, kld_mean2, kld_true)))
+lines(x = n, y = kld_mean2, col = "blue")
+abline(h = kld_true, lty = 2)
 legend("topright", 
-       legend = c("1-NN","NN (eps(1))","True KL-Div."),
+       legend = c("1nn","gknn","True KL-Div."),
        lty = c(1,1,2),
        col = c("black","blue","black"))
 ```
@@ -241,10 +236,11 @@ legend("topright",
 Plotting (variant), `TODO`: xticks look horrible...
 
 ```{r}
-boxplot(kl_est1, names = n, xlab = "Sample size", ylab = "KL divergence",
-     main = "Reproducing Figure 5 (10-D correlated Gaussians)", at = 1:length(n)-0.2, boxwex = 0.25)
-boxplot(kl_est2, add = TRUE, at = 1:length(n)+0.2, boxwex = 0.25, col = "blue", ann = FALSE)
-abline(h = kl_true, lty = 2)
+boxplot(kld1, names = n, xlab = "Sample size", ylab = "KL divergence",
+     main = "Variant of Figure 5 (10-D correlated Gaussians) showing variance", 
+     at = 1:length(n)-0.2, boxwex = 0.25)
+boxplot(kld2, add = TRUE, at = 1:length(n)+0.2, boxwex = 0.25, col = "blue", ann = FALSE)
+abline(h = kld_true, lty = 2)
 ```
 
 

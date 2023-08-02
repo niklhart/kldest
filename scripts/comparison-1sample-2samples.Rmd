@@ -1,0 +1,250 @@
+---
+title: "Comparison 1-sample vs 2-sample estimation"
+author: "Niklas Hartung"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r libraries}
+library(kldest)
+library(ggplot2)
+set.seed(1)
+```
+
+
+## Specification of simulation scenario
+
+### Distributions and KL-D
+
+We investigate the following pairs of distributions,
+for which analytical KL divergence values are known:
+
+* $\mathcal{N}(0,1)$ vs. $\mathcal{N}(1,2^2)$,
+* $\mathcal{U}(1,2)$ vs. $\mathcal{U}(0,4)$,
+* $\text{Exp}(1)$ vs. $\text{Exp}(12)$.
+
+```{r}
+p <- list(
+    gaussian    = list(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2),
+    uniform     = list(a1 = 1, b1 = 2, a2 = 0, b2 = 4),
+    exponential = list(lambda1 = 1, lambda2 = 1/12)
+)
+distributions <- list(
+    gaussian = list(
+        samples = function(n, m) {
+            X <- rnorm(n, mean = p$gaussian$mu1, sd = sqrt(p$gaussian$sigma1))
+            Y <- rnorm(m, mean = p$gaussian$mu2, sd = sqrt(p$gaussian$sigma2))
+            list(X = X, Y = Y)
+        },
+        kld = do.call(kld_gaussian, p$gaussian)
+    ),
+    uniform = list( 
+        samples = function(n, m) {
+            X <- runif(n, min = p$uniform$a1, max = p$uniform$b1)
+            Y <- runif(m, min = p$uniform$a2, max = p$uniform$b2)
+            list(X = X, Y = Y)
+        },
+        kld = do.call(kld_uniform, p$uniform)
+    ),
+    exponential = list(
+        samples = function(n, m) {
+            X <- rexp(n, rate = p$exponential$lambda1)
+            Y <- rexp(m, rate = p$exponential$lambda2)
+            list(X = X, Y = Y)
+        },
+        kld = do.call(kld_exponential, p$exponential)
+    )
+)
+```
+
+Analytical values for Kullback-Leibler divergences in test cases:
+
+```{r}
+vapply(distributions, function(x) x$kld, 1)
+```
+
+### Simulation scenarios
+
+For each of the distributions specified above, samples of different sizes are 
+drawn, with several replicates per distribution and sample size.
+
+```{r}
+samplesize <- 10^(2:4)
+nRep       <- 25L
+
+scenarios <- combinations(
+    distribution = names(distributions),
+    sample.size  = samplesize,
+    replicate    = 1:nRep
+)
+```
+
+### Algorithms
+
+The following algorithms are considered:
+
+```{r}
+algorithms <- list(
+    nn1_XY     = kld_est_1nn,
+    nn1_X_expo = function(X, Y) {
+        kld_est_1nn_1sample(X, q = function(x) dexp(x, rate = p$exponential$lambda2))
+    },
+    nn1_X_gauss = function(X, Y) {
+        kld_est_1nn_1sample(X, q = function(x) dnorm(x, mean = p$gaussian$mu2, sd = sqrt(p$gaussian$sigma2)))
+    },
+    nn1_X_unif = function(X, Y) {
+        kld_est_1nn_1sample(X, q = function(x) dunif(x, min = p$uniform$a2, max = p$uniform$b2))
+    }
+)
+nAlgo   <- length(algorithms)
+```
+
+## Run the simulation study 
+
+```{r}
+# allocating results matrices
+nscenario  <- nrow(scenarios)
+runtime <- kld <- matrix(nrow = nscenario, 
+                         ncol = nAlgo, 
+                         dimnames = list(NULL, names(algorithms)))
+
+for (i in 1:nscenario) {
+
+    dist <- scenarios$distribution[i]
+    n    <- scenarios$sample.size[i]
+    
+    samples <- distributions[[dist]]$sample(n = n, m = n)
+    X <- samples$X
+    Y <- samples$Y
+    
+    # different algorithms are evaluated on the same samples
+    for (j in 1:nAlgo) {
+        algo         <- algorithms[[j]]
+        start_time   <- Sys.time()
+        kld[i,j]     <- algo(X, Y)
+        end_time     <- Sys.time()
+        runtime[i,j] <- end_time - start_time
+    }
+}
+```
+
+Post-processing: combine `scenarios`, `kld` and `runtime` into a single 
+data frame
+
+```{r}
+tmp1 <- cbind(scenarios, kld) |> reshape2::melt(measure.vars = names(algorithms),
+                                                    value.name = "kld",
+                                                    variable.name = "algorithm") 
+tmp2 <- cbind(scenarios, runtime) |> reshape2::melt(measure.vars = names(algorithms),
+                                                    value.name = "runtime",
+                                                    variable.name = "algorithm") 
+results <- merge(tmp1,tmp2)
+rm(tmp1,tmp2)
+```
+
+Convert to factor
+
+```{r}
+results$sample.size <- as.factor(results$sample.size)
+```
+
+
+## Results
+
+### Accuracy of KL divergence estimators
+
+```{r, fig.width=7, fig.height=6}
+ggplot2::ggplot(results, aes(x=sample.size, y=kld, color=algorithm)) + 
+    geom_jitter(position=position_dodge(.5)) + 
+    facet_wrap("distribution", scales = "free_y") +
+    geom_hline(data = data.frame(distribution = names(distributions), kldtrue = vapply(distributions, function(x) x$kld,1)), 
+               aes(yintercept = kldtrue))+
+    xlab("Sample sizes") + ylab("KL divergence estimate") + ggtitle("Accuracy of different algorithms")
+
+```
+
+$\Rightarrow$ the 1-sample version has lower variance, but seems to be inconsistent! 
+I haven't yet fully understood why this is the case.
+
+### Runtime of KL divergence estimators
+
+```{r, fig.width=7, fig.height=6}
+ggplot2::ggplot(results, aes(x=sample.size, y=runtime, color=algorithm)) + 
+    scale_y_log10() + 
+    geom_jitter(position=position_dodge(.5)) + 
+    facet_wrap("distribution", scales = "free_y") +
+    xlab("Sample sizes") + ylab("Runtime [sec]") + ggtitle("Runtime of different algorithms")
+```
+
+$\Rightarrow$ There is no benefit of 1-sample estimation in terms of runtime, either.
+
+
+## Comparison: `X` and `Y` with `m` large vs. `X` and `q`
+
+Here, I investigate whether the two approaches have comparable performance when
+the sample `Y` from the approximate distribution `q` is large.
+
+### Gaussian model
+
+```{r}
+set.seed(0)
+n <- 100
+m <- 100000
+
+nRep <- 50
+
+Xfun <- function() rnorm(n = n, mean = 0, sd = 1)
+Yfun <- function() rnorm(n = m, mean = 1, sd = 2)
+q    <- function(x) dnorm(x, mean = 1, sd = 2)
+
+kld_true <- kld_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
+kld_XY <- numeric(nRep)    
+kld_Xq <- numeric(nRep)    
+for (i in 1:nRep) {
+    X <- Xfun()
+    Y <- Yfun()
+    kld_XY[i] <- kld_est_1nn(X, Y)
+    kld_Xq[i] <- kld_est_1nn_1sample(X, q)
+}
+# graphics
+boxplot(cbind(XY = kld_XY, Xq = kld_Xq), main = "KL divergence (Gaussian model)")
+abline(h = kld_true, lty = 2)
+```
+
+$\Rightarrow$ this is not the case!
+
+### Uniform model
+
+```{r}
+set.seed(0)
+n <- 1000
+m <- 1000
+
+nRep <- 50
+
+Xfun <- function() runif(n = n, min = 1, max = 2)
+Yfun <- function() runif(n = m, min = 0, max = 4)
+q    <- function(x) dunif(x, min = 0, max = 4)
+
+kld_true <- kld_uniform(a1 = 1, b1 = 2, a2 = 0, b2 = 4)
+kld_XY <- numeric(nRep)    
+kld_Xq <- numeric(nRep)    
+for (i in 1:nRep) {
+    X <- Xfun()
+    Y <- Yfun()
+    kld_XY[i] <- kld_est_1nn(X, Y)
+    kld_Xq[i] <- kld_est_1nn_1sample(X, q)
+}
+# graphics
+boxplot(cbind(XY = kld_XY, Xq = kld_Xq), main = "KL divergence (Uniform model)")
+abline(h = kld_true, lty = 2)
+```
+
+$\Rightarrow$ also not in the uniform model.
+
+

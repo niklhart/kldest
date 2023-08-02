@@ -1,0 +1,175 @@
+---
+title: "Uncertainty estimation for KLD"
+author: "Niklas Hartung"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Loading required packages:
+
+```{r}
+library(kldest)
+library(ggplot2)
+set.seed(0)
+```
+
+
+We investigate the following pairs of distributions,
+for which analytical KL divergence values are known:
+
+* $\mathcal{N}(0,1)$ vs. $\mathcal{N}(1,2^2)$,
+* $\mathcal{U}(1,2)$ vs. $\mathcal{U}(0,4)$,
+* $\text{Exp}(1)$ vs. $\text{Exp}(12)$.
+
+```{r}
+p <- list(
+    gaussian    = list(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2),
+    uniform     = list(a1 = 1, b1 = 2, a2 = 0, b2 = 4),
+    exponential = list(lambda1 = 1, lambda2 = 1/12)
+)
+distributions <- list(
+    gaussian = list(
+        samples = function(n, m) {
+            X <- rnorm(n, mean = p$gaussian$mu1, sd = sqrt(p$gaussian$sigma1))
+            Y <- rnorm(m, mean = p$gaussian$mu2, sd = sqrt(p$gaussian$sigma2))
+            list(X = X, Y = Y)
+        },
+        kld = do.call(kld_gaussian, p$gaussian)
+    ),
+    uniform = list( 
+        samples = function(n, m) {
+            X <- runif(n, min = p$uniform$a1, max = p$uniform$b1)
+            Y <- runif(m, min = p$uniform$a2, max = p$uniform$b2)
+            list(X = X, Y = Y)
+        },
+        kld = do.call(kld_uniform, p$uniform)
+    ),
+    exponential = list(
+        samples = function(n, m) {
+            X <- rexp(n, rate = p$exponential$lambda1)
+            Y <- rexp(m, rate = p$exponential$lambda2)
+            list(X = X, Y = Y)
+        },
+        kld = do.call(kld_exponential, p$exponential)
+    )
+)
+```
+
+Analytical values for Kullback-Leibler divergences in test cases:
+
+```{r}
+vapply(distributions, function(x) x$kld, 1)
+```
+
+### Simulation scenarios
+
+For each of the distributions specified above, samples of different sizes are 
+drawn, with several replicates per distribution and sample size.
+
+```{r}
+samplesize <- c(10,100,1000,10000)
+nRep       <- 200L
+
+scenarios <- combinations(
+    distribution = names(distributions),
+    sample.size  = samplesize,
+    replicate    = 1:nRep
+)
+```
+
+### Algorithms
+
+The following algorithms are considered:
+
+```{r}
+algorithms <- list(
+    nn_1     = kld_est_1nn
+)
+nAlgo   <- length(algorithms)
+```
+
+## Uncertainty quantification of estimators
+
+```{r}
+# allocating results matrices
+nscenario  <- nrow(scenarios)
+covered <- matrix(nrow = nscenario, 
+                  ncol = nAlgo, 
+                  dimnames = list(NULL, names(algorithms)))
+
+for (i in 1:nscenario) {
+
+    dist <- scenarios$distribution[i]
+    n    <- scenarios$sample.size[i]
+    
+    samples <- distributions[[dist]]$sample(n = n, m = n)
+    kld     <- distributions[[dist]]$kld
+    
+    X <- samples$X
+    Y <- samples$Y
+    
+    # different algorithms are evaluated on the same samples
+    for (j in 1:nAlgo) {
+        kldboot <- kld_ci_subboot(X, Y, estimator = algorithms[[j]], B = 200L, size = sqrt)
+        covered[i,j] <- kldboot$ci[1] <= kld && kld <= kldboot$ci[2]
+    }
+}
+```
+
+Combine scenarios with CI coverage information:
+
+```{r}
+results <- cbind(scenarios, covered) |> reshape2::melt(measure.vars = names(algorithms),
+                                                    value.name = "covered",
+                                                    variable.name = "algorithm") 
+```
+
+Compute coverage per sample size / algorithm / distribution:
+
+```{r}
+coverage <- reshape2::dcast(results, sample.size + algorithm + distribution ~ ., 
+                value.var = "covered", fun.aggregate = mean)
+names(coverage)[4] <- "coverage"
+```
+
+```{r}
+ggplot(coverage, aes(x=sample.size, y = coverage, color = algorithm)) + 
+    facet_wrap("distribution") +
+    geom_line() + 
+    scale_x_log10() +
+    geom_hline(yintercept = 0.95, lty = 2)
+```
+
+## For comparison: the current approach
+
+Currently, we resample from $\hat Q$, but leave the sample $X$ as is. For proof
+of concept, I use the Gaussian scenario and estimate $\hat Q$ to be a Gaussian, 
+too.
+
+```{r}
+n <- 1000
+covered_approx <- numeric(nRep)
+for (i in 1:nRep) {
+    Xi <- rnorm(n = n)
+    kld_approx <- numeric(nRep)
+    for (j in 1:nRep) {
+        Yij <- rnorm(n = n, mean = 1, sd = 2)
+        kld_approx[j] <- algorithms$nn_1(Xi, Yij)
+    }
+    ci <- quantile(kld_approx, c(0.025, 0.975))
+    kl_true <- distributions$gaussian$kld 
+    covered_approx[i] <- ci[1] <= kl_true && kl_true <= ci[2]
+}
+coverage <- mean(covered_approx)
+coverage
+```
+
+$\Rightarrow$ in this easy example, coverage is quite good (indeed, better than
+the one obtained using the subsampling bootstrap!)... maybe combine the two? 
+I.e., subsampling bootstrap for `X` and sampling from the fitted distribution for 
+`Y`?
+

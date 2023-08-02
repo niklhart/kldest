@@ -12,10 +12,10 @@
 #' @return A scalar (the Kullback-Leibler divergence)
 #' @export
 #' @examples
-#' kl_div_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
-#' kl_div_gaussian(mu1 = rep(0,2), sigma1 = diag(2),
+#' kld_gaussian(mu1 = 1, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
+#' kld_gaussian(mu1 = rep(0,2), sigma1 = diag(2),
 #'                 mu2 = rep(1,2), sigma2 = matrix(c(1,0.5,0.5,1), nrow = 2))
-kl_div_gaussian <- function(mu1, sigma1, mu2, sigma2) {
+kld_gaussian <- function(mu1, sigma1, mu2, sigma2) {
 
     sigma1 <- as.matrix(sigma1)
     sigma2 <- as.matrix(sigma2)
@@ -42,11 +42,30 @@ kl_div_gaussian <- function(mu1, sigma1, mu2, sigma2) {
 #' @returns A scalar (the Kullback-Leibler divergence)
 #' @export
 #' @examples
-#' kl_div_exponential(lambda1 = 1, lambda2 = 2)
-kl_div_exponential <- function(lambda1, lambda2) {
+#' kld_exponential(lambda1 = 1, lambda2 = 2)
+kld_exponential <- function(lambda1, lambda2) {
 
     log(lambda1) - log(lambda2) + lambda2 / lambda1 - 1
 
+}
+
+
+#' Analytical KL divergence for two uniform distributions
+#'
+#' This function computes \eqn{D_{KL}(p||q)}, where \eqn{p\sim \text{U}(a_1,b_1)}
+#' and \eqn{q\sim \text{U}(a_2,b_2)}, with \eqn{a_2<a_1<b_1<b_2}.
+#'
+#' @param a1,a2 Range of true uniform distribution
+#' @param lambda2 Range of approximate uniform distribution
+#' @returns A scalar (the Kullback-Leibler divergence)
+#' @export
+#' @examples
+#' kld_uniform(a1 = 0, b1 = 1, a2 = 0, b2 = 2)
+kld_uniform <- function(a1, b1, a2, b2) {
+
+    stopifnot(a1 < b1, a2 <= a1, b2 >= b1)
+
+    log((b2-a2)/(b1-a1))
 }
 
 #' Analytical KL divergence for two discrete distributions
@@ -64,9 +83,9 @@ kl_div_exponential <- function(lambda1, lambda2) {
 #' # The above example in 2-D
 #' P <- matrix(1:4/10,nrow=2)
 #' Q <- matrix(0.25,nrow=2,ncol=2)
-#' kl_div_discrete(P,Q)
+#' kld_discrete(P,Q)
 #'
-kl_div_discrete <- function(P,Q) {
+kld_discrete <- function(P,Q) {
 
     # Input checking
     P <- as.array(P)
@@ -79,4 +98,6 @@ kl_div_discrete <- function(P,Q) {
     posP <- P > 0
     sum(P[posP] * log(P[posP]/Q[posP]))
 }
+
+
 
