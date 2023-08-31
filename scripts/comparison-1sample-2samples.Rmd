@@ -169,7 +169,9 @@ ggplot2::ggplot(results, aes(x=sample.size, y=kld, color=algorithm)) +
 ```
 
 $\Rightarrow$ the 1-sample version has lower variance, but seems to be inconsistent! 
-I haven't yet fully understood why this is the case.
+I haven't yet fully understood why this is the case. Interestingly, independent
+of sample size and of the underlying distribution, the bias is always approximately
+$+0.6$.
 
 ### Runtime of KL divergence estimators
 
@@ -246,5 +248,108 @@ abline(h = kld_true, lty = 2)
 ```
 
 $\Rightarrow$ also not in the uniform model.
+
+### Exponential model
+
+```{r}
+set.seed(0)
+n <- 100
+m <- 100000
+
+nRep <- 50
+
+Xfun <- function() rexp(n = n, rate = 1)
+Yfun <- function() rexp(n = m, rate = 1/12)
+q    <- function(x) dexp(x, rate = 1/12)
+
+kld_true <- kld_exponential(lambda1 = 1, lambda2 = 1/12)
+kld_XY <- numeric(nRep)    
+kld_Xq <- numeric(nRep)    
+for (i in 1:nRep) {
+    X <- Xfun()
+    Y <- Yfun()
+    kld_XY[i] <- kld_est_1nn(X, Y)
+    kld_Xq[i] <- kld_est_1nn_1sample(X, q)
+}
+# graphics
+boxplot(cbind(XY = kld_XY, Xq = kld_Xq), main = "KL divergence (Exponential model)")
+abline(h = kld_true, lty = 2)
+```
+
+$\Rightarrow$ this is not the case!
+
+
+## One sample k-NN variant (k>1)
+
+### Gaussian model
+
+```{r}
+set.seed(0)
+n <- 100
+m <- 100000
+
+nRep <- 50
+
+Xfun <- function() rnorm(n = n, mean = 0, sd = 1)
+Yfun <- function() rnorm(n = m, mean = 1, sd = 2)
+q    <- function(x) dnorm(x, mean = 1, sd = 2)
+
+kld_true <- kld_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
+kld_XY <- numeric(nRep)    
+kld_Xq <- numeric(nRep)    
+for (i in 1:nRep) {
+    X <- Xfun()
+    Y <- Yfun()
+    kld_XY[i] <- kld_est_1nn(X, Y)
+    kld_Xq[i] <- kld_est_knn_1sample(X, q, k = 2)
+}
+# graphics
+boxplot(cbind(XY = kld_XY, Xq = kld_Xq), main = "KL divergence (Gaussian model)")
+abline(h = kld_true, lty = 2)
+```
+
+$\Rightarrow$ only getting workse with $k>1$...
+
+
+
+## In-depth analysis of NN-density estimation
+
+Scenario to simulate
+
+```{r}
+n <- 100000
+d <- 1
+X <- rnorm(n)
+p <- dnorm
+```
+
+Helper function defining the k-NN density, smoothed via a LOESS smoother,
+for graphical display:
+
+```{r}
+smoothdens <- function(X, k) {
+    X <- as.matrix(X)
+    r_k <- RANN::nn2(X, X, k = k+1, eps = .01)$nn.dists[ ,k+1] 
+    log_pX <- log(k) - log(n-1) + lgamma(0.5*d+1) - 0.5*d*log(pi) - d*log(r_k)
+    log_pXl <- loess.smooth(X, log_pX)
+    do.call(approxfun,log_pXl)
+}
+```
+
+Compare the results for different values of `k`:
+
+```{r}
+log_p1 <- smoothdens(X, k = 1)
+log_p10 <- smoothdens(X, k = 10)
+```
+
+
+```{r}
+x <- seq(-2,2,by = 0.1)
+plot(x, p(x), type = "l", ylim = c(0,0.6))
+lines(x, exp(log_p1(x)), col = "red")
+lines(x, exp(log_p10(x)), col = "blue")
+```
+
 
 

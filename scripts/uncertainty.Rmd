@@ -72,7 +72,7 @@ drawn, with several replicates per distribution and sample size.
 
 ```{r}
 samplesize <- c(10,100,1000,10000)
-nRep       <- 200L
+nRep       <- 100L
 
 scenarios <- combinations(
     distribution = names(distributions),
@@ -81,15 +81,27 @@ scenarios <- combinations(
 )
 ```
 
-### Algorithms
+### Algorithms & bootstrap methods
 
 The following algorithms are considered:
 
 ```{r}
 algorithms <- list(
-    nn_1     = kld_est_1nn
+    nn1  = kld_est_1nn,
+    kde1 = kld_est_kde1
 )
 nAlgo   <- length(algorithms)
+```
+
+Choose the bootstrap method to be considered:
+
+```{r}
+resampling_method <- "subsampling"
+#resampling_method <- "bootstrap"
+resampling_fun <- switch(resampling_method,
+       bootstrap   = kld_ci_bootstrap,
+       subsampling = function(...) kld_ci_subsampling(..., size = sqrt)
+)
 ```
 
 ## Uncertainty quantification of estimators
@@ -114,7 +126,7 @@ for (i in 1:nscenario) {
     
     # different algorithms are evaluated on the same samples
     for (j in 1:nAlgo) {
-        kldboot <- kld_ci_subboot(X, Y, estimator = algorithms[[j]], B = 200L, size = sqrt)
+        kldboot <- resampling_fun(X, Y, estimator = algorithms[[j]], B = 500L)
         covered[i,j] <- kldboot$ci[1] <= kld && kld <= kldboot$ci[2]
     }
 }
@@ -132,7 +144,7 @@ Compute coverage per sample size / algorithm / distribution:
 
 ```{r}
 coverage <- reshape2::dcast(results, sample.size + algorithm + distribution ~ ., 
-                value.var = "covered", fun.aggregate = mean)
+                value.var = "covered", fun.aggregate = function(x) mean(x, na.rm = TRUE))
 names(coverage)[4] <- "coverage"
 ```
 
@@ -141,8 +153,16 @@ ggplot(coverage, aes(x=sample.size, y = coverage, color = algorithm)) +
     facet_wrap("distribution") +
     geom_line() + 
     scale_x_log10() +
-    geom_hline(yintercept = 0.95, lty = 2)
+    geom_hline(yintercept = 0.95, lty = 2) + 
+    ggtitle(paste("Resampling method:",resampling_method)) +
+    theme(plot.title = element_text(hjust = 0.5))
 ```
+
+$\Rightarrow$ the subsampling bootstrap works well for the 1-NN estimator! 
+For all three scenarios, the asymptotic nominal level is approximately held for
+the largest sample size.
+In contrast, for KDE it doesn't work well. This is most likely caused by the 
+biased estimates of this method for the non-Gaussian cases.
 
 ## For comparison: the current approach
 
@@ -158,7 +178,7 @@ for (i in 1:nRep) {
     kld_approx <- numeric(nRep)
     for (j in 1:nRep) {
         Yij <- rnorm(n = n, mean = 1, sd = 2)
-        kld_approx[j] <- algorithms$nn_1(Xi, Yij)
+        kld_approx[j] <- algorithms$nn1(Xi, Yij)
     }
     ci <- quantile(kld_approx, c(0.025, 0.975))
     kl_true <- distributions$gaussian$kld 
@@ -168,8 +188,6 @@ coverage <- mean(covered_approx)
 coverage
 ```
 
-$\Rightarrow$ in this easy example, coverage is quite good (indeed, better than
-the one obtained using the subsampling bootstrap!)... maybe combine the two? 
-I.e., subsampling bootstrap for `X` and sampling from the fitted distribution for 
-`Y`?
+$\Rightarrow$ in this easy example, coverage is quite good (indeed, similar to 
+the nominal one!)
 

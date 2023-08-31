@@ -34,3 +34,41 @@ kld_est_1nn_1sample <- function(X, q) {
 
     return (mean(log_phat_X-log_q_X))
 }
+
+
+#' Single-sample version of the k-NN divergence estimator from Wang et al. (2009).
+#'
+#' This function experiments with partial nearest-neighbour estimation, i.e.
+#' only for p, but not for q, which may be available analytically (the estimated
+#' approximate model). For now, it really doesn't work well.
+#'
+#' @param X An `n`-by-`d` matrix, representing `n` samples from the true
+#'    distribution \eqn{P} in `d` dimensions. Vector input is treated as a
+#'    column matrix.
+#' @param q The density of the approximate model \eqn{Q}.
+#' @param k The number of neighbours to consider (default: `k=1`).
+#' @examples
+#' X <- rnorm(100)
+#' Y <- rnorm(100, mean = 1, sd = 2)
+#' q <- function(x) dnorm(x, mean = 1, sd = 2)
+#' kld_gaussian(0,1,1,2^2)
+#' kld_est_1nn(X, Y)
+#' kld_est_knn_1sample(X, q, k = 10)
+#' @returns A scalar, the estimated Kullback-Leibler divergence \eqn{D_{KL}(P||Q)}.
+#' @export
+kld_est_knn_1sample <- function(X, q, k = 1L) {
+
+    # get important dimensions
+    X <- as.matrix(X)
+    d <- ncol(X) # number of dimensions, must be the same in X and Y
+    n <- nrow(X) # number of samples in X
+
+    if (n < k+1)
+    # get distances to nearest neighbors from kdTree using nn2 from the RANN package
+    r <- RANN::nn2(X, X, k = k+1, eps = .01)$nn.dists[ ,k+1]
+
+    log_phat_X <- log(k) - log(n-1) + lgamma(0.5*d+1) - 0.5*d*log(pi) - d*log(r)
+    log_q_X    <- log(apply(X, MARGIN = 1, FUN = q))
+
+    return (mean(log_phat_X-log_q_X))
+}

@@ -78,3 +78,4 @@ combinations <- function(...) {
     do.call(data.frame,comb)
 }
 
+

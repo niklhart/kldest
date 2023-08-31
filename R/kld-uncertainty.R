@@ -1,10 +1,87 @@
 # Assessing uncertainty of KL-divergence estimation
 
-# .632 bootstrapping?
-# sampling from distributions (in particular q)?
-# combination of both?
+#' Uncertainty of KL divergence estimate using Efron's bootstrap.
+#'
+#' This function computes a confidence interval for KL divergence based on the
+#' basic bootstrap by Efron. Currently, this only works reliably for kernel
+#' density-based estimators since nearest neighbour-based estimators cannot deal
+#' with the ties produced by sampling with replacement.
+#' Jittering is tried as a means to circumvent this, but current results are not
+#' convincing.
+#'
+#' @param X,Y `n`-by-`d` and `m`-by-`d` matrices, representing `n` samples from
+#'    the true distribution \eqn{P} and `m` samples from the approximate distribution
+#'    \eqn{Q}, both in `d` dimensions. Vector input is treated as a column matrix.
+#' @param estimator A function expecting two inputs `X` and `Y`, the
+#'     Kullback-Leibler divergence estimation method. Defaults to `kld_est_1nn`.
+#' @param B Number of bootstrap replicates (default: `100`), the larger, the
+#'     more accurate, but also more computationally expensive.
+#' @param alpha Error level, defaults to `0.05`.
+#' @param do.jitter (experimental feature) A boolean: should data points be
+#'     jittered with `base::jitter` to break ties (default: `FALSE`)?
+#'     For nearest neighbour-based estimators, `do.jitter` must be set to `TRUE`
+#'     since the KL divergence estimates on the bootstrap samples will be infinite
+#'     otherwise. However, even  `do.jitter = TRUE` doesn't produce satisfactory
+#'     results currently.
+#' @returns A list with the fields `"kld"` (the estimated KL divergence),
+#'    `"boot"` (a length `B` numeric vector with KL divergence estimates on
+#'    the bootstrap subsamples), and `"ci"` (a length `2` vector containing the
+#'    lower and upper limits of the estimated confidence interval).
+#' @examples
+#' # 1D Gaussian
+#' X <- rnorm(100)
+#' Y <- rnorm(100, mean = 1, sd = 2)
+#' kld_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
+#' kld_est_1nn(X, Y)
+#' kld_ci_bootstrap(X, Y)
+#' kld_ci_bootstrap(X, Y, estimator = kld_est_1nn, do.jitter = FALSE)
+#' kld_ci_bootstrap(X, Y, estimator = kld_est_1nn, do.jitter = TRUE)
+#'
+#' @export
+kld_ci_bootstrap <- function(X, Y, estimator = kld_est_kde1, B = 100L, alpha = 0.05,
+                             do.jitter = FALSE) {
 
-#' Uncertainty of KL divergence estimate using the subsampling bootstrap.
+    X <- as.matrix(X)
+    Y <- as.matrix(Y)
+
+    n <- nrow(X)
+    m <- nrow(Y)
+    d <- ncol(X)
+
+
+    sd_X <- apply(X, MARGIN = 2, FUN = sd)
+    sd_Y <- apply(Y, MARGIN = 2, FUN = sd)
+
+    # experimental feature: jittering (for NN-based estimators)
+    if (do.jitter) {
+        tmp_est <- force(estimator)
+        estimator <- function(X, Y) tmp_est(jitter(X), jitter(Y))
+    }
+
+    kld_hat <- estimator(X,Y)
+    kld_boot <- numeric(B)
+
+    for (b in 1:B) {
+        iX <- sample.int(n, replace = TRUE)
+        iY <- sample.int(m, replace = TRUE)
+
+        kld_boot[b] <- estimator(X[iX, ], Y[iY, ])
+    }
+
+    # computation of confidence levels
+    q_boot <- quantile(kld_boot, probs = c(1-alpha/2, alpha/2), na.rm = TRUE)
+    ci_boot <- 2*kld_hat - q_boot
+
+    list(
+        dir  = kld_hat,
+        boot = kld_boot,
+        ci   = ci_boot
+    )
+}
+
+
+
+#' Uncertainty of KL divergence estimate using Politis/Romano's subsampling bootstrap.
 #'
 #' This function computes a confidence interval for KL divergence based on the
 #' subsampling bootstrap by Politis and Romano. The calculated interval has
@@ -18,7 +95,7 @@
 #' @param X,Y `n`-by-`d` and `m`-by-`d` matrices, representing `n` samples from
 #'    the true distribution \eqn{P} and `m` samples from the approximate distribution
 #'    \eqn{Q}, both in `d` dimensions. Vector input is treated as a column matrix.
-#' @param estimator A function handle expecting two inputs `X` and `Y`, the
+#' @param estimator A function expecting two inputs `X` and `Y`, the
 #'     Kullback-Leibler divergence estimation method. Defaults to `kld_est_1nn`.
 #' @param B Number of bootstrap replicates (default: `100`), the larger, the
 #'     more accurate, but also more computationally expensive.
@@ -26,7 +103,7 @@
 #' @param size A function specifying the size of the subsamples, defaults to
 #'     \eqn{f(x) = x^{2/3}}.
 #' @param rate A function computing the convergence rate of the estimator as a
-#'     function of sample sizes. Defaults to `sqrt`.
+#'     function of sample sizes. Defaults to \eqn{f(x) = x^{1/2}}.
 #' @returns A list with the fields `"kld"` (the estimated KL divergence),
 #'    `"boot"` (a length `B` numeric vector with KL divergence estimates on
 #'    the bootstrap subsamples), and `"ci"` (a length `2` vector containing the
@@ -37,11 +114,11 @@
 #' Y <- rnorm(100, mean = 1, sd = 2)
 #' kld_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
 #' kld_est_1nn(X, Y)
-#' kld_ci_subboot(X, Y)
+#' kld_ci_subsampling(X, Y)
 #'
 #' @export
-kld_ci_subboot <- function(X, Y, estimator = kld_est_1nn, B = 100L, alpha = 0.05,
-                           size = function(x) x^(2/3), rate = sqrt) {
+kld_ci_subsampling <- function(X, Y, estimator = kld_est_1nn, B = 100L, alpha = 0.05,
+                               size = function(x) x^(2/3), rate = sqrt) {
 
     X <- as.matrix(X)
     Y <- as.matrix(Y)
