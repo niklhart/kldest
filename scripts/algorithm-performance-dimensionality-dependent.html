@@ -11,9 +11,9 @@
 
 <meta name="author" content="Niklas Hartung" />
 
-<meta name="date" content="2023-08-02" />
+<meta name="date" content="2023-09-01" />
 
-<title>Algorithm performance in large dimensions</title>
+<title>Algorithm performance in large dimensions (two samples)</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -350,10 +350,10 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Algorithm performance in large
-dimensions</h1>
+<h1 class="title toc-ignore">Algorithm performance in large dimensions
+(two samples)</h1>
 <h4 class="author">Niklas Hartung</h4>
-<h4 class="date">2023-08-02</h4>
+<h4 class="date">2023-09-01</h4>
 
 </div>
 
@@ -378,7 +378,7 @@ for (i in seq_along(n)) {
     for (j in 1:nrep) {
         X &lt;- as.matrix(rexp(n = n[i], rate = lambda1))
         Y &lt;- as.matrix(rexp(n = n[i], rate = lambda2))
-        kld[j,i] &lt;- kld_est_1nn(X, Y)
+        kld[j,i] &lt;- kld_est_nn(X, Y)
     }
 }</code></pre>
 <p>Plotting</p>
@@ -417,7 +417,7 @@ for (i in seq_along(n)) {
     for (j in 1:nrep) {
         X &lt;- MASS::mvrnorm(n = n[i], mu = paramTrue$mu,   Sigma = paramTrue$sigma)
         Y &lt;- MASS::mvrnorm(n = n[i], mu = paramApprox$mu, Sigma = paramApprox$sigma)
-        kld[j,i] &lt;- kld_est_1nn(X, Y)
+        kld[j,i] &lt;- kld_est_nn(X, Y)
     }
 }</code></pre>
 <p>Plotting</p>
@@ -456,7 +456,7 @@ for (i in seq_along(n)) {
     for (j in 1:nrep) {
         X &lt;- MASS::mvrnorm(n = n[i], mu = paramTrue$mu,   Sigma = paramTrue$sigma)
         Y &lt;- MASS::mvrnorm(n = n[i], mu = paramApprox$mu, Sigma = paramApprox$sigma)
-        kld[j,i] &lt;- kld_est_1nn(X, Y)
+        kld[j,i] &lt;- kld_est_nn(X, Y)
     }
 }</code></pre>
 <p>Plotting</p>
@@ -497,8 +497,8 @@ for (i in seq_along(n)) {
     for (j in 1:nrep) {
         X &lt;- MASS::mvrnorm(n = n[i], mu = paramTrue$mu,   Sigma = paramTrue$sigma)
         Y &lt;- MASS::mvrnorm(n = n[i], mu = paramApprox$mu, Sigma = paramApprox$sigma)
-        kld1[j,i] &lt;- kld_est_1nn(X, Y)
-        kld2[j,i] &lt;- kld_est_gknn(X, Y, max.k = min(n[i]-1,50), warn.max.k = FALSE)
+        kld1[j,i] &lt;- kld_est_nn(X, Y)
+        kld2[j,i] &lt;- kld_est_brnn(X, Y, max.k = min(n[i]-1,50), warn.max.k = FALSE)
     }
 }</code></pre>
 <p>Plotting</p>

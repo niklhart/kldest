@@ -41,6 +41,7 @@ distributions <- list(
             Y <- rnorm(m, mean = p$gaussian$mu2, sd = sqrt(p$gaussian$sigma2))
             list(X = X, Y = Y)
         },
+        q = function(x) dnorm(x, mean = p$gaussian$mu2, sd = sqrt(p$gaussian$sigma2)),
         kld = do.call(kld_gaussian, p$gaussian)
     ),
     uniform = list( 
@@ -49,6 +50,7 @@ distributions <- list(
             Y <- runif(m, min = p$uniform$a2, max = p$uniform$b2)
             list(X = X, Y = Y)
         },
+        q = function(x) dunif(x, min = p$uniform$a2, max = p$uniform$b2),
         kld = do.call(kld_uniform, p$uniform)
     ),
     exponential = list(
@@ -57,6 +59,7 @@ distributions <- list(
             Y <- rexp(m, rate = p$exponential$lambda2)
             list(X = X, Y = Y)
         },
+        q = function(x) dexp(x, rate = p$exponential$lambda2),
         kld = do.call(kld_exponential, p$exponential)
     )
 )
@@ -89,19 +92,17 @@ scenarios <- combinations(
 The following algorithms are considered:
 
 ```{r}
-algorithms <- list(
-    nn1_XY     = kld_est_1nn,
-    nn1_X_expo = function(X, Y) {
-        kld_est_1nn_1sample(X, q = function(x) dexp(x, rate = p$exponential$lambda2))
-    },
-    nn1_X_gauss = function(X, Y) {
-        kld_est_1nn_1sample(X, q = function(x) dnorm(x, mean = p$gaussian$mu2, sd = sqrt(p$gaussian$sigma2)))
-    },
-    nn1_X_unif = function(X, Y) {
-        kld_est_1nn_1sample(X, q = function(x) dunif(x, min = p$uniform$a2, max = p$uniform$b2))
-    }
+algorithms_XY <- list(
+    nn1_XY     = function(X, q) kld_est_nn(X, Y, k = 1L),
+    nn2_XY     = function(X, Y) kld_est_nn(X, Y, k = 2L)
 )
-nAlgo   <- length(algorithms)
+algorithms_Xq <- list(
+    nn1_Xq = function(X, q) kld_est_nn(X, q, k = 1L),
+    nn2_Xq = function(X, q) kld_est_nn(X, q, k = 2L)
+)
+nAlgoXY  <- length(algorithms_XY)
+nAlgoXq  <- length(algorithms_Xq)
+nmAlgo   <- c(names(algorithms_XY),names(algorithms_Xq))
 ```
 
 ## Run the simulation study 
@@ -110,8 +111,8 @@ nAlgo   <- length(algorithms)
 # allocating results matrices
 nscenario  <- nrow(scenarios)
 runtime <- kld <- matrix(nrow = nscenario, 
-                         ncol = nAlgo, 
-                         dimnames = list(NULL, names(algorithms)))
+                         ncol = nAlgoXY+nAlgoXq, 
+                         dimnames = list(NULL, nmAlgo))
 
 for (i in 1:nscenario) {
 
@@ -121,14 +122,23 @@ for (i in 1:nscenario) {
     samples <- distributions[[dist]]$sample(n = n, m = n)
     X <- samples$X
     Y <- samples$Y
-    
+    q <- distributions[[dist]]$q
+
     # different algorithms are evaluated on the same samples
-    for (j in 1:nAlgo) {
-        algo         <- algorithms[[j]]
+    for (j in 1:nAlgoXY) {
+        algo         <- algorithms_XY[[j]]
         start_time   <- Sys.time()
         kld[i,j]     <- algo(X, Y)
         end_time     <- Sys.time()
         runtime[i,j] <- end_time - start_time
+    }
+    for (j in 1:nAlgoXq) {
+        nj            <- nAlgoXY+j
+        algo          <- algorithms_Xq[[j]]
+        start_time    <- Sys.time()
+        kld[i,nj]     <- algo(X, q)
+        end_time      <- Sys.time()
+        runtime[i,nj] <- end_time - start_time
     }
 }
 ```
@@ -137,10 +147,10 @@ Post-processing: combine `scenarios`, `kld` and `runtime` into a single
 data frame
 
 ```{r}
-tmp1 <- cbind(scenarios, kld) |> reshape2::melt(measure.vars = names(algorithms),
-                                                    value.name = "kld",
-                                                    variable.name = "algorithm") 
-tmp2 <- cbind(scenarios, runtime) |> reshape2::melt(measure.vars = names(algorithms),
+tmp1 <- cbind(scenarios, kld) |> reshape2::melt(measure.vars = nmAlgo,
+                                                value.name = "kld",
+                                                variable.name = "algorithm") 
+tmp2 <- cbind(scenarios, runtime) |> reshape2::melt(measure.vars = nmAlgo,
                                                     value.name = "runtime",
                                                     variable.name = "algorithm") 
 results <- merge(tmp1,tmp2)
@@ -168,10 +178,7 @@ ggplot2::ggplot(results, aes(x=sample.size, y=kld, color=algorithm)) +
 
 ```
 
-$\Rightarrow$ the 1-sample version has lower variance, but seems to be inconsistent! 
-I haven't yet fully understood why this is the case. Interestingly, independent
-of sample size and of the underlying distribution, the bias is always approximately
-$+0.6$.
+$\Rightarrow$ the 1-sample version has lower variance, as expected.
 
 ### Runtime of KL divergence estimators
 
@@ -183,7 +190,7 @@ ggplot2::ggplot(results, aes(x=sample.size, y=runtime, color=algorithm)) +
     xlab("Sample sizes") + ylab("Runtime [sec]") + ggtitle("Runtime of different algorithms")
 ```
 
-$\Rightarrow$ There is no benefit of 1-sample estimation in terms of runtime, either.
+$\Rightarrow$ Runtime is slightly larger for 1-sample estimation.
 
 
 ## Comparison: `X` and `Y` with `m` large vs. `X` and `q`
@@ -210,22 +217,22 @@ kld_Xq <- numeric(nRep)
 for (i in 1:nRep) {
     X <- Xfun()
     Y <- Yfun()
-    kld_XY[i] <- kld_est_1nn(X, Y)
-    kld_Xq[i] <- kld_est_1nn_1sample(X, q)
+    kld_XY[i] <- kld_est_nn(X, Y = Y)
+    kld_Xq[i] <- kld_est_nn(X, q = q)
 }
 # graphics
 boxplot(cbind(XY = kld_XY, Xq = kld_Xq), main = "KL divergence (Gaussian model)")
 abline(h = kld_true, lty = 2)
 ```
 
-$\Rightarrow$ this is not the case!
+$\Rightarrow$ OK!
 
 ### Uniform model
 
 ```{r}
 set.seed(0)
-n <- 1000
-m <- 1000
+n <- 100
+m <- 100000
 
 nRep <- 50
 
@@ -239,15 +246,15 @@ kld_Xq <- numeric(nRep)
 for (i in 1:nRep) {
     X <- Xfun()
     Y <- Yfun()
-    kld_XY[i] <- kld_est_1nn(X, Y)
-    kld_Xq[i] <- kld_est_1nn_1sample(X, q)
+    kld_XY[i] <- kld_est_nn(X, Y = Y)
+    kld_Xq[i] <- kld_est_nn(X, q = q)
 }
 # graphics
 boxplot(cbind(XY = kld_XY, Xq = kld_Xq), main = "KL divergence (Uniform model)")
 abline(h = kld_true, lty = 2)
 ```
 
-$\Rightarrow$ also not in the uniform model.
+$\Rightarrow$ OK!
 
 ### Exponential model
 
@@ -268,15 +275,15 @@ kld_Xq <- numeric(nRep)
 for (i in 1:nRep) {
     X <- Xfun()
     Y <- Yfun()
-    kld_XY[i] <- kld_est_1nn(X, Y)
-    kld_Xq[i] <- kld_est_1nn_1sample(X, q)
+    kld_XY[i] <- kld_est_nn(X, Y = Y)
+    kld_Xq[i] <- kld_est_nn(X, q = q)
 }
 # graphics
 boxplot(cbind(XY = kld_XY, Xq = kld_Xq), main = "KL divergence (Exponential model)")
 abline(h = kld_true, lty = 2)
 ```
 
-$\Rightarrow$ this is not the case!
+$\Rightarrow$ OK!
 
 
 ## One sample k-NN variant (k>1)
@@ -300,15 +307,15 @@ kld_Xq <- numeric(nRep)
 for (i in 1:nRep) {
     X <- Xfun()
     Y <- Yfun()
-    kld_XY[i] <- kld_est_1nn(X, Y)
-    kld_Xq[i] <- kld_est_knn_1sample(X, q, k = 2)
+    kld_XY[i] <- kld_est_nn(X, Y = Y, k = 2)
+    kld_Xq[i] <- kld_est_nn(X, q = q, k = 2)
 }
 # graphics
 boxplot(cbind(XY = kld_XY, Xq = kld_Xq), main = "KL divergence (Gaussian model)")
 abline(h = kld_true, lty = 2)
 ```
 
-$\Rightarrow$ only getting workse with $k>1$...
+$\Rightarrow$ ...
 
 
 

@@ -1,4 +1,34 @@
-# Kullback-Leibler divergence estimators for mixed continuous/discrete distributions
+# Interfaces for Kullback-Leibler divergence estimation
+
+#' Kullback-Leibler divergence estimation between continuous distributions
+#'
+#' This function is an interface to several different estimation methods for
+#' Kullback-Leibler divergence \eqn{D_{KL}(P||Q)} between two continuous
+#' distributions \eqn{P} and \eqn{Q} based on a sample `X` from \eqn{P} and
+#' either the density function `q` of \eqn{Q} (one-sample problem) or a sample
+#' `Y` of \eqn{Q} (two-sample problem).
+#'
+#' @param method The estimation method to be used, either `nn` for nearest-neighbour
+#'    based estimation (the default), `gnn` for generalized nearest neightbour
+#'    estimation, `brnn` for bias-reduced generalized nearest neighbour estimation,
+#'    `kde1` for kernel density based estimation in 1D or `kde2` for kernel density
+#'    based estimation in 2D. The last option requires package `KernSmooth`
+#'    to be installed.
+#' @param ... Arguments to be passed to the respective method (see links below).
+#' @returns A scalar, the estimated Kullback-Leibler divergence \eqn{D_{KL}(P||Q)}.
+#' @example examples/continuous-estimators.R
+#' @seealso [kld_est_nn()], [kld_est_gnn()], [kld_est_brnn()], [kld_est_kde1()],
+#'     [kld_est_kde2()] for
+#' @export
+kld_cont <- function(..., method = c("nn","gnn","brnn","kde1","kde2")) {
+
+    switch(match.arg(method),
+           nn  = kld_est_nn(...),
+           gnn = kld_est_gnn(...),
+           brnn = kld_est_brnn(...),
+           kde1 = kld_est_kde1(...),
+           kde2 = kld_est_kde2(...))
+}
 
 #' Kullback-Leibler divergence estimator for discrete, continuous or mixed data.
 #'
@@ -20,17 +50,13 @@
 #' @param X,Y Data frames or matrices with the same number of columns `d`
 #'    (multivariate samples), or numeric/character vectors (univariate samples,
 #'    i.e. `d=1`).
-#' @param method The estimation method to be used for the continuous variables,
-#'    either `"1nn"` (default) for 1-nearest-neighbour density estimation,
-#'    `"gknn"` for generalized k-nearest-neighbour density estimation
-#'    or `"kde"` for kernel density estimation using a Gaussian kernel.
+#' @param ... Inputs passed on to function [kld_cont()].
 #' @param vartype A length `d` character vector, with `vartype[i] = "c"` meaning
 #'    the `i`-th variable is continuous, and `vartype[i] = "d"` meaning it is
 #'    discrete. If unspecified, `vartype` is `"c"` for numeric columns and `"d"`
 #'    for character or factor columns. This default will not work if levels of
 #'    discrete variables are encoded using numbers (e.g., `0` for females and
 #'    `1` for males) or for count data.
-#' @param ... Inputs passed on to density estimation functions.
 #' @examples
 #' # 2D example
 #' X <- data.frame(cont  = rnorm(10),
@@ -39,7 +65,7 @@
 #'                 discr = c(rep('a',5),rep('b',5)))
 #' kld_est(X,Y)
 #' @export
-kld_est <- function(X, Y, method = c("1nn","gknn","kde"), vartype = NULL, ...) {
+kld_est <- function(X, Y, ..., vartype = NULL) {
 
     # guess vartype from X and Y
     if (is.null(vartype)) {
@@ -54,17 +80,9 @@ kld_est <- function(X, Y, method = c("1nn","gknn","kde"), vartype = NULL, ...) {
         } else stop("Invalid class of input X.")
     }
 
-    # process method argument (not required for discrete variables)
-    if (!all(vartype == "d")) {
-        kld_est_continuous <- switch(match.arg(method),
-                                    "1nn"  = kld_est_1nn,
-                                    "gknn" = kld_est_gknn,
-                                    "kde"  = kld_est_kde)
-    }
-
     # handle all-continuous or all-discrete variable case
     if (all(vartype == "c")) {
-        return(kldest_continuous(X,Y, ...))
+        return(kld_cont(X,Y, ...))
     } else if (all(vartype == "d")) {
         return(kldest_discrete(X, Y))
     }
@@ -80,7 +98,7 @@ kld_est <- function(X, Y, method = c("1nn","gknn","kde"), vartype = NULL, ...) {
     sYcont <- split(Ycont, f = interaction(Ydisc, drop = TRUE))
 
     # compute KL divergence
-    KLcont <- mapply(FUN = kld_est_continuous, X = sXcont, Y = sYcont, MoreArgs = list(...))
+    KLcont <- mapply(FUN = kld_cont, X = sXcont, Y = sYcont, MoreArgs = list(...))
     KLdisc <- kld_est_discrete(Xdisc,Ydisc)
 
     # return compound KL divergence

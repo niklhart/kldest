@@ -8,7 +8,7 @@ kld_ci_bootstrap(
   X,
   Y,
   estimator = kld_est_kde1,
-  B = 100L,
+  B = 500L,
   alpha = 0.05,
   do.jitter = FALSE
 )

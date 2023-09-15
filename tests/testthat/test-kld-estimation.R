@@ -13,8 +13,8 @@ test_that("all estimation algorithms work well in an easy 1D example", {
 
     kld_ref  <- kld_gaussian(mu1 = mu1, sigma1 = sd1^2, mu2 = mu2, sigma2 = sd2^2)
     kld_est1 <- kld_est_kde1(X,Y)
-    kld_est2 <- kld_est_1nn(X,Y)
-    kld_est3 <- kld_est_gknn(X,Y, warn.max.k = FALSE)
+    kld_est2 <- kld_est_nn(X,Y)
+    kld_est3 <- kld_est_brnn(X,Y, warn.max.k = FALSE)
 
     # large tol, to account for estimation variance
     tol <- 0.05
@@ -46,7 +46,7 @@ test_that("The nearest neighbour based estimator agrees with hardcoded results",
     Y <- X+0.5      # same SD as X, and m=n
 
     KL_ref <- 0
-    KL_num <- kld_est_1nn(X, Y)
+    KL_num <- kld_est_nn(X, Y)
 
     expect_equal(KL_ref,KL_num)
 
@@ -54,7 +54,7 @@ test_that("The nearest neighbour based estimator agrees with hardcoded results",
     Y <- c(1.5,3)
 
     KL_ref <- -log(2)
-    KL_num <- kld_est_1nn(X, Y)
+    KL_num <- kld_est_nn(X, Y)
 
     expect_equal(KL_ref,KL_num)
 

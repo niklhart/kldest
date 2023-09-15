@@ -1,5 +1,5 @@
 ---
-title: "Uncertainty estimation for KLD"
+title: "Uncertainty estimation for KL-D, one sample version"
 author: "Niklas Hartung"
 date: "`r Sys.Date()`"
 output: html_document
@@ -33,27 +33,18 @@ p <- list(
 )
 distributions <- list(
     gaussian = list(
-        samples = function(n, m) {
-            X <- rnorm(n, mean = p$gaussian$mu1, sd = sqrt(p$gaussian$sigma1))
-            Y <- rnorm(m, mean = p$gaussian$mu2, sd = sqrt(p$gaussian$sigma2))
-            list(X = X, Y = Y)
-        },
+        sample = function(n) rnorm(n, mean = p$gaussian$mu1, sd = sqrt(p$gaussian$sigma1)),
+        q = function(x) dnorm(x, mean = p$gaussian$mu2, sd = sqrt(p$gaussian$sigma2)),
         kld = do.call(kld_gaussian, p$gaussian)
     ),
     uniform = list( 
-        samples = function(n, m) {
-            X <- runif(n, min = p$uniform$a1, max = p$uniform$b1)
-            Y <- runif(m, min = p$uniform$a2, max = p$uniform$b2)
-            list(X = X, Y = Y)
-        },
+        sample = function(n) runif(n, min = p$uniform$a1, max = p$uniform$b1),
+        q = function(x) dunif(x, min = p$uniform$a2, max = p$uniform$b2),
         kld = do.call(kld_uniform, p$uniform)
     ),
     exponential = list(
-        samples = function(n, m) {
-            X <- rexp(n, rate = p$exponential$lambda1)
-            Y <- rexp(m, rate = p$exponential$lambda2)
-            list(X = X, Y = Y)
-        },
+        sample = function(n) rexp(n, rate = p$exponential$lambda1),
+        q = function(x) dexp(x, rate = p$exponential$lambda2),
         kld = do.call(kld_exponential, p$exponential)
     )
 )
@@ -87,8 +78,8 @@ The following algorithms are considered:
 
 ```{r}
 algorithms <- list(
-    nn1  = kld_est_nn,
-    kde1 = kld_est_kde1
+    nn1  = kld_est_nn#,
+#    kde1 = kld_est_kde1
 )
 nAlgo   <- length(algorithms)
 ```
@@ -100,7 +91,8 @@ resampling_method <- "subsampling"
 #resampling_method <- "bootstrap"
 resampling_fun <- switch(resampling_method,
        bootstrap   = kld_ci_bootstrap,
-       subsampling = function(...) kld_ci_subsampling(..., subsample.size = sqrt)
+#       subsampling = function(...) kld_ci_subsampling(..., subsample.size = sqrt)
+       subsampling = kld_ci_subsampling
 )
 ```
 
@@ -118,15 +110,13 @@ for (i in 1:nscenario) {
     dist <- scenarios$distribution[i]
     n    <- scenarios$sample.size[i]
     
-    samples <- distributions[[dist]]$sample(n = n, m = n)
-    kld     <- distributions[[dist]]$kld
-    
-    X <- samples$X
-    Y <- samples$Y
+    X    <- distributions[[dist]]$sample(n = n)
+    q    <- distributions[[dist]]$q
+    kld  <- distributions[[dist]]$kld
     
     # different algorithms are evaluated on the same samples
     for (j in 1:nAlgo) {
-        kldboot <- resampling_fun(X, Y, estimator = algorithms[[j]], B = 500L)
+        kldboot <- resampling_fun(X, q = q, estimator = algorithms[[j]], B = 500L)
         covered[i,j] <- kldboot$ci[1] <= kld && kld <= kldboot$ci[2]
     }
 }
@@ -161,33 +151,5 @@ ggplot(coverage, aes(x=sample.size, y = coverage, color = algorithm)) +
 $\Rightarrow$ the subsampling bootstrap works well for the 1-NN estimator! 
 For all three scenarios, the asymptotic nominal level is approximately held for
 the largest sample size.
-In contrast, for KDE it doesn't work well. This is most likely caused by the 
-biased estimates of this method for the non-Gaussian cases.
 
-## For comparison: the current approach
-
-Currently, we resample from $\hat Q$, but leave the sample $X$ as is. For proof
-of concept, I use the Gaussian scenario and estimate $\hat Q$ to be a Gaussian, 
-too.
-
-```{r}
-n <- 1000
-covered_approx <- numeric(nRep)
-for (i in 1:nRep) {
-    Xi <- rnorm(n = n)
-    kld_approx <- numeric(nRep)
-    for (j in 1:nRep) {
-        Yij <- rnorm(n = n, mean = 1, sd = 2)
-        kld_approx[j] <- algorithms$nn1(Xi, Yij)
-    }
-    ci <- quantile(kld_approx, c(0.025, 0.975))
-    kl_true <- distributions$gaussian$kld 
-    covered_approx[i] <- ci[1] <= kl_true && kl_true <= ci[2]
-}
-coverage <- mean(covered_approx)
-coverage
-```
-
-$\Rightarrow$ in this easy example, coverage is quite good (indeed, similar to 
-the nominal one!)
 

@@ -6,18 +6,23 @@
 \usage{
 kld_ci_subsampling(
   X,
-  Y,
-  estimator = kld_est_1nn,
-  B = 100L,
+  Y = NULL,
+  q = NULL,
+  estimator = kld_est_nn,
+  B = 500L,
   alpha = 0.05,
-  size = function(x) x^(2/3),
-  rate = sqrt
+  subsample.size = function(x) x^(2/3),
+  convergence.rate = sqrt
 )
 }
 \arguments{
 \item{X, Y}{\code{n}-by-\code{d} and \code{m}-by-\code{d} matrices, representing \code{n} samples from
 the true distribution \eqn{P} and \code{m} samples from the approximate distribution
-\eqn{Q}, both in \code{d} dimensions. Vector input is treated as a column matrix.}
+\eqn{Q}, both in \code{d} dimensions. Vector input is treated as a column matrix.
+\code{Y} can be left blank if \code{q} is specified (see below).}
+
+\item{q}{The density function of the approximate distribution \eqn{Q}. Either
+\code{Y} or \code{q} must be specified.}
 
 \item{estimator}{A function expecting two inputs \code{X} and \code{Y}, the
 Kullback-Leibler divergence estimation method. Defaults to \code{kld_est_1nn}.}
@@ -34,7 +39,7 @@ more accurate, but also more computationally expensive.}
 function of sample sizes. Defaults to \eqn{f(x) = x^{1/2}}.}
 }
 \value{
-A list with the fields \code{"kld"} (the estimated KL divergence),
+A list with the fields \code{"est"} (the estimated KL divergence),
 \code{"boot"} (a length \code{B} numeric vector with KL divergence estimates on
 the bootstrap subsamples), and \code{"ci"} (a length \code{2} vector containing the
 lower and upper limits of the estimated confidence interval).
@@ -54,8 +59,11 @@ minimal assumptions", The Annals of Statistics, Vol. 22, No. 4 (1994).
 # 1D Gaussian
 X <- rnorm(100)
 Y <- rnorm(100, mean = 1, sd = 2)
+q <- function(x) dnorm(x, mean =1, sd = 2)
 kld_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
-kld_est_1nn(X, Y)
-kld_ci_subsampling(X, Y)
+kld_est_nn(X, Y = Y)
+kld_est_nn(X, q = q)
+kld_ci_subsampling(X, Y)$ci
+kld_ci_subsampling(X, q = q)$ci
 
 }

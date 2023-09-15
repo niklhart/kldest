@@ -79,3 +79,28 @@ combinations <- function(...) {
 }
 
 
+
+#' Probability density function of multivariate Gaussian distribution
+#'
+#' @param x A vector of length `d` at which Gaussian density is evaluated.
+#' @param mu A vector of length `d`, mean of Gaussian distribution.
+#' @param Sigma A `d`-by-`d` matrix, covariance matrix of Gaussian distribution.
+#' @returns The probability density of \eqn{N(\mu,\Sigma)} evaluated at `x`.
+#' @examples
+#' # 1D example
+#' mvdnorm(x = 2, mu = 1, Sigma = 2)
+#' dnorm(x = 2, mean = 1, sd = sqrt(2))
+#' # Independent 2D example
+#' mvdnorm(x = c(2,2), mu = c(1,1), Sigma = diag(1:2))
+#' prod(dnorm(x = c(2,2), mean = c(1,1), sd = sqrt(1:2)))
+#' # Correlated 2D example
+#' mvdnorm(x = c(2,2), mu = c(1,1), Sigma = matrix(c(2,1,1,2),nrow=2))
+#' @export
+mvdnorm <- function(x, mu, Sigma) {
+
+    d <- length(mu)
+    iSigma <- solve(Sigma)
+
+    (2*pi)^(-d/2)*sqrt(det(iSigma))*exp(-0.5*as.vector(t(x-mu) %*% iSigma %*% (x-mu)))
+}
+

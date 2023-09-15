@@ -1,5 +1,5 @@
 ---
-title: "Algorithm performance in large dimensions (two samples)"
+title: "Algorithm performance in large dimensions (one sample)"
 author: "Niklas Hartung"
 date: "`r Sys.Date()`"
 output: html_document
@@ -24,6 +24,7 @@ Simulation study design
 ```{r}
 lambda1 <- 1
 lambda2 <- 1/12         # Exp(12) in Wang et al. refers to shape parametrization
+q <- function(x) dexp(x, rate = lambda2, log = FALSE)
 n <- c(10,50,100,200,500,1000,2000,5000,10000)
 ```
 
@@ -41,8 +42,7 @@ kld <- matrix(NA, nrow = nrep, ncol = length(n))
 for (i in seq_along(n)) {
     for (j in 1:nrep) {
         X <- as.matrix(rexp(n = n[i], rate = lambda1))
-        Y <- as.matrix(rexp(n = n[i], rate = lambda2))
-        kld[j,i] <- kld_est_nn(X, Y)
+        kld[j,i] <- kld_est_nn(X, q = q, log.q = FALSE, eps = 0)
     }
 }
 ```
@@ -53,7 +53,7 @@ Plotting
 kld_mean <- colMeans(kld)
 plot(x = n, y = kld_mean, type = "l", log = "x", ylab = "KL divergence",
      main = "Reproducing Figure 1 (1D exponentials)",
-     ylim = range(c(kld_mean, kld_true)))
+     ylim = range(c(kld_mean, kld_true), finite = TRUE))
 abline(h = kld_true, lty = 2)
 ```
 Plotting (variant)
@@ -72,6 +72,7 @@ Simulation study design
 D <- 4
 paramTrue   <- list(mu = c(0.1,0.3,0.6,0.9), sigma = constDiagMatrix(dim = D, diag = 1, offDiag = 0.5))
 paramApprox <- list(mu = c(0,  0,  0,  0  ), sigma = constDiagMatrix(dim = D, diag = 1, offDiag = 0.1))
+q <- function(x) mvdnorm(x, mu = paramApprox$mu, Sigma = paramApprox$sigma)
 ```
 
 
@@ -96,8 +97,7 @@ kld <- matrix(NA, nrow = nrep, ncol = length(n))
 for (i in seq_along(n)) {
     for (j in 1:nrep) {
         X <- MASS::mvrnorm(n = n[i], mu = paramTrue$mu,   Sigma = paramTrue$sigma)
-        Y <- MASS::mvrnorm(n = n[i], mu = paramApprox$mu, Sigma = paramApprox$sigma)
-        kld[j,i] <- kld_est_nn(X, Y)
+        kld[j,i] <- kld_est_nn(X, q = q, eps = 0)
     }
 }
 ```
@@ -129,6 +129,7 @@ Simulation study design
 D <- 10
 paramTrue   <- list(mu = rep(0, D), sigma = constDiagMatrix(dim = D, diag = 1, offDiag = 0.9))
 paramApprox <- list(mu = rep(0, D), sigma = constDiagMatrix(dim = D, diag = 1, offDiag = 0.1))
+q <- function(x) mvdnorm(x, mu = paramApprox$mu, Sigma = paramApprox$sigma)
 ```
 
 
@@ -153,8 +154,7 @@ kld <- matrix(NA, nrow = nrep, ncol = length(n))
 for (i in seq_along(n)) {
     for (j in 1:nrep) {
         X <- MASS::mvrnorm(n = n[i], mu = paramTrue$mu,   Sigma = paramTrue$sigma)
-        Y <- MASS::mvrnorm(n = n[i], mu = paramApprox$mu, Sigma = paramApprox$sigma)
-        kld[j,i] <- kld_est_nn(X, Y)
+        kld[j,i] <- kld_est_nn(X, q = q, eps = 0)
     }
 }
 ```
@@ -186,6 +186,7 @@ D <- 10
 Sigma <- constDiagMatrix(dim = D, diag = 1, offDiag = 0.999)
 paramTrue   <- list(mu = rep(0, D), sigma = Sigma)
 paramApprox <- list(mu = rep(1, D), sigma = Sigma)
+q <- function(x) mvdnorm(x, mu = paramApprox$mu, Sigma = paramApprox$sigma)
 ```
 
 True KL divergence
@@ -211,7 +212,7 @@ for (i in seq_along(n)) {
     for (j in 1:nrep) {
         X <- MASS::mvrnorm(n = n[i], mu = paramTrue$mu,   Sigma = paramTrue$sigma)
         Y <- MASS::mvrnorm(n = n[i], mu = paramApprox$mu, Sigma = paramApprox$sigma)
-        kld1[j,i] <- kld_est_nn(X, Y)
+        kld1[j,i] <- kld_est_nn(X, q = q, eps = 0)
         kld2[j,i] <- kld_est_brnn(X, Y, max.k = min(n[i]-1,50), warn.max.k = FALSE)
     }
 }
@@ -227,8 +228,8 @@ plot(x = n, y = kld_mean1, type = "l", log = "x", ylab = "KL divergence",
      ylim = range(c(kld_mean1, kld_mean2, kld_true)))
 lines(x = n, y = kld_mean2, col = "blue")
 abline(h = kld_true, lty = 2)
-legend("topright", 
-       legend = c("1nn","gknn","True KL-Div."),
+legend("bottomright", 
+       legend = c("plain nn (1 sample)","bias-reduced nn (2 samples)","True KL-Div."),
        lty = c(1,1,2),
        col = c("black","blue","black"))
 ```
