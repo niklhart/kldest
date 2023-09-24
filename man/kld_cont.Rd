@@ -49,5 +49,5 @@ kld_est_gknn(X, Y)
 }
 \seealso{
 \code{\link[=kld_est_nn]{kld_est_nn()}}, \code{\link[=kld_est_gnn]{kld_est_gnn()}}, \code{\link[=kld_est_brnn]{kld_est_brnn()}}, \code{\link[=kld_est_kde1]{kld_est_kde1()}},
-\code{\link[=kld_est_kde2]{kld_est_kde2()}} for
+\code{\link[=kld_est_kde2]{kld_est_kde2()}} for possible arguments passed to these methods.
 }

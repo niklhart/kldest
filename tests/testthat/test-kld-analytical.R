@@ -17,6 +17,13 @@ test_that("Discrete KL-D calculation works", {
     D_KL3 <- kld_discrete(P3,Q3)
     expect_equal(D_KL3, Inf)
 
+    # Invalid probabilities
+    P4 <- c(1.2,-0.2)
+    Q4 <- c(0.5,0.5)
+    expect_error(kld_discrete(P4,Q4), "Input arrays must be nonnegative.")
+    expect_error(kld_discrete(1, Q4), "Inputs must have the same dimensions.")
+    expect_error(kld_discrete(1, 2),  "Input arrays must sum up to 1.")
+
 })
 
 test_that("KL-D of independent Gaussians is additive", {

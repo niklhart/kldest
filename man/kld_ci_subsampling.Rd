@@ -24,10 +24,11 @@ the true distribution \eqn{P} and \code{m} samples from the approximate distribu
 \item{q}{The density function of the approximate distribution \eqn{Q}. Either
 \code{Y} or \code{q} must be specified.}
 
-\item{estimator}{A function expecting two inputs \code{X} and \code{Y}, the
-Kullback-Leibler divergence estimation method. Defaults to \code{kld_est_1nn}.}
+\item{estimator}{The Kullback-Leibler divergence estimation method; a
+function expecting two inputs (\code{X} and \code{Y} or \code{q}, depending on arguments
+provided). Defaults to \code{kld_est_1nn}.}
 
-\item{B}{Number of bootstrap replicates (default: \code{100}), the larger, the
+\item{B}{Number of bootstrap replicates (default: \code{500}), the larger, the
 more accurate, but also more computationally expensive.}
 
 \item{alpha}{Error level, defaults to \code{0.05}.}

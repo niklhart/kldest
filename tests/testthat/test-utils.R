@@ -48,3 +48,24 @@ test_that("Function 'combinations' works as expected", {
     expect_equal(comb,ref)
 })
 
+test_that("Function 'mvdnorm' works as expected", {
+
+    # 1D example
+    tst1 <- mvdnorm(x = 2, mu = 1, Sigma = 2)
+    ref1 <-   dnorm(x = 2, mean = 1, sd = sqrt(2))
+    expect_equal(tst1,ref1)
+
+    # Independent 2D example
+    tst2 <- mvdnorm(x = c(2,2), mu = c(1,1), Sigma = diag(1:2))
+    ref2 <- prod(dnorm(x = c(2,2), mean = c(1,1), sd = sqrt(1:2)))
+    expect_equal(tst2,ref2)
+
+    # Correlated 2D example (determinant 1, evaluated at center)
+    tst3 <- mvdnorm(x = c(0,0), mu = c(0,0), Sigma = matrix(c(2,1,1,1),nrow=2))
+    ref3 <- 1/(2*pi)
+    expect_equal(tst3,ref3)
+
+    # Error for singular covariance matrix
+    expect_error(mvdnorm(x = c(2,2), mu = c(1,1), Sigma = matrix(1,nrow=2,ncol=2)))
+
+})

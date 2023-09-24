@@ -18,7 +18,7 @@
 #' @returns A scalar, the estimated Kullback-Leibler divergence \eqn{D_{KL}(P||Q)}.
 #' @example examples/continuous-estimators.R
 #' @seealso [kld_est_nn()], [kld_est_gnn()], [kld_est_brnn()], [kld_est_kde1()],
-#'     [kld_est_kde2()] for
+#'     [kld_est_kde2()] for possible arguments passed to these methods.
 #' @export
 kld_cont <- function(..., method = c("nn","gnn","brnn","kde1","kde2")) {
 
@@ -84,7 +84,7 @@ kld_est <- function(X, Y, ..., vartype = NULL) {
     if (all(vartype == "c")) {
         return(kld_cont(X,Y, ...))
     } else if (all(vartype == "d")) {
-        return(kldest_discrete(X, Y))
+        return(kld_est_discrete(X, Y))
     }
 
     # now we know it's a mixed discrete/continuous dataset
@@ -102,6 +102,8 @@ kld_est <- function(X, Y, ..., vartype = NULL) {
     KLdisc <- kld_est_discrete(Xdisc,Ydisc)
 
     # return compound KL divergence
-    sum(KLcont * table(iXdisc)/n) + KLdisc
+    tdisc <- table(iXdisc)
+    n <- sum(tdisc)
+    sum(KLcont * tdisc/n) + KLdisc
 
 }

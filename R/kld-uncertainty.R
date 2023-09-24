@@ -98,9 +98,10 @@ kld_ci_bootstrap <- function(X, Y, estimator = kld_est_kde1, B = 500L, alpha = 0
 #'    `Y` can be left blank if `q` is specified (see below).
 #' @param q The density function of the approximate distribution \eqn{Q}. Either
 #'    `Y` or `q` must be specified.
-#' @param estimator A function expecting two inputs `X` and `Y`, the
-#'     Kullback-Leibler divergence estimation method. Defaults to `kld_est_1nn`.
-#' @param B Number of bootstrap replicates (default: `100`), the larger, the
+#' @param estimator The Kullback-Leibler divergence estimation method; a
+#'    function expecting two inputs (`X` and `Y` or `q`, depending on arguments
+#'    provided). Defaults to `kld_est_1nn`.
+#' @param B Number of bootstrap replicates (default: `500`), the larger, the
 #'     more accurate, but also more computationally expensive.
 #' @param alpha Error level, defaults to `0.05`.
 #' @param size A function specifying the size of the subsamples, defaults to

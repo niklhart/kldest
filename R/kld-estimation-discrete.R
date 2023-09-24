@@ -29,7 +29,8 @@ kld_est_discrete <- function(X, Y) {
     } else {
         mapply(function(x,y) unique(c(x,y)),
                lapply(X, unique),
-               lapply(Y, unique))
+               lapply(Y, unique),
+               SIMPLIFY = FALSE)
     }
 
     # convert all columns to factors to correctly account for missing levels
@@ -92,7 +93,6 @@ kld_est_zg2014 <- function(X, Y) {
     # frequency counts via tables
     tX <- table(X)
     tY <- table(Y)
-
 
     pX <- stop("Implement this!")
 
