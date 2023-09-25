@@ -1,9 +1,10 @@
-test_that("all estimation algorithms work well in an easy 1D example", {
+test_that("All estimators for continuous data work well in an easy 1D example", {
 
     set.seed(123456)
 
-    n <- 10000
-    m <- 10001
+    n <- 10000      # slight difference in sample size to detect
+    m <- 10001      # coding problems for unequal sample sizes
+
     mu1 <- 0
     mu2 <- 5
     sd1 <- 1
@@ -122,7 +123,7 @@ test_that("KLD estimation for discrete variables works", {
     expect_equal(KL_chr,KL_ref)
     expect_equal(KL_df, KL_ref)
 
-    # 2D example:
+    # 2D example
     X2 <- matrix(c(1,1,2,1,2,2),ncol=2)
     Y2 <- matrix(c(1,1,2,2,1,2,1,2),ncol=2)
 
@@ -131,6 +132,24 @@ test_that("KLD estimation for discrete variables works", {
                            matrix(0.25,nrow=2,ncol=2))
 
     expect_equal(KL2_num,KL2_ref)
+
+    # 1D example with unobserved factor levels
+    Xu <- factor(rep(2,4), levels = 1:2)
+    Yu <- factor(rep(1:2,2), levels = 1:2)
+
+    KLu_num <- kld_est_discrete(Xu,Yu)
+    KLu_ref <- log(2)
+
+    expect_equal(KLu_num,KLu_ref)
+
+    # 1D example with one sample
+    X <- c(0,0,1,1,1)
+    q <- function(x) dbinom(x, size = 1, prob = 0.5)
+
+    KL_q   <- kld_est_discrete(X, q = q)
+    KL_ref <- kld_discrete(c(0.4,0.6), c(0.5,0.5))
+
+    expect_equal(KL_q,KL_ref)
 
 })
 

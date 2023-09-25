@@ -4,11 +4,14 @@
 \alias{kld_est_discrete}
 \title{Plug-in KL divergence estimator for samples from discrete distributions}
 \usage{
-kld_est_discrete(X, Y)
+kld_est_discrete(X, Y = NULL, q = NULL)
 }
 \arguments{
 \item{X, Y}{Two samples from discrete distributions, specified as vectors,
-matrices or data frames.}
+matrices or data frames. Argument \code{Y} can be omitted if argument \code{q} is
+given (see below).}
+
+\item{q}{The probability mass function of the approximate distribution \eqn{Q}.}
 }
 \value{
 A scalar, the estimated Kullback-Leibler divergence \eqn{D_{KL}(P||Q)}.

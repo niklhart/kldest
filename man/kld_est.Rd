@@ -4,14 +4,39 @@
 \alias{kld_est}
 \title{Kullback-Leibler divergence estimator for discrete, continuous or mixed data.}
 \usage{
-kld_est(X, Y, ..., vartype = NULL)
+kld_est(
+  X,
+  Y = NULL,
+  q = NULL,
+  estimator.continuous = kld_est_nn,
+  estimator.discrete = kld_est_discrete,
+  vartype = NULL
+)
 }
 \arguments{
 \item{X, Y}{Data frames or matrices with the same number of columns \code{d}
 (multivariate samples), or numeric/character vectors (univariate samples,
-i.e. \code{d=1}).}
+i.e. \code{d=1}), representing \code{n} samples from the true distribution \eqn{P}
+and \code{m} samples from the approximate distribution \eqn{Q}, both in \code{d}
+dimensions. \code{Y} can be left blank if \code{q} is specified (see below).}
 
-\item{...}{Inputs passed on to function \code{\link[=kld_cont]{kld_cont()}}.}
+\item{q}{The density function of the approximate distribution \eqn{Q}. Either
+\code{Y} or \code{q} must be specified. In general, \code{q} must be given in decomposed
+form, \eqn{q(y_c|y_d)q(y_d)}, specified as a named list with field \code{cond}
+for the conditional density \eqn{q(y_c|y_d)} (a function that expects two
+arguments \code{y_c} and \code{y_d}) and \code{disc} for the discrete marginal density
+\eqn{q(y_d)} (a function that expects one argument \code{y_d}). If this is not
+possible, it may be preferable to simulate a large sample from \eqn{Q} and
+use the two-sample syntax instead. For compatibility with the continuous
+and discrete one-sample estimators, if the sample(s) is/are all continuous
+or all discrete, instead of specifying \code{q} as a length 2 list, it may also
+be given as a function handle computing the continous or discrete density.}
+
+\item{estimator.continuous, estimator.discrete}{KL divergence estimators for
+continuous and discrete data, respectively. Both are function with two
+arguments \code{X} and \code{Y} or \code{X} and \code{q}, depending on whether a two-sample or
+one-sample problem is considered. Defaults are \code{kld_est_nn} and
+\code{kld_est_discrete}, respectively.}
 
 \item{vartype}{A length \code{d} character vector, with \code{vartype[i] = "c"} meaning
 the \code{i}-th variable is continuous, and \code{vartype[i] = "d"} meaning it is
@@ -39,10 +64,17 @@ the datasets \code{X} and \code{Y} stratified by the discrete variables, and
 is approximated using relative frequencies.
 }
 \examples{
-# 2D example
+# 2D example, two samples
 X <- data.frame(cont  = rnorm(10),
                 discr = c(rep('a',4),rep('b',6)))
 Y <- data.frame(cont  = c(rnorm(5), rnorm(5, sd = 2)),
                 discr = c(rep('a',5),rep('b',5)))
-kld_est(X,Y)
+kld_est(X, Y)
+
+# 2D example, one sample
+X <- data.frame(cont  = rnorm(10),
+                discr = c(rep(0,4),rep(1,6)))
+q <- list(cond = function(xc,xd) dnorm(xc, mean = xd, sd = 1),
+          disc = function(xd) dbinom(xd, size = 1, prob = 0.5))
+kld_est(X, q = q, vartype = c("c","d"))
 }
