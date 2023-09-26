@@ -50,15 +50,17 @@ kld_est_kde1 <- function(X, Y, MC = FALSE, ...) {
 
 
 
-#' 2-D density-based estimation of Kullback-Leibler divergence
+#' 2-D kernel density-based estimation of Kullback-Leibler divergence
 #'
 #' @description
-#' This estimation method approximates the densities of the unknown distributions
-#' \eqn{P} and \eqn{Q} by a kernel density estimate using function 'bkde' from
-#' package 'KernSmooth'.
+#' This estimation method approximates the densities of the unknown bivariate
+#' distributions \eqn{P} and \eqn{Q} by kernel density estimates using function
+#' 'bkde' from package 'KernSmooth'. If 'KernSmooth' is not installed, a message
+#' is issued and the (much) slower function 'kld_est_kde' is used instead.
 #'
-#' @param X,Y  Two-column matrices, representing samples from the bivariate true
-#'    distribution \eqn{P} and approximate distribution \eqn{Q}, respectively.
+#' @param X,Y  `n`-by-`2` and `m`-by-`2` matrices, representing `n` samples from
+#'    the bivariate true distribution \eqn{P} and `m` samples from the approximate
+#'    distribution \eqn{Q}, respectively.
 #' @param MC A boolean: use a Monte Carlo approximation instead of numerical
 #'    integration via the trapezoidal rule (default: `FALSE`)? Currently, this
 #'    option is not implemented, i.e. a value of `TRUE` results in an error.
@@ -70,8 +72,9 @@ kld_est_kde1 <- function(X, Y, MC = FALSE, ...) {
 #' @param eps A nonnegative scalar; if `eps > 0`, \eqn{Q} is estimated as a mixture
 #'    between the kernel density estimate and a uniform distribution on the computational
 #'    grid. The weight of the uniform component is `eps` times the maximum density
-#'    estimate of \eqn{Q}. Defaults to `eps = 1e-5`.
-#' @returns A scalar, the estimated Kullback-Leibler divergence \eqn{D_{KL}(P||Q)}.
+#'    estimate of \eqn{Q}. This increases the robustness of the estimator at the
+#'    expense of an additional bias. Defaults to `eps = 1e-5`.
+#' @returns A scalar, the estimated Kullback-Leibler divergence \eqn{\hat D_{KL}(P||Q)}.
 #' @examples
 #' # KL-D between two samples from 2-D Gaussians:
 #' X1 <- rnorm(1000)
@@ -80,13 +83,23 @@ kld_est_kde1 <- function(X, Y, MC = FALSE, ...) {
 #' Y2 <- Y1 + rnorm(1000)
 #' X <- cbind(X1,X2)
 #' Y <- cbind(Y1,Y2)
-#' kl_div_gaussian(mu1 = rep(0,2), sigma1 = diag(2), mu2 = rep(0,2),
-#'                 sigma2 = matrix(c(1,1,1,2),nrow=2))
-#' kldest_density2(X,Y)
-#' # kldest_density2(X,Y, MC = TRUE)
+#' kld_gaussian(mu1 = rep(0,2), sigma1 = diag(2),
+#'              mu2 = rep(0,2), sigma2 = matrix(c(1,1,1,2),nrow=2))
+#' kld_est_kde2(X,Y)
+#' # kld_est_kde2(X,Y, MC = TRUE)
 #' @export
 kld_est_kde2 <- function(X, Y, MC = FALSE, hX = NULL, hY = NULL,
                         rule = c("Silverman","Scott"), eps = 1e-5) {
+
+
+    # fallback if package 'KernSmooth' is not installed
+    if (!requireNamespace("KernSmooth", quietly = TRUE)) {
+        msg <- paste("Using the slower function 'kldest::kld_est_kde' since",
+                     "package 'KernSmooth' is not installed.")
+        message(msg)
+
+        return(kld_est_kde(X = X, Y = Y, hX = hX, hY = hY, rule = rule))
+    }
 
     # input processing
     X <- as.matrix(X)
@@ -143,15 +156,14 @@ kld_est_kde2 <- function(X, Y, MC = FALSE, hX = NULL, hY = NULL,
 }
 
 
-
 #' Kernel density-based Kullback-Leibler divergence estimation in any dimension
 #'
-#' Disclaimer: this function doesn't use binning and/or FFT and hence, it is
-#' extremely slow even for moderate datasets. For this reason, it is not exported
-#' currently.
+#' Disclaimer: this function doesn't use binning and/or the fast Fourier transform
+#' and hence, it is extremely slow even for moderate datasets. For this reason,
+#' it is not exported currently.
 #'
 #' This estimation method approximates the densities of the unknown distributions
-#' \eqn{P} and \eqn{Q} by a kernel density estimate, using a sample size- and
+#' \eqn{P} and \eqn{Q} by kernel density estimates, using a sample size- and
 #' dimension-dependent bandwidth parameter and a Gaussian kernel. It works for
 #' any number of dimensions but is very slow.
 #'
@@ -160,14 +172,14 @@ kld_est_kde2 <- function(X, Y, MC = FALSE, hX = NULL, hY = NULL,
 #'    \eqn{Q}, both in `d` dimensions. Vector input is treated as a column matrix.
 #' @param hX,hY Positive scalars or length `d` vectors, representing bandwidth
 #'    parameters (possibly different in each component) for the density estimates
-#'    of P and Q, respectively. If unspecified, a heurestic specified via the `rule`
-#'    argument is used.
+#'    of \eqn{P} and \eqn{Q}, respectively. If unspecified, a heurestic specified
+#'    via the `rule` argument is used.
 #' @param rule A heuristic for computing arguments `hX` and/or `hY`. The default
 #'    `"silverman"` is Silverman's rule
 #'    \deqn{h_i = \sigma_i\left(\frac{4}{(2+d)n}\right)^{1/(d+4)}.}
 #'    As an alternative, Scott's rule `"scott"` can be used,
 #'    \deqn{h_i = \frac{\sigma_i}{n^{1/(d+4)}}.}
-#' @returns A scalar, the estimated Kullback-Leibler divergence \eqn{D_{KL}(P||Q)}.
+#' @returns A scalar, the estimated Kullback-Leibler divergence \eqn{\hat D_{KL}(P||Q)}.
 #' @example examples/continuous-estimators.R
 kld_est_kde <- function(X, Y, hX = NULL, hY = NULL, rule = c("Silverman","Scott")) {
 

@@ -46,7 +46,7 @@ discrete variables are encoded using numbers (e.g., \code{0} for females and
 \code{1} for males) or for count data.}
 }
 \value{
-A scalar, the estimated Kullback-Leibler divergence \eqn{D_{KL}(P||Q)}.
+A scalar, the estimated Kullback-Leibler divergence \eqn{\hat D_{KL}(P||Q)}.
 }
 \description{
 For two mixed continuous/discrete distributions with densities \eqn{p} and

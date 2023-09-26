@@ -2,7 +2,7 @@
 % Please edit documentation in R/kld-estimation-kernel density.R
 \name{kld_est_kde2}
 \alias{kld_est_kde2}
-\title{2-D density-based estimation of Kullback-Leibler divergence}
+\title{2-D kernel density-based estimation of Kullback-Leibler divergence}
 \usage{
 kld_est_kde2(
   X,
@@ -15,8 +15,9 @@ kld_est_kde2(
 )
 }
 \arguments{
-\item{X, Y}{Two-column matrices, representing samples from the bivariate true
-distribution \eqn{P} and approximate distribution \eqn{Q}, respectively.}
+\item{X, Y}{\code{n}-by-\code{2} and \code{m}-by-\code{2} matrices, representing \code{n} samples from
+the bivariate true distribution \eqn{P} and \code{m} samples from the approximate
+distribution \eqn{Q}, respectively.}
 
 \item{MC}{A boolean: use a Monte Carlo approximation instead of numerical
 integration via the trapezoidal rule (default: \code{FALSE})? Currently, this
@@ -31,15 +32,17 @@ respectively. The default \code{NULL} means they are determined by argument \cod
 \item{eps}{A nonnegative scalar; if \code{eps > 0}, \eqn{Q} is estimated as a mixture
 between the kernel density estimate and a uniform distribution on the computational
 grid. The weight of the uniform component is \code{eps} times the maximum density
-estimate of \eqn{Q}. Defaults to \code{eps = 1e-5}.}
+estimate of \eqn{Q}. This increases the robustness of the estimator at the
+expense of an additional bias. Defaults to \code{eps = 1e-5}.}
 }
 \value{
-A scalar, the estimated Kullback-Leibler divergence \eqn{D_{KL}(P||Q)}.
+A scalar, the estimated Kullback-Leibler divergence \eqn{\hat D_{KL}(P||Q)}.
 }
 \description{
-This estimation method approximates the densities of the unknown distributions
-\eqn{P} and \eqn{Q} by a kernel density estimate using function 'bkde' from
-package 'KernSmooth'.
+This estimation method approximates the densities of the unknown bivariate
+distributions \eqn{P} and \eqn{Q} by kernel density estimates using function
+'bkde' from package 'KernSmooth'. If 'KernSmooth' is not installed, a message
+is issued and the (much) slower function 'kld_est_kde' is used instead.
 }
 \examples{
 # KL-D between two samples from 2-D Gaussians:
@@ -49,8 +52,8 @@ Y1 <- rnorm(1000)
 Y2 <- Y1 + rnorm(1000)
 X <- cbind(X1,X2)
 Y <- cbind(Y1,Y2)
-kl_div_gaussian(mu1 = rep(0,2), sigma1 = diag(2), mu2 = rep(0,2),
-                sigma2 = matrix(c(1,1,1,2),nrow=2))
-kldest_density2(X,Y)
-# kldest_density2(X,Y, MC = TRUE)
+kld_gaussian(mu1 = rep(0,2), sigma1 = diag(2),
+             mu2 = rep(0,2), sigma2 = matrix(c(1,1,1,2),nrow=2))
+kld_est_kde2(X,Y)
+# kld_est_kde2(X,Y, MC = TRUE)
 }

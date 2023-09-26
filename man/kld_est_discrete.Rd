@@ -17,7 +17,7 @@ argument \code{q} is given (see below).}
 \eqn{Q}. Currently, the one-sample problem is only implemented for \code{d=1}.}
 }
 \value{
-A scalar, the estimated Kullback-Leibler divergence \eqn{D_{KL}(P||Q)}.
+A scalar, the estimated Kullback-Leibler divergence \eqn{\hat D_{KL}(P||Q)}.
 }
 \description{
 Plug-in KL divergence estimator for samples from discrete distributions

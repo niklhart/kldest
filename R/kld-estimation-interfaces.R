@@ -77,8 +77,7 @@ kld_est <- function(X, Y = NULL, q = NULL, estimator.continuous = kld_est_nn,
     }
 
     # one- or two-sample problem?
-    two.sample <- !is.null(Y)
-    if (!xor(is.null(Y),is.null(q))) stop("Either input `Y` or `q` must be specified.")
+    two.sample <- is_two_sample(Y, q)
 
     # handle all-continuous or all-discrete variable case
     if (all(vartype == "c")) {

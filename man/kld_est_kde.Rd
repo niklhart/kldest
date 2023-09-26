@@ -13,8 +13,8 @@ the true distribution \eqn{P} and \code{m} samples from the approximate distribu
 
 \item{hX, hY}{Positive scalars or length \code{d} vectors, representing bandwidth
 parameters (possibly different in each component) for the density estimates
-of P and Q, respectively. If unspecified, a heurestic specified via the \code{rule}
-argument is used.}
+of \eqn{P} and \eqn{Q}, respectively. If unspecified, a heurestic specified
+via the \code{rule} argument is used.}
 
 \item{rule}{A heuristic for computing arguments \code{hX} and/or \code{hY}. The default
 \code{"silverman"} is Silverman's rule
@@ -23,16 +23,16 @@ As an alternative, Scott's rule \code{"scott"} can be used,
 \deqn{h_i = \frac{\sigma_i}{n^{1/(d+4)}}.}}
 }
 \value{
-A scalar, the estimated Kullback-Leibler divergence \eqn{D_{KL}(P||Q)}.
+A scalar, the estimated Kullback-Leibler divergence \eqn{\hat D_{KL}(P||Q)}.
 }
 \description{
-Disclaimer: this function doesn't use binning and/or FFT and hence, it is
-extremely slow even for moderate datasets. For this reason, it is not exported
-currently.
+Disclaimer: this function doesn't use binning and/or the fast Fourier transform
+and hence, it is extremely slow even for moderate datasets. For this reason,
+it is not exported currently.
 }
 \details{
 This estimation method approximates the densities of the unknown distributions
-\eqn{P} and \eqn{Q} by a kernel density estimate, using a sample size- and
+\eqn{P} and \eqn{Q} by kernel density estimates, using a sample size- and
 dimension-dependent bandwidth parameter and a Gaussian kernel. It works for
 any number of dimensions but is very slow.
 }

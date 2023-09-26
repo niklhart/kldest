@@ -39,8 +39,46 @@ test_that("All estimators for continuous data work well in an easy 1D example", 
 
 })
 
+test_that("All estimators for continuous data work well in an easy 2D example", {
 
-test_that("Density based estimator agrees with a hardcoded result in 1D", {
+    set.seed(123456)
+
+    n <- 10000      # slight difference in sample size to detect
+    m <- 10001      # coding problems for unequal sample sizes
+
+    X1 <- rnorm(n)
+    X2 <- rnorm(n)
+    X <- cbind(X1,X2)
+
+    Y1 <- rnorm(m)
+    Y2 <- Y1 + rnorm(m)
+    Y <- cbind(Y1,Y2)
+
+    mu     <- rep(0,2)
+    Sigma1 <- diag(2)
+    Sigma2 <- matrix(c(1,1,1,2),nrow=2)
+
+    q <- function(x) mvdnorm(x, mu = mu, Sigma = Sigma2)
+
+    kld_ref <- kld_gaussian(mu1 = mu, sigma1 = Sigma1,
+                            mu2 = mu, sigma2 = Sigma2)
+    kld_kde2 <- kld_est_kde2(X, Y)
+
+    kld_nnXY <- kld_est_nn(X, Y)
+    kld_nnXq <- kld_est_nn(X, q = q)
+    kld_brnn <- kld_est_brnn(X,Y, warn.max.k = FALSE)
+
+    # large tol, to account for estimation variance
+    tol <- 0.1
+    expect_equal(kld_kde2, kld_ref, tolerance = tol)
+    expect_equal(kld_nnXY, kld_ref, tolerance = tol)
+    expect_equal(kld_nnXq, kld_ref, tolerance = tol)
+    expect_equal(kld_brnn, kld_ref, tolerance = tol)
+
+})
+
+
+test_that("Kernel density based estimator agrees with a hardcoded result in 1D", {
     X <- 1:2
     Y <- X+1      # same SD as X, and m=n
 
@@ -56,7 +94,7 @@ test_that("Density based estimator agrees with a hardcoded result in 1D", {
     expect_equal(KL_ref,KL_num)
 })
 
-test_that("The nearest neighbour based estimator agrees with hardcoded results", {
+test_that("Nearest neighbour based estimator agrees with hardcoded results", {
 
     X <- 1:2
     Y <- X+0.5      # same SD as X, and m=n
@@ -95,7 +133,7 @@ test_that("Bias-reduced NN behaves as expected", {
 })
 
 
-test_that("KLD estimation for discrete variables works", {
+test_that("KL-D estimation for discrete variables works", {
 
     # 1D example: invariant to type of input
     Xn <- c(1,1,2,2)
