@@ -78,7 +78,7 @@ kld_uniform <- function(a1, b1, a2, b2) {
 #' # 1-D example
 #' P <- 1:4/10
 #' Q <- rep(0.25,4)
-#' kl_discrete(P,Q)
+#' kld_discrete(P,Q)
 #'
 #' # The above example in 2-D
 #' P <- matrix(1:4/10,nrow=2)

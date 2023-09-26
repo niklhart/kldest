@@ -48,7 +48,7 @@ KL divergence estimation based on nearest neighbour density estimates is the
 most flexible approach.
 
 ```{r example}
-library(kldest) 
+library(kldest)
 ```
 
 ### KL divergence (1-D Gaussians)

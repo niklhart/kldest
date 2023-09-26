@@ -42,7 +42,7 @@ KL divergence estimation based on nearest neighbour density estimates is
 the most flexible approach.
 
 ``` r
-library(kldest) 
+library(kldest)
 ```
 
 ### KL divergence (1-D Gaussians)
@@ -55,7 +55,7 @@ Y <- rnorm(100, mean = 1, sd = 2)
 kld_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
 #> [1] 0.4431472
 kld_est_nn(X, Y)
-#> [1] 0.3619885
+#> [1] 0.5226528
 ```
 
 One sample from a Gaussian and a Gaussian density
@@ -63,15 +63,15 @@ One sample from a Gaussian and a Gaussian density
 ``` r
 q <- function(x) dnorm(x, mean = 1, sd =2)
 kld_est_nn(X, q = q)
-#> [1] 0.3372555
+#> [1] 0.5483863
 ```
 
 Uncertainty quantification
 
 ``` r
 kld_ci_subsampling(X, q = q)$ci
-#>        2.5%       97.5% 
-#> -0.01801362  0.57563734
+#>      2.5%     97.5% 
+#> 0.2050617 0.8388511
 ```
 
 ### KL-D between two samples from 2-D Gaussians
@@ -91,5 +91,5 @@ kld_gaussian(mu1 = rep(0,2), sigma1 = diag(2),
 
 # KL divergence estimate
 kld_est_nn(X, Y)
-#> [1] 0.2302571
+#> [1] 0.4558074
 ```
