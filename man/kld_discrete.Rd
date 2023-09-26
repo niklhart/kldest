@@ -20,7 +20,7 @@ Analytical KL divergence for two discrete distributions
 # 1-D example
 P <- 1:4/10
 Q <- rep(0.25,4)
-kl_div_discrete(P,Q)
+kl_discrete(P,Q)
 
 # The above example in 2-D
 P <- matrix(1:4/10,nrow=2)

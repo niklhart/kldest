@@ -4,14 +4,7 @@
 \alias{kld_ci_bootstrap}
 \title{Uncertainty of KL divergence estimate using Efron's bootstrap.}
 \usage{
-kld_ci_bootstrap(
-  X,
-  Y,
-  estimator = kld_est_kde1,
-  B = 500L,
-  alpha = 0.05,
-  do.jitter = FALSE
-)
+kld_ci_bootstrap(X, Y, estimator = kld_est_kde1, B = 500L, alpha = 0.05)
 }
 \arguments{
 \item{X, Y}{\code{n}-by-\code{d} and \code{m}-by-\code{d} matrices, representing \code{n} samples from
@@ -19,42 +12,39 @@ the true distribution \eqn{P} and \code{m} samples from the approximate distribu
 \eqn{Q}, both in \code{d} dimensions. Vector input is treated as a column matrix.}
 
 \item{estimator}{A function expecting two inputs \code{X} and \code{Y}, the
-Kullback-Leibler divergence estimation method. Defaults to \code{kld_est_1nn}.}
+Kullback-Leibler divergence estimation method. Defaults to \code{kld_est_kde1},
+which can only deal with one-dimensional two-sample problems (i.e.,
+\code{d = 1} and \code{q = NULL}).}
 
-\item{B}{Number of bootstrap replicates (default: \code{100}), the larger, the
+\item{B}{Number of bootstrap replicates (default: \code{500}), the larger, the
 more accurate, but also more computationally expensive.}
 
 \item{alpha}{Error level, defaults to \code{0.05}.}
-
-\item{do.jitter}{(experimental feature) A boolean: should data points be
-jittered with \code{base::jitter} to break ties (default: \code{FALSE})?
-For nearest neighbour-based estimators, \code{do.jitter} must be set to \code{TRUE}
-since the KL divergence estimates on the bootstrap samples will be infinite
-otherwise. However, even  \code{do.jitter = TRUE} doesn't produce satisfactory
-results currently.}
 }
 \value{
-A list with the fields \code{"kld"} (the estimated KL divergence),
+A list with the fields \code{"est"} (the estimated KL divergence),
 \code{"boot"} (a length \code{B} numeric vector with KL divergence estimates on
-the bootstrap subsamples), and \code{"ci"} (a length \code{2} vector containing the
+the bootstrap samples), and \code{"ci"} (a length \code{2} vector containing the
 lower and upper limits of the estimated confidence interval).
 }
 \description{
-This function computes a confidence interval for KL divergence based on the
-basic bootstrap by Efron. Currently, this only works reliably for kernel
-density-based estimators since nearest neighbour-based estimators cannot deal
-with the ties produced by sampling with replacement.
-Jittering is tried as a means to circumvent this, but current results are not
-convincing.
+This function computes a confidence interval for KL divergence based on Efron's
+bootstrap. The approach only works for kernel density-based estimators since
+nearest neighbour-based estimators cannot deal with the ties produced when
+sampling with replacement.
+}
+\details{
+Reference:
+
+Efron, "Bootstrap Methods: Another Look at the Jackknife", The Annals of
+Statistics, Vol. 7, No. 1 (1979).
 }
 \examples{
-# 1D Gaussian
+# 1D Gaussian, two samples
 X <- rnorm(100)
 Y <- rnorm(100, mean = 1, sd = 2)
 kld_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
-kld_est_1nn(X, Y)
+kld_est_kde1(X, Y)
 kld_ci_bootstrap(X, Y)
-kld_ci_bootstrap(X, Y, estimator = kld_est_1nn, do.jitter = FALSE)
-kld_ci_bootstrap(X, Y, estimator = kld_est_1nn, do.jitter = TRUE)
 
 }

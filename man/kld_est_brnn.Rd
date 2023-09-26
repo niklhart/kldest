@@ -4,7 +4,7 @@
 \alias{kld_est_brnn}
 \title{Bias-reduced generalized k-nearest-neighbour KL divergence estimation}
 \usage{
-kld_est_brnn(X, Y, max.k = 50, warn.max.k = TRUE, eps = 0.01)
+kld_est_brnn(X, Y, max.k = 100, warn.max.k = TRUE, eps = 0)
 }
 \arguments{
 \item{X, Y}{\code{n}-by-\code{d} and \code{m}-by-\code{d} matrices, representing \code{n} samples from
@@ -12,28 +12,39 @@ the true distribution \eqn{P} and \code{m} samples from the approximate distribu
 \eqn{Q}, both in \code{d} dimensions. Vector input is treated as a column matrix.
 \code{Y} can be left blank if \code{q} is specified (see below).}
 
-\item{max.k}{Maximum numbers of nearest neighbours to compute (default: \code{50}).
+\item{max.k}{Maximum numbers of nearest neighbours to compute (default: \code{100}).
 A larger \code{max.k} may yield a more accurate KL-D estimate (see \code{warn.max.k}),
 but will always increase the computational cost.}
 
-\item{warn.max.k}{If \code{TRUE} (the default), warn if \code{max.k} is such that more
-than \code{max.k} neighbours are within the neighbourhood for some data
-points. In this case, only the first \code{max.k} neighbours will be counted.
+\item{warn.max.k}{If \code{TRUE} (the default), warns if \code{max.k} is such that more
+than \code{max.k} neighbours are within the neighbourhood \eqn{\delta} for some
+data point(s). In this case, only the first \code{max.k} neighbours are counted.
 As a consequence, \code{max.k} may required to be increased.}
 
 \item{eps}{Error bound in the nearest neighbour search. A value of \code{eps = 0}
-implies exact nearest neighbour search, otherwise approximate nearest
-neighbours are sought. Defaults to \code{eps = 0.01}.}
+(the default) implies an exact nearest neighbour search, for \code{eps > 0}
+approximate nearest neighbours are sought, which may be somewhat faster for
+high-dimensional problems.}
 }
 \value{
-A scalar, the estimated Kullback-Leibler divergence \eqn{D_{KL}(P||Q)}.
+A scalar, the estimated Kullback-Leibler divergence \eqn{\hat D_{KL}(P||Q)}.
 }
 \description{
 This is the bias-reduced generalized k-NN based KL divergence estimator from
 Wang et al. (2009) specified in Eq.(29).
 }
 \details{
-\code{TODO}: more details on the algorithm!
+Finite sample bias reduction is achieved by an adaptive choice of the number
+of nearest neighbours. Instead of fixing the number of nearest neighbours
+upfront, which results in different distances \eqn{\rho^l_i,\nu^k_i} of a
+datapoint \eqn{x_i} to its \eqn{l}-th nearest neighbours in \eqn{X} and
+\eqn{k}-th nearest neighbours in \eqn{Y}, respectively, the number of
+neighbours \eqn{l,k} is chosen to render \eqn{\rho^l_i,\nu^k_i} comparable.
+Here, this is done by choosing the maximum number of neighbours \eqn{l,k}
+smaller than \eqn{\delta_i:=\max(\rho^1_i,\nu^1_i)}.
+
+Since the bias reduction explicitly uses both samples \code{X} and \code{Y}, one-sample
+estimation is not possible using this method.
 
 Reference:
 Wang, Kulkarni and Verdú, "Divergence Estimation for Multidimensional

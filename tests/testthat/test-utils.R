@@ -69,3 +69,18 @@ test_that("Function 'mvdnorm' works as expected", {
     expect_error(mvdnorm(x = c(2,2), mu = c(1,1), Sigma = matrix(1,nrow=2,ncol=2)))
 
 })
+
+
+test_that("function `is_two_sample` works as expected", {
+
+    expect_true(is_two_sample(Y = 1, q = NULL))
+    expect_true(is_two_sample(Y = matrix(1), q = NULL))
+    expect_true(is_two_sample(Y = data.frame(1), q = NULL))
+
+    expect_false(is_two_sample(Y = NULL, q = force))
+
+    expect_error(is_two_sample(Y = NULL,  q = NULL))
+    expect_error(is_two_sample(Y = 1,     q = force))
+    expect_error(is_two_sample(Y = force, q = NULL))
+
+})

@@ -4,7 +4,7 @@
 \alias{kld_est_nn}
 \title{k-nearest neighbour KL divergence estimator}
 \usage{
-kld_est_nn(X, Y = NULL, q = NULL, k = 1L, eps = 0.01, log.q = FALSE)
+kld_est_nn(X, Y = NULL, q = NULL, k = 1L, eps = 0, log.q = FALSE)
 }
 \arguments{
 \item{X, Y}{\code{n}-by-\code{d} and \code{m}-by-\code{d} matrices, representing \code{n} samples from
@@ -20,14 +20,15 @@ Larger values for \code{k} generally increase bias, but decrease variance of the
 estimator. Defaults to \code{k = 1}.}
 
 \item{eps}{Error bound in the nearest neighbour search. A value of \code{eps = 0}
-implies exact nearest neighbour search, otherwise approximate nearest
-neighbours are sought. Defaults to \code{eps = 0.01}.}
+(the default) implies an exact nearest neighbour search, for \code{eps > 0}
+approximate nearest neighbours are sought, which may be somewhat faster for
+high-dimensional problems.}
 
 \item{log.q}{If \code{TRUE}, function \code{q} is the log-density rather than the density
 of the approximate distribution \eqn{Q} (default: \code{log.q = FALSE}).}
 }
 \value{
-A scalar, the estimated Kullback-Leibler divergence \eqn{D_{KL}(P||Q)}.
+A scalar, the estimated Kullback-Leibler divergence \eqn{\hat D_{KL}(P||Q)}.
 }
 \description{
 This function estimates Kullback-Leibler divergence \eqn{D_{KL}(P||Q)} between

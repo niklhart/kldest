@@ -2,44 +2,40 @@
 
 #' Uncertainty of KL divergence estimate using Efron's bootstrap.
 #'
-#' This function computes a confidence interval for KL divergence based on the
-#' basic bootstrap by Efron. Currently, this only works reliably for kernel
-#' density-based estimators since nearest neighbour-based estimators cannot deal
-#' with the ties produced by sampling with replacement.
-#' Jittering is tried as a means to circumvent this, but current results are not
-#' convincing.
+#' This function computes a confidence interval for KL divergence based on Efron's
+#' bootstrap. The approach only works for kernel density-based estimators since
+#' nearest neighbour-based estimators cannot deal with the ties produced when
+#' sampling with replacement.
+#'
+#' Reference:
+#'
+#' Efron, "Bootstrap Methods: Another Look at the Jackknife", The Annals of
+#' Statistics, Vol. 7, No. 1 (1979).
 #'
 #' @param X,Y `n`-by-`d` and `m`-by-`d` matrices, representing `n` samples from
 #'    the true distribution \eqn{P} and `m` samples from the approximate distribution
 #'    \eqn{Q}, both in `d` dimensions. Vector input is treated as a column matrix.
 #' @param estimator A function expecting two inputs `X` and `Y`, the
-#'     Kullback-Leibler divergence estimation method. Defaults to `kld_est_1nn`.
-#' @param B Number of bootstrap replicates (default: `100`), the larger, the
+#'     Kullback-Leibler divergence estimation method. Defaults to `kld_est_kde1`,
+#'     which can only deal with one-dimensional two-sample problems (i.e.,
+#'     `d = 1` and `q = NULL`).
+#' @param B Number of bootstrap replicates (default: `500`), the larger, the
 #'     more accurate, but also more computationally expensive.
 #' @param alpha Error level, defaults to `0.05`.
-#' @param do.jitter (experimental feature) A boolean: should data points be
-#'     jittered with `base::jitter` to break ties (default: `FALSE`)?
-#'     For nearest neighbour-based estimators, `do.jitter` must be set to `TRUE`
-#'     since the KL divergence estimates on the bootstrap samples will be infinite
-#'     otherwise. However, even  `do.jitter = TRUE` doesn't produce satisfactory
-#'     results currently.
-#' @returns A list with the fields `"kld"` (the estimated KL divergence),
+#' @returns A list with the fields `"est"` (the estimated KL divergence),
 #'    `"boot"` (a length `B` numeric vector with KL divergence estimates on
-#'    the bootstrap subsamples), and `"ci"` (a length `2` vector containing the
+#'    the bootstrap samples), and `"ci"` (a length `2` vector containing the
 #'    lower and upper limits of the estimated confidence interval).
 #' @examples
-#' # 1D Gaussian
+#' # 1D Gaussian, two samples
 #' X <- rnorm(100)
 #' Y <- rnorm(100, mean = 1, sd = 2)
 #' kld_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
-#' kld_est_1nn(X, Y)
+#' kld_est_kde1(X, Y)
 #' kld_ci_bootstrap(X, Y)
-#' kld_ci_bootstrap(X, Y, estimator = kld_est_1nn, do.jitter = FALSE)
-#' kld_ci_bootstrap(X, Y, estimator = kld_est_1nn, do.jitter = TRUE)
 #'
 #' @export
-kld_ci_bootstrap <- function(X, Y, estimator = kld_est_kde1, B = 500L, alpha = 0.05,
-                             do.jitter = FALSE) {
+kld_ci_bootstrap <- function(X, Y, estimator = kld_est_kde1, B = 500L, alpha = 0.05) {
 
     X <- as.matrix(X)
     Y <- as.matrix(Y)
@@ -47,16 +43,6 @@ kld_ci_bootstrap <- function(X, Y, estimator = kld_est_kde1, B = 500L, alpha = 0
     n <- nrow(X)
     m <- nrow(Y)
     d <- ncol(X)
-
-
-    sd_X <- apply(X, MARGIN = 2, FUN = sd)
-    sd_Y <- apply(Y, MARGIN = 2, FUN = sd)
-
-    # experimental feature: jittering (for NN-based estimators)
-    if (do.jitter) {
-        tmp_est <- force(estimator)
-        estimator <- function(X, Y) tmp_est(jitter(X), jitter(Y))
-    }
 
     kld_hat <- estimator(X,Y)
     kld_boot <- numeric(B)
@@ -73,7 +59,7 @@ kld_ci_bootstrap <- function(X, Y, estimator = kld_est_kde1, B = 500L, alpha = 0
     ci_boot <- 2*kld_hat - q_boot
 
     list(
-        dir  = kld_hat,
+        est  = kld_hat,
         boot = kld_boot,
         ci   = ci_boot
     )
@@ -89,6 +75,7 @@ kld_ci_bootstrap <- function(X, Y, estimator = kld_est_kde1, B = 500L, alpha = 0
 #' \eqn{b_n\rightarrow\infty} and \eqn{\frac{\tau_b}{\tau_n}\rightarrow 0}.
 #'
 #' Reference:
+#'
 #' Politis and Romano, "Large sample confidence regions based on subsamples under
 #' minimal assumptions", The Annals of Statistics, Vol. 22, No. 4 (1994).
 #'
@@ -113,7 +100,7 @@ kld_ci_bootstrap <- function(X, Y, estimator = kld_est_kde1, B = 500L, alpha = 0
 #'    the bootstrap subsamples), and `"ci"` (a length `2` vector containing the
 #'    lower and upper limits of the estimated confidence interval).
 #' @examples
-#' # 1D Gaussian
+#' # 1D Gaussian (one- and two-sample problems)
 #' X <- rnorm(100)
 #' Y <- rnorm(100, mean = 1, sd = 2)
 #' q <- function(x) dnorm(x, mean =1, sd = 2)
@@ -135,9 +122,7 @@ kld_ci_subsampling <- function(X, Y = NULL, q = NULL, estimator = kld_est_nn,
     sn <- subsample.size(n)
 
     # check validity of input: one- or two-sample problem?
-    if (!xor(is.null(Y),is.null(q))) stop("Either input Y or q must be provided.")
-
-    two.sample <- (!is.null(Y))
+    two.sample <- is_two_sample(Y, q)
 
     if (two.sample) {
         Y <- as.matrix(Y)

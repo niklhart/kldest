@@ -32,14 +32,15 @@
 #'    Larger values for `k` generally increase bias, but decrease variance of the
 #'    estimator. Defaults to `k = 1`.
 #' @param eps Error bound in the nearest neighbour search. A value of `eps = 0`
-#'    implies exact nearest neighbour search, otherwise approximate nearest
-#'    neighbours are sought. Defaults to `eps = 0.01`.
+#'    (the default) implies an exact nearest neighbour search, for `eps > 0`
+#'    approximate nearest neighbours are sought, which may be somewhat faster for
+#'    high-dimensional problems.
 #' @param log.q If `TRUE`, function `q` is the log-density rather than the density
 #'    of the approximate distribution \eqn{Q} (default: `log.q = FALSE`).
-#' @returns A scalar, the estimated Kullback-Leibler divergence \eqn{D_{KL}(P||Q)}.
+#' @returns A scalar, the estimated Kullback-Leibler divergence \eqn{\hat D_{KL}(P||Q)}.
 #' @example examples/nn-estimators.R
 #' @export
-kld_est_nn <- function(X, Y = NULL, q = NULL, k = 1L, eps = 0.01, log.q = FALSE) {
+kld_est_nn <- function(X, Y = NULL, q = NULL, k = 1L, eps = 0, log.q = FALSE) {
 
     # get important dimensions
     X <- as.matrix(X)
@@ -51,9 +52,9 @@ kld_est_nn <- function(X, Y = NULL, q = NULL, k = 1L, eps = 0.01, log.q = FALSE)
     nnXX <- RANN::nn2(X, X, k = k+1, eps = eps)$nn.dists[ ,k+1]
 
     # check validity of input: one- or two-sample problem?
-    if (!xor(is.null(Y),is.null(q))) stop("Either input Y or q must be provided.")
+    two.sample <- is_two_sample(Y, q)
 
-    if (!is.null(Y)) {
+    if (two.sample) {
         # two-sample problem
         Y <- as.matrix(Y) # number of dimensions must be the same in X and Y
         m <- nrow(Y)      # number of samples in Y
@@ -76,7 +77,6 @@ kld_est_nn <- function(X, Y = NULL, q = NULL, k = 1L, eps = 0.01, log.q = FALSE)
 }
 
 
-
 #' Generalized k-nearest neighbour KL divergence estimator.
 #'
 #' This function implements the generalized k-nearest neighbour estimator in
@@ -96,9 +96,9 @@ kld_est_nn <- function(X, Y = NULL, q = NULL, k = 1L, eps = 0.01, log.q = FALSE)
 #'   \code{i} ranging from \code{1} to \code{n}, and \code{Y[j,]}, with
 #'   \code{j} ranging from \code{1} to \code{m}. The default is `l = k = 1`.
 #'   In the special case that `l = k` and `k` is scalar, the estimator coincides
-#'   with `kld_est_nn(X, Y, k).
+#'   with `kld_est_nn(X, ..., k = k).
 #'
-kld_est_gnn <- function(X, Y = NULL, q = NULL, l = k, k = 1, eps = 0.01, log.q = FALSE) {
+kld_est_gnn <- function(X, Y = NULL, q = NULL, l = k, k = 1, eps = 0, log.q = FALSE) {
 
     # get important dimensions
     X <- as.matrix(X)
@@ -116,9 +116,9 @@ kld_est_gnn <- function(X, Y = NULL, q = NULL, l = k, k = 1, eps = 0.01, log.q =
     rho_l <- vapply(1:n, function(i) nnXX[i,l[i]], 1)
 
     # check validity of input: one- or two-sample problem?
-    if (!xor(is.null(Y),is.null(q))) stop("Either input Y or q must be provided.")
+    two.sample <- is_two_sample(Y,q)
 
-    if (!is.null(Y)) {
+    if (two.sample) {
         # two-sample problem
         Y <- as.matrix(Y)
         m <- nrow(Y) # number of samples in Y
@@ -155,7 +155,17 @@ kld_est_gnn <- function(X, Y = NULL, q = NULL, l = k, k = 1, eps = 0.01, log.q =
 #' This is the bias-reduced generalized k-NN based KL divergence estimator from
 #' Wang et al. (2009) specified in Eq.(29).
 #'
-#' `TODO`: more details on the algorithm!
+#' Finite sample bias reduction is achieved by an adaptive choice of the number
+#' of nearest neighbours. Instead of fixing the number of nearest neighbours
+#' upfront, which results in different distances \eqn{\rho^l_i,\nu^k_i} of a
+#' datapoint \eqn{x_i} to its \eqn{l}-th nearest neighbours in \eqn{X} and
+#' \eqn{k}-th nearest neighbours in \eqn{Y}, respectively, the number of
+#' neighbours \eqn{l,k} is chosen to render \eqn{\rho^l_i,\nu^k_i} comparable.
+#' Here, this is done by choosing the maximum number of neighbours \eqn{l,k}
+#' smaller than \eqn{\delta_i:=\max(\rho^1_i,\nu^1_i)}.
+#'
+#' Since the bias reduction explicitly uses both samples `X` and `Y`, one-sample
+#' estimation is not possible using this method.
 #'
 #' Reference:
 #' Wang, Kulkarni and Verdú, "Divergence Estimation for Multidimensional
@@ -163,15 +173,15 @@ kld_est_gnn <- function(X, Y = NULL, q = NULL, l = k, k = 1, eps = 0.01, log.q =
 #' Theory, Vol. 55, No. 5 (2009). DOI: https://doi.org/10.1109/TIT.2009.2016060
 #'
 #' @inherit kld_est_nn params return examples
-#' @param max.k Maximum numbers of nearest neighbours to compute (default: `50`).
+#' @param max.k Maximum numbers of nearest neighbours to compute (default: `100`).
 #'    A larger `max.k` may yield a more accurate KL-D estimate (see `warn.max.k`),
 #'    but will always increase the computational cost.
-#' @param warn.max.k If `TRUE` (the default), warn if `max.k` is such that more
-#'    than `max.k` neighbours are within the neighbourhood for some data
-#'    points. In this case, only the first `max.k` neighbours will be counted.
+#' @param warn.max.k If `TRUE` (the default), warns if `max.k` is such that more
+#'    than `max.k` neighbours are within the neighbourhood \eqn{\delta} for some
+#'    data point(s). In this case, only the first `max.k` neighbours are counted.
 #'    As a consequence, `max.k` may required to be increased.
 #' @export
-kld_est_brnn <- function(X, Y, max.k = 50, warn.max.k = TRUE, eps = 0.01) {
+kld_est_brnn <- function(X, Y, max.k = 100, warn.max.k = TRUE, eps = 0) {
 
     # get important dimensions
     X <- as.matrix(X)
@@ -198,7 +208,7 @@ kld_est_brnn <- function(X, Y, max.k = 50, warn.max.k = TRUE, eps = 0.01) {
                       'Increase input "max.k" to investigate the impact of this.'))
     }
 
-    # distance to the k-th / l-th nearest neighbours
+    # distance to the k-th / l-th nearest neighbours (similar order of magnitude)
     rho_l <- vapply(1:n, function(i) nnXX[i,l[i]], 1)
     nu_k <- vapply(1:n, function(i) nnYX[i,k[i]], 1)
 

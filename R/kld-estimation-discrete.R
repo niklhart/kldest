@@ -3,15 +3,24 @@
 #' Plug-in KL divergence estimator for samples from discrete distributions
 #'
 #' @inherit kld_est_kde return
-#' @param X,Y Two samples from discrete distributions, specified as vectors,
-#'    matrices or data frames. Argument `Y` can be omitted if argument `q` is
-#'    given (see below).
-#' @param q The probability mass function of the approximate distribution \eqn{Q}.
+#' @param X,Y  `n`-by-`d` and `m`-by-`d` matrices or data frames, representing
+#'    `n` samples from the true discrete distribution \eqn{P} and `m` samples from
+#'    the approximate discrete distribution \eqn{Q}, both in `d` dimensions.
+#'    Vector input is treated as a column matrix. Argument `Y` can be omitted if
+#'    argument `q` is given (see below).
+#' @param q The probability mass function of the approximate distribution
+#'    \eqn{Q}. Currently, the one-sample problem is only implemented for `d=1`.
 #' @examples
-#' # 1D example
+#' # 1D example, two samples
 #' X <- c(rep('M',5),rep('F',5))
 #' Y <- c(rep('M',6),rep('F',4))
 #' kld_est_discrete(X, Y)
+#'
+#' # 1D example, one sample
+#' X <- c(rep(0,4),rep(1,6))
+#' q <- function(x) dbinom(x, size = 1, prob = 0.5)
+#' kld_est_discrete(X, q = q)
+#'
 #' @export
 kld_est_discrete <- function(X, Y = NULL, q = NULL) {
 
@@ -21,9 +30,8 @@ kld_est_discrete <- function(X, Y = NULL, q = NULL) {
     n <- nrow(X) # number of samples in X
 
     # one- or two-sample problem?
-    two.sample <- !is.null(Y)
-    if (!xor(is.null(Y),is.null(q))) stop("Either input `Y` or `q` must be specified.")
-    if (!is.null(q) && d > 1) stop("One-sample version currently only implemented in 1D.")
+    two.sample <- is_two_sample(Y,q)
+    if (!two.sample && d > 1) stop("One-sample version currently only implemented in 1D.")
 
     if (two.sample) {
         Y <- as.data.frame(Y)

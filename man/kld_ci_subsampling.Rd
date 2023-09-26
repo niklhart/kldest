@@ -53,11 +53,12 @@ asymptotic coverage \eqn{1 - \alpha} as long as \eqn{b_n/n\rightarrow 0},
 }
 \details{
 Reference:
+
 Politis and Romano, "Large sample confidence regions based on subsamples under
 minimal assumptions", The Annals of Statistics, Vol. 22, No. 4 (1994).
 }
 \examples{
-# 1D Gaussian
+# 1D Gaussian (one- and two-sample problems)
 X <- rnorm(100)
 Y <- rnorm(100, mean = 1, sd = 2)
 q <- function(x) dnorm(x, mean =1, sd = 2)

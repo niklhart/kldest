@@ -18,7 +18,7 @@ integration via the trapezoidal rule (default: \code{FALSE})?}
 argument \code{kernel})}
 }
 \value{
-A scalar, the estimated Kullback-Leibler divergence \eqn{D_{KL}(P||Q)}.
+A scalar, the estimated Kullback-Leibler divergence \eqn{\hat D_{KL}(P||Q)}.
 }
 \description{
 This estimation method approximates the densities of the unknown distributions

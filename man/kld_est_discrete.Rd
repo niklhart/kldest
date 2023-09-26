@@ -7,11 +7,14 @@
 kld_est_discrete(X, Y = NULL, q = NULL)
 }
 \arguments{
-\item{X, Y}{Two samples from discrete distributions, specified as vectors,
-matrices or data frames. Argument \code{Y} can be omitted if argument \code{q} is
-given (see below).}
+\item{X, Y}{\code{n}-by-\code{d} and \code{m}-by-\code{d} matrices or data frames, representing
+\code{n} samples from the true discrete distribution \eqn{P} and \code{m} samples from
+the approximate discrete distribution \eqn{Q}, both in \code{d} dimensions.
+Vector input is treated as a column matrix. Argument \code{Y} can be omitted if
+argument \code{q} is given (see below).}
 
-\item{q}{The probability mass function of the approximate distribution \eqn{Q}.}
+\item{q}{The probability mass function of the approximate distribution
+\eqn{Q}. Currently, the one-sample problem is only implemented for \code{d=1}.}
 }
 \value{
 A scalar, the estimated Kullback-Leibler divergence \eqn{D_{KL}(P||Q)}.
@@ -20,8 +23,14 @@ A scalar, the estimated Kullback-Leibler divergence \eqn{D_{KL}(P||Q)}.
 Plug-in KL divergence estimator for samples from discrete distributions
 }
 \examples{
-# 1D example
+# 1D example, two samples
 X <- c(rep('M',5),rep('F',5))
 Y <- c(rep('M',6),rep('F',4))
 kld_est_discrete(X, Y)
+
+# 1D example, one sample
+X <- c(rep(0,4),rep(1,6))
+q <- function(x) dbinom(x, size = 1, prob = 0.5)
+kld_est_discrete(X, q = q)
+
 }

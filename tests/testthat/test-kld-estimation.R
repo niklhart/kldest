@@ -18,8 +18,8 @@ test_that("All estimators for continuous data work well in an easy 1D example", 
     kld_kde1a <- kld_est_kde1(X,Y)
     kld_kde1b <- kld_est_kde1(X,Y, MC = TRUE)
 
-    kld_nn1a <- kld_est_nn(X,Y, eps = 0.01)
-    kld_nn1b <- kld_est_nn(X,Y, eps = 0)
+    kld_nn1a <- kld_est_nn(X,Y, eps = 0.01) # approximate 1-NN
+    kld_nn1b <- kld_est_nn(X,Y, eps = 0)    # exact 1-NN
     kld_nn1c <- kld_est_nn(X,q = q)
     kld_nn1d <- kld_est_nn(X,q = function(x) log(q(x)), log.q = TRUE)
     kld_nn2  <- kld_est_nn(X,Y, k = 2)
@@ -73,15 +73,6 @@ test_that("The nearest neighbour based estimator agrees with hardcoded results",
     KL_num <- kld_est_nn(X, Y)
 
     expect_equal(KL_ref,KL_num)
-
-})
-
-test_that("Plain NN detects erroneous Y / q input", {
-
-    X <- 1:2
-    Y <- 3:4
-    expect_error(kld_est_nn(X = X),"Either input Y or q must be provided.")
-    expect_error(kld_est_nn(X = X, Y = Y, q = dnorm),"Either input Y or q must be provided.")
 
 })
 
