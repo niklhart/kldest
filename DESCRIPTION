@@ -6,8 +6,9 @@ Authors@R:
     person("Niklas", "Hartung", , "niklas.hartung@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-4000-6525"))
 Maintainer: Niklas Hartung <niklas.hartung@gmail.com>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: A collection of estimation algorithms of Kullback-Leibler divergence, 
+    based on one or two samples, and including uncertainty quantification.
+    Distributions can be uni- or multivariate and continous, discrete or mixed.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -20,6 +21,7 @@ Suggests:
     knitr,
     rmarkdown,
     MASS,
+    KernSmooth,
     testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Config/testthat/edition: 3
