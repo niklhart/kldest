@@ -49,7 +49,6 @@ most flexible approach.
 
 ```{r example}
 library(kldest)
-
 ```
 
 ### KL divergence (1-D Gaussians)
