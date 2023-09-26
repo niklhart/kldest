@@ -6,7 +6,7 @@
 \alias{kldest-package}
 \title{kldest: Sample-based estimation of Kullback-Leibler divergence}
 \description{
-More about what it does (maybe more than one line) Use four spaces when indenting paragraphs within the Description.
+A collection of estimation algorithms of Kullback-Leibler divergence, based on one or two samples, and including uncertainty quantification. Distributions can be uni- or multivariate and continous, discrete or mixed.
 }
 \author{
 \strong{Maintainer}: Niklas Hartung \email{niklas.hartung@gmail.com} (\href{https://orcid.org/0000-0002-4000-6525}{ORCID})
