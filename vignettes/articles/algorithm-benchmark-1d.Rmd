@@ -22,24 +22,32 @@ Using different analytically tractable distributions and varying sample sizes,
 we evaluate different methods in terms of their accuracy and runtime in the
 two-sample problem.
 
-## Specification of simulation scenario
+## Specification of benchmark scenario
 
-### Distributions and KL-D
+### Distributions and analytical KL divergence
 
 We investigate the following pairs of distributions,
 for which analytical KL divergence values are known:
 
+* $\text{Exp}(1)$ vs. $\text{Exp}(1/12)$.
 * $\mathcal{N}(0,1)$ vs. $\mathcal{N}(1,2^2)$,
 * $\mathcal{U}(1,2)$ vs. $\mathcal{U}(0,4)$,
-* $\text{Exp}(1)$ vs. $\text{Exp}(1/12)$.
 
 ```{r}
 p <- list(
+    exponential = list(lambda1 = 1, lambda2 = 1/12),
     gaussian    = list(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2),
-    uniform     = list(a1 = 1, b1 = 2, a2 = 0, b2 = 4),
-    exponential = list(lambda1 = 1, lambda2 = 1/12)
+    uniform     = list(a1 = 1, b1 = 2, a2 = 0, b2 = 4)
 )
 distributions <- list(
+    exponential = list(
+        samples = function(n, m) {
+            X <- rexp(n, rate = p$exponential$lambda1)
+            Y <- rexp(m, rate = p$exponential$lambda2)
+            list(X = X, Y = Y)
+        },
+        kld = do.call(kld_exponential, p$exponential)
+    ),
     gaussian = list(
         samples = function(n, m) {
             X <- rnorm(n, mean = p$gaussian$mu1, sd = sqrt(p$gaussian$sigma1))
@@ -55,14 +63,6 @@ distributions <- list(
             list(X = X, Y = Y)
         },
         kld = do.call(kld_uniform, p$uniform)
-    ),
-    exponential = list(
-        samples = function(n, m) {
-            X <- rexp(n, rate = p$exponential$lambda1)
-            Y <- rexp(m, rate = p$exponential$lambda2)
-            list(X = X, Y = Y)
-        },
-        kld = do.call(kld_exponential, p$exponential)
     )
 )
 ```
@@ -161,10 +161,12 @@ rm(tmp1,tmp2)
 ggplot(results, aes(x=sample.size, y=kld, color=algorithm)) + 
     geom_jitter(position=position_dodge(.5)) + 
     facet_wrap("distribution", scales = "free_y") +
-    geom_hline(data = data.frame(distribution = names(distributions), kldtrue = vapply(distributions, function(x) x$kld,1)), 
-               aes(yintercept = kldtrue))+
-    xlab("Sample sizes") + ylab("KL divergence estimate") + ggtitle("Accuracy of different algorithms")
-
+    geom_hline(data = data.frame(distribution = names(distributions), 
+                                 kldtrue = vapply(distributions, function(x) x$kld,1)), 
+               aes(yintercept = kldtrue)) +
+    xlab("Sample sizes") + ylab("KL divergence estimate") + 
+    ggtitle("Accuracy of different algorithms") +
+    theme(plot.title = element_text(hjust = 0.5))
 ```
 
 $\Rightarrow$ all estimators converge towards the true KL divergence (black solid
@@ -180,7 +182,9 @@ ggplot(results, aes(x=sample.size, y=runtime, color=algorithm)) +
     scale_y_log10() + 
     geom_jitter(position=position_dodge(.5)) + 
     facet_wrap("distribution", scales = "free_y") +
-    xlab("Sample sizes") + ylab("Runtime [sec]") + ggtitle("Runtime of different algorithms")
+    xlab("Sample sizes") + ylab("Runtime [sec]") + 
+    ggtitle("Runtime of different algorithms") +
+    theme(plot.title = element_text(hjust = 0.5))
 ```
 
 $\Rightarrow$ Kernel density-based estimators, which use `stats::density`, are 

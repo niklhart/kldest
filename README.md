@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# kldest
+# kldest: Kullback-Leibler divergence estimation
 
 <!-- badges: start -->
 
@@ -10,7 +10,7 @@
 coverage](https://codecov.io/gh/niklhart/kldest/branch/master/graph/badge.svg)](https://app.codecov.io/gh/niklhart/kldest?branch=master)
 <!-- badges: end -->
 
-The goal of kldest is to estimate Kullback-Leibler (KL) divergence
+The goal of `kldest` is to estimate Kullback-Leibler (KL) divergence
 $D_{KL}(P||Q)$ between two probability distributions $P$ and $Q$ based
 on:
 
@@ -21,10 +21,10 @@ on:
 The distributions $P$ and $Q$ may be uni- or multivariate, and they may
 be discrete, continuous or mixed discrete/continuous.
 
-Different estimation algorithms are provided, either based on nearest
-neighbour density estimation or kernel density estimation. Confidence
-intervals for KL divergence can also be computed, either via
-bootstrapping or subsampling.
+Different estimation algorithms are provided for continuous
+distributions, either based on nearest neighbour density estimation or
+kernel density estimation. Confidence intervals for KL divergence can
+also be computed, either via subsampling (preferred) or bootstrapping.
 
 ## Installation
 
@@ -34,9 +34,22 @@ You can install the development version of kldest from
 ``` r
 # install.packages("devtools")
 devtools::install_github("niklhart/kldest")
+#> Downloading GitHub repo niklhart/kldest@HEAD
+#> 
+#> ── R CMD build ─────────────────────────────────────────────────────────────────
+#>      checking for file ‘/private/var/folders/tg/59stjlfx5g782ss4jp7d0twc0000gn/T/RtmpIw53Xw/remotes129033e9d646e/niklhart-kldest-0500dd4/DESCRIPTION’ ...  ✔  checking for file ‘/private/var/folders/tg/59stjlfx5g782ss4jp7d0twc0000gn/T/RtmpIw53Xw/remotes129033e9d646e/niklhart-kldest-0500dd4/DESCRIPTION’
+#>   ─  preparing ‘kldest’:
+#>      checking DESCRIPTION meta-information ...  ✔  checking DESCRIPTION meta-information
+#>   ─  checking for LF line-endings in source and make files and shell scripts
+#>   ─  checking for empty or unneeded directories
+#>    Removed empty directory ‘kldest/vignettes’
+#>    Omitted ‘LazyData’ from DESCRIPTION
+#> ─  building ‘kldest_0.1.0.tar.gz’
+#>      
+#> 
 ```
 
-## Minimal example for nearest neighbour density estimation
+## A minimal example for KL divergence estimation
 
 KL divergence estimation based on nearest neighbour density estimates is
 the most flexible approach.
@@ -45,36 +58,53 @@ the most flexible approach.
 library(kldest)
 ```
 
-### KL divergence (1-D Gaussians)
+### KL divergence between 1-D Gaussians
 
-Two Samples from Gaussians
+Analytical KL divergence:
+
+``` r
+kld_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
+#> [1] 0.4431472
+```
+
+Estimate based on two samples from these Gaussians:
 
 ``` r
 X <- rnorm(100)
 Y <- rnorm(100, mean = 1, sd = 2)
-kld_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
-#> [1] 0.4431472
 kld_est_nn(X, Y)
-#> [1] 0.6154485
+#> [1] 0.4679979
 ```
 
-One sample from a Gaussian and a Gaussian density
+Estimate based on a sample from the first Gaussian and the density of
+the second:
 
 ``` r
 q <- function(x) dnorm(x, mean = 1, sd =2)
 kld_est_nn(X, q = q)
-#> [1] 0.3971703
+#> [1] 0.5355297
 ```
 
-Uncertainty quantification
+Uncertainty quantification via subsampling:
 
 ``` r
 kld_ci_subsampling(X, q = q)$ci
-#>       2.5%      97.5% 
-#> 0.03345729 0.62108311
+#>      2.5%     97.5% 
+#> 0.1689177 0.7920929
 ```
 
-### KL-D between two samples from 2-D Gaussians
+### KL divergence between 2-D Gaussians
+
+Analytical KL divergence between an uncorrelated and a correlated
+Gaussian:
+
+``` r
+kld_gaussian(mu1 = rep(0,2), sigma1 = diag(2),
+             mu2 = rep(0,2), sigma2 = matrix(c(1,1,1,2),nrow=2))
+#> [1] 0.5
+```
+
+Estimate based on two samples from these Gaussians:
 
 ``` r
 X1 <- rnorm(100)
@@ -84,12 +114,6 @@ Y2 <- Y1 + rnorm(100)
 X <- cbind(X1,X2)
 Y <- cbind(Y1,Y2)
 
-# True KL divergence
-kld_gaussian(mu1 = rep(0,2), sigma1 = diag(2),
-             mu2 = rep(0,2), sigma2 = matrix(c(1,1,1,2),nrow=2))
-#> [1] 0.5
-
-# KL divergence estimate
 kld_est_nn(X, Y)
-#> [1] 0.2804118
+#> [1] 0.3889895
 ```
