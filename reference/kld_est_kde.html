@@ -102,11 +102,11 @@ any number of dimensions but is very slow.</p>
 <span class="r-in"><span><span class="fu"><a href="kld_gaussian.html">kld_gaussian</a></span><span class="op">(</span>mu1 <span class="op">=</span> <span class="fl">0</span>, sigma1 <span class="op">=</span> <span class="fl">1</span>, mu2 <span class="op">=</span> <span class="fl">1</span>, sigma2 <span class="op">=</span> <span class="fl">2</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.4431472</span>
 <span class="r-in"><span><span class="fu"><a href="kld_est_kde1.html">kld_est_kde1</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.4151536</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.4968694</span>
 <span class="r-in"><span><span class="fu"><a href="kld_est_nn.html">kld_est_nn</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.04735289</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.7925152</span>
 <span class="r-in"><span><span class="fu"><a href="kld_est_brnn.html">kld_est_brnn</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.1903968</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.6199678</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># KL-D between two samples from 2-D Gaussians:</span></span></span>
 <span class="r-in"><span><span class="va">X1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span></span></span>
@@ -119,11 +119,11 @@ any number of dimensions but is very slow.</p>
 <span class="r-in"><span>             mu2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">2</span><span class="op">)</span>, sigma2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span>,nrow<span class="op">=</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.5</span>
 <span class="r-in"><span><span class="fu"><a href="kld_est_kde2.html">kld_est_kde2</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.1202541</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.1785314</span>
 <span class="r-in"><span><span class="fu"><a href="kld_est_nn.html">kld_est_nn</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.140686</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.5474302</span>
 <span class="r-in"><span><span class="fu"><a href="kld_est_brnn.html">kld_est_brnn</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.1379448</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.5181611</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
