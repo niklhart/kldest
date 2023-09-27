@@ -42,6 +42,12 @@
 <li class="nav-item">
   <a class="nav-link" href="reference/index.html">Reference</a>
 </li>
+<li class="nav-item dropdown">
+  <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
+  <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="articles/algorithm-benchmark-1d.html">Algorithm benchmark in 1D</a>
+  </div>
+</li>
       </ul>
 <form class="form-inline my-2 my-lg-0" role="search">
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="search.json" id="search-input" placeholder="Search for" autocomplete="off">
@@ -90,17 +96,17 @@
 <span><span class="fu"><a href="reference/kld_gaussian.html">kld_gaussian</a></span><span class="op">(</span>mu1 <span class="op">=</span> <span class="fl">0</span>, sigma1 <span class="op">=</span> <span class="fl">1</span>, mu2 <span class="op">=</span> <span class="fl">1</span>, sigma2 <span class="op">=</span> <span class="fl">2</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0.4431472</span></span>
 <span><span class="fu"><a href="reference/kld_est_nn.html">kld_est_nn</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.5226528</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.6154485</span></span></code></pre></div>
 <p>One sample from a Gaussian and a Gaussian density</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">q</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span><span class="va">x</span>, mean <span class="op">=</span> <span class="fl">1</span>, sd <span class="op">=</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/kld_est_nn.html">kld_est_nn</a></span><span class="op">(</span><span class="va">X</span>, q <span class="op">=</span> <span class="va">q</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.5483863</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.3971703</span></span></code></pre></div>
 <p>Uncertainty quantification</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/kld_ci_subsampling.html">kld_ci_subsampling</a></span><span class="op">(</span><span class="va">X</span>, q <span class="op">=</span> <span class="va">q</span><span class="op">)</span><span class="op">$</span><span class="va">ci</span></span>
-<span><span class="co">#&gt;      2.5%     97.5% </span></span>
-<span><span class="co">#&gt; 0.2050617 0.8388511</span></span></code></pre></div>
+<span><span class="co">#&gt;       2.5%      97.5% </span></span>
+<span><span class="co">#&gt; 0.03345729 0.62108311</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="kl-d-between-two-samples-from-2-d-gaussians">KL-D between two samples from 2-D Gaussians<a class="anchor" aria-label="anchor" href="#kl-d-between-two-samples-from-2-d-gaussians"></a>
@@ -120,7 +126,7 @@
 <span></span>
 <span><span class="co"># KL divergence estimate</span></span>
 <span><span class="fu"><a href="reference/kld_est_nn.html">kld_est_nn</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.4558074</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.2804118</span></span></code></pre></div>
 </div>
 </div>
 </div>

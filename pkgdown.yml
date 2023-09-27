@@ -1,8 +1,9 @@
 pandoc: 2.19.2
 pkgdown: 2.0.7
 pkgdown_sha: ~
-articles: {}
-last_built: 2023-09-27T07:15Z
+articles:
+  algorithm-benchmark-1d: algorithm-benchmark-1d.html
+last_built: 2023-09-27T08:06Z
 urls:
   reference: https://niklhart.github.io/kldest/reference
   article: https://niklhart.github.io/kldest/articles
