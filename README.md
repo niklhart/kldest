@@ -34,19 +34,6 @@ You can install the development version of kldest from
 ``` r
 # install.packages("devtools")
 devtools::install_github("niklhart/kldest")
-#> Downloading GitHub repo niklhart/kldest@HEAD
-#> 
-#> ── R CMD build ─────────────────────────────────────────────────────────────────
-#>      checking for file ‘/private/var/folders/tg/59stjlfx5g782ss4jp7d0twc0000gn/T/RtmpIw53Xw/remotes129033e9d646e/niklhart-kldest-0500dd4/DESCRIPTION’ ...  ✔  checking for file ‘/private/var/folders/tg/59stjlfx5g782ss4jp7d0twc0000gn/T/RtmpIw53Xw/remotes129033e9d646e/niklhart-kldest-0500dd4/DESCRIPTION’
-#>   ─  preparing ‘kldest’:
-#>      checking DESCRIPTION meta-information ...  ✔  checking DESCRIPTION meta-information
-#>   ─  checking for LF line-endings in source and make files and shell scripts
-#>   ─  checking for empty or unneeded directories
-#>    Removed empty directory ‘kldest/vignettes’
-#>    Omitted ‘LazyData’ from DESCRIPTION
-#> ─  building ‘kldest_0.1.0.tar.gz’
-#>      
-#> 
 ```
 
 ## A minimal example for KL divergence estimation
@@ -73,7 +60,7 @@ Estimate based on two samples from these Gaussians:
 X <- rnorm(100)
 Y <- rnorm(100, mean = 1, sd = 2)
 kld_est_nn(X, Y)
-#> [1] 0.4679979
+#> [1] 0.630473
 ```
 
 Estimate based on a sample from the first Gaussian and the density of
@@ -82,15 +69,15 @@ the second:
 ``` r
 q <- function(x) dnorm(x, mean = 1, sd =2)
 kld_est_nn(X, q = q)
-#> [1] 0.5355297
+#> [1] 0.3904603
 ```
 
 Uncertainty quantification via subsampling:
 
 ``` r
 kld_ci_subsampling(X, q = q)$ci
-#>      2.5%     97.5% 
-#> 0.1689177 0.7920929
+#>       2.5%      97.5% 
+#> 0.06544115 0.65278508
 ```
 
 ### KL divergence between 2-D Gaussians
@@ -115,5 +102,5 @@ X <- cbind(X1,X2)
 Y <- cbind(Y1,Y2)
 
 kld_est_nn(X, Y)
-#> [1] 0.3889895
+#> [1] 0.2497069
 ```

@@ -38,7 +38,7 @@ via subsampling (preferred) or bootstrapping.
 
 You can install the development version of kldest from [GitHub](https://github.com/) with:
 
-```{r}
+```{r, eval = FALSE}
 # install.packages("devtools")
 devtools::install_github("niklhart/kldest")
 ```
