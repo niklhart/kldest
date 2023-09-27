@@ -12,7 +12,7 @@ Wang et al. (2009) specified in Eq.(29)."><!-- mathjax --><script src="https://c
     
     <a class="navbar-brand me-2" href="../index.html">kldest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9001</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -26,7 +26,11 @@ Wang et al. (2009) specified in Eq.(29)."><!-- mathjax --><script src="https://c
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="../articles/algorithm-benchmark-10d.html">Algorithm benchmark in 10D</a>
     <a class="dropdown-item" href="../articles/algorithm-benchmark-1d.html">Algorithm benchmark in 1D</a>
+    <a class="dropdown-item" href="../articles/algorithm-benchmark-2d.html">Algorithm benchmark in 2D</a>
+    <a class="dropdown-item" href="../articles/comparison-1sample-2sample-1D.html">Comparing 1- vs. 2-sample estimation in 1-D</a>
+    <a class="dropdown-item" href="../articles/uncertainty-quantification.html">Confidence intervals for KL divergence</a>
   </div>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
@@ -119,15 +123,15 @@ Theory, Vol. 55, No. 5 (2009). DOI: https://doi.org/10.1109/TIT.2009.2016060</p>
 <span class="r-in"><span><span class="fu"><a href="kld_gaussian.html">kld_gaussian</a></span><span class="op">(</span>mu1 <span class="op">=</span> <span class="fl">0</span>, sigma1 <span class="op">=</span> <span class="fl">1</span>, mu2 <span class="op">=</span> <span class="fl">1</span>, sigma2 <span class="op">=</span> <span class="fl">2</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.4431472</span>
 <span class="r-in"><span><span class="fu"><a href="kld_est_nn.html">kld_est_nn</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.4337884</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.3403113</span>
 <span class="r-in"><span><span class="fu"><a href="kld_est_nn.html">kld_est_nn</a></span><span class="op">(</span><span class="va">X</span>, q <span class="op">=</span> <span class="va">q</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.3070883</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.3790321</span>
 <span class="r-in"><span><span class="fu"><a href="kld_est_nn.html">kld_est_nn</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, k <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.4317925</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.4845096</span>
 <span class="r-in"><span><span class="fu"><a href="kld_est_nn.html">kld_est_nn</a></span><span class="op">(</span><span class="va">X</span>, q <span class="op">=</span> <span class="va">q</span>, k <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.518183</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.4487357</span>
 <span class="r-in"><span><span class="fu">kld_est_brnn</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.3539463</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.4449336</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># KL-D between two samples from 2-D Gaussians:</span></span></span>
@@ -141,11 +145,11 @@ Theory, Vol. 55, No. 5 (2009). DOI: https://doi.org/10.1109/TIT.2009.2016060</p>
 <span class="r-in"><span>             mu2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">2</span><span class="op">)</span>, sigma2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span>,nrow<span class="op">=</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.5</span>
 <span class="r-in"><span><span class="fu"><a href="kld_est_nn.html">kld_est_nn</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.04263349</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2258293</span>
 <span class="r-in"><span><span class="fu"><a href="kld_est_nn.html">kld_est_nn</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, k <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.06773843</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2237877</span>
 <span class="r-in"><span><span class="fu">kld_est_brnn</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.04918344</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2589733</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

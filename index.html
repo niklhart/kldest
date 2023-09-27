@@ -5,7 +5,8 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="description" content="A collection of estimation algorithms of Kullback-Leibler divergence, 
+<meta name="description" content="A collection of estimation algorithms for Kullback-Leibler 
+    divergence between two probability distributions, 
     based on one or two samples, and including uncertainty quantification.
     Distributions can be uni- or multivariate and continous, discrete or mixed.">
 <title>Sample-based estimation of Kullback-Leibler divergence • kldest</title>
@@ -14,7 +15,8 @@
 <script src="deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Sample-based estimation of Kullback-Leibler divergence">
-<meta property="og:description" content="A collection of estimation algorithms of Kullback-Leibler divergence, 
+<meta property="og:description" content="A collection of estimation algorithms for Kullback-Leibler 
+    divergence between two probability distributions, 
     based on one or two samples, and including uncertainty quantification.
     Distributions can be uni- or multivariate and continous, discrete or mixed.">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -30,7 +32,7 @@
     
     <a class="navbar-brand me-2" href="index.html">kldest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9001</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,7 +47,11 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
+    <a class="dropdown-item" href="articles/algorithm-benchmark-10d.html">Algorithm benchmark in 10D</a>
     <a class="dropdown-item" href="articles/algorithm-benchmark-1d.html">Algorithm benchmark in 1D</a>
+    <a class="dropdown-item" href="articles/algorithm-benchmark-2d.html">Algorithm benchmark in 2D</a>
+    <a class="dropdown-item" href="articles/comparison-1sample-2sample-1D.html">Comparing 1- vs. 2-sample estimation in 1-D</a>
+    <a class="dropdown-item" href="articles/uncertainty-quantification.html">Confidence intervals for KL divergence</a>
   </div>
 </li>
       </ul>
@@ -61,17 +67,17 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="kldest">kldest<a class="anchor" aria-label="anchor" href="#kldest"></a>
+<div class="page-header"><h1 id="kldest-kullback-leibler-divergence-estimation">kldest: Kullback-Leibler divergence estimation<a class="anchor" aria-label="anchor" href="#kldest-kullback-leibler-divergence-estimation"></a>
 </h1></div>
 <!-- badges: start -->
 
-<p>The goal of kldest is to estimate Kullback-Leibler (KL) divergence <span class="math inline"><em>D</em><sub><em>K</em><em>L</em></sub>(<em>P</em>||<em>Q</em>)</span> between two probability distributions <span class="math inline"><em>P</em></span> and <span class="math inline"><em>Q</em></span> based on:</p>
+<p>The goal of <code>kldest</code> is to estimate Kullback-Leibler (KL) divergence <span class="math inline"><em>D</em><sub><em>K</em><em>L</em></sub>(<em>P</em>||<em>Q</em>)</span> between two probability distributions <span class="math inline"><em>P</em></span> and <span class="math inline"><em>Q</em></span> based on:</p>
 <ul>
 <li>a sample <span class="math inline"><em>x</em><sub>1</sub>, ..., <em>x</em><sub><em>n</em></sub></span> from <span class="math inline"><em>P</em></span> and the probability density <span class="math inline"><em>q</em></span> of <span class="math inline"><em>Q</em></span>, or</li>
 <li>samples <span class="math inline"><em>x</em><sub>1</sub>, ..., <em>x</em><sub><em>n</em></sub></span> from <span class="math inline"><em>P</em></span> and <span class="math inline"><em>y</em><sub>1</sub>, ..., <em>y</em><sub><em>m</em></sub></span> from <span class="math inline"><em>Q</em></span>.</li>
 </ul>
 <p>The distributions <span class="math inline"><em>P</em></span> and <span class="math inline"><em>Q</em></span> may be uni- or multivariate, and they may be discrete, continuous or mixed discrete/continuous.</p>
-<p>Different estimation algorithms are provided, either based on nearest neighbour density estimation or kernel density estimation. Confidence intervals for KL divergence can also be computed, either via bootstrapping or subsampling.</p>
+<p>Different estimation algorithms are provided for continuous distributions, either based on nearest neighbour density estimation or kernel density estimation. Confidence intervals for KL divergence can also be computed, either via subsampling (preferred) or bootstrapping.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -81,37 +87,45 @@
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"niklhart/kldest"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="minimal-example-for-nearest-neighbour-density-estimation">Minimal example for nearest neighbour density estimation<a class="anchor" aria-label="anchor" href="#minimal-example-for-nearest-neighbour-density-estimation"></a>
+<h2 id="a-minimal-example-for-kl-divergence-estimation">A minimal example for KL divergence estimation<a class="anchor" aria-label="anchor" href="#a-minimal-example-for-kl-divergence-estimation"></a>
 </h2>
 <p>KL divergence estimation based on nearest neighbour density estimates is the most flexible approach.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://niklhart.github.io/kldest/">kldest</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
-<h3 id="kl-divergence-1-d-gaussians">KL divergence (1-D Gaussians)<a class="anchor" aria-label="anchor" href="#kl-divergence-1-d-gaussians"></a>
+<h3 id="kl-divergence-between-1-d-gaussians">KL divergence between 1-D Gaussians<a class="anchor" aria-label="anchor" href="#kl-divergence-between-1-d-gaussians"></a>
 </h3>
-<p>Two Samples from Gaussians</p>
+<p>Analytical KL divergence:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/kld_gaussian.html">kld_gaussian</a></span><span class="op">(</span>mu1 <span class="op">=</span> <span class="fl">0</span>, sigma1 <span class="op">=</span> <span class="fl">1</span>, mu2 <span class="op">=</span> <span class="fl">1</span>, sigma2 <span class="op">=</span> <span class="fl">2</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0.4431472</span></span></code></pre></div>
+<p>Estimate based on two samples from these Gaussians:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span></span>
 <span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>, mean <span class="op">=</span> <span class="fl">1</span>, sd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/kld_gaussian.html">kld_gaussian</a></span><span class="op">(</span>mu1 <span class="op">=</span> <span class="fl">0</span>, sigma1 <span class="op">=</span> <span class="fl">1</span>, mu2 <span class="op">=</span> <span class="fl">1</span>, sigma2 <span class="op">=</span> <span class="fl">2</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.4431472</span></span>
 <span><span class="fu"><a href="reference/kld_est_nn.html">kld_est_nn</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.6154485</span></span></code></pre></div>
-<p>One sample from a Gaussian and a Gaussian density</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<span><span class="co">#&gt; [1] 0.630473</span></span></code></pre></div>
+<p>Estimate based on a sample from the first Gaussian and the density of the second:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">q</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span><span class="va">x</span>, mean <span class="op">=</span> <span class="fl">1</span>, sd <span class="op">=</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="fu"><a href="reference/kld_est_nn.html">kld_est_nn</a></span><span class="op">(</span><span class="va">X</span>, q <span class="op">=</span> <span class="va">q</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.3971703</span></span></code></pre></div>
-<p>Uncertainty quantification</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<span><span class="co">#&gt; [1] 0.3904603</span></span></code></pre></div>
+<p>Uncertainty quantification via subsampling:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/kld_ci_subsampling.html">kld_ci_subsampling</a></span><span class="op">(</span><span class="va">X</span>, q <span class="op">=</span> <span class="va">q</span><span class="op">)</span><span class="op">$</span><span class="va">ci</span></span>
 <span><span class="co">#&gt;       2.5%      97.5% </span></span>
-<span><span class="co">#&gt; 0.03345729 0.62108311</span></span></code></pre></div>
+<span><span class="co">#&gt; 0.06544115 0.65278508</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="kl-d-between-two-samples-from-2-d-gaussians">KL-D between two samples from 2-D Gaussians<a class="anchor" aria-label="anchor" href="#kl-d-between-two-samples-from-2-d-gaussians"></a>
+<h3 id="kl-divergence-between-2-d-gaussians">KL divergence between 2-D Gaussians<a class="anchor" aria-label="anchor" href="#kl-divergence-between-2-d-gaussians"></a>
 </h3>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<p>Analytical KL divergence between an uncorrelated and a correlated Gaussian:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/kld_gaussian.html">kld_gaussian</a></span><span class="op">(</span>mu1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">2</span><span class="op">)</span>, sigma1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span>,</span>
+<span>             mu2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">2</span><span class="op">)</span>, sigma2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span>,nrow<span class="op">=</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0.5</span></span></code></pre></div>
+<p>Estimate based on two samples from these Gaussians:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">X1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span></span>
 <span><span class="va">X2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span></span>
 <span><span class="va">Y1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span></span>
@@ -119,14 +133,8 @@
 <span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">X1</span>,<span class="va">X2</span><span class="op">)</span></span>
 <span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">Y1</span>,<span class="va">Y2</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># True KL divergence</span></span>
-<span><span class="fu"><a href="reference/kld_gaussian.html">kld_gaussian</a></span><span class="op">(</span>mu1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">2</span><span class="op">)</span>, sigma1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span>,</span>
-<span>             mu2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">2</span><span class="op">)</span>, sigma2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span>,nrow<span class="op">=</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.5</span></span>
-<span></span>
-<span><span class="co"># KL divergence estimate</span></span>
 <span><span class="fu"><a href="reference/kld_est_nn.html">kld_est_nn</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0.2804118</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.2497069</span></span></code></pre></div>
 </div>
 </div>
 </div>
@@ -149,7 +157,7 @@
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>Niklas Hartung <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0002-4000-6525" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li>Niklas Hartung <br><small class="roles"> Author, maintainer, copyright holder </small> <a href="https://orcid.org/0000-0002-4000-6525" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
 </ul>
 </div>
 
