@@ -55,7 +55,7 @@ Y <- rnorm(100, mean = 1, sd = 2)
 kld_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
 #> [1] 0.4431472
 kld_est_nn(X, Y)
-#> [1] 0.5226528
+#> [1] 0.6154485
 ```
 
 One sample from a Gaussian and a Gaussian density
@@ -63,15 +63,15 @@ One sample from a Gaussian and a Gaussian density
 ``` r
 q <- function(x) dnorm(x, mean = 1, sd =2)
 kld_est_nn(X, q = q)
-#> [1] 0.5483863
+#> [1] 0.3971703
 ```
 
 Uncertainty quantification
 
 ``` r
 kld_ci_subsampling(X, q = q)$ci
-#>      2.5%     97.5% 
-#> 0.2050617 0.8388511
+#>       2.5%      97.5% 
+#> 0.03345729 0.62108311
 ```
 
 ### KL-D between two samples from 2-D Gaussians
@@ -91,5 +91,5 @@ kld_gaussian(mu1 = rep(0,2), sigma1 = diag(2),
 
 # KL divergence estimate
 kld_est_nn(X, Y)
-#> [1] 0.4558074
+#> [1] 0.2804118
 ```
