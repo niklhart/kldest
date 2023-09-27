@@ -7,9 +7,9 @@
 kld_uniform(a1, b1, a2, b2)
 }
 \arguments{
-\item{a1, a2}{Range of true uniform distribution}
+\item{a1, b1}{Range of true uniform distribution}
 
-\item{lambda2}{Range of approximate uniform distribution}
+\item{a2, b2}{Range of approximate uniform distribution}
 }
 \value{
 A scalar (the Kullback-Leibler divergence)

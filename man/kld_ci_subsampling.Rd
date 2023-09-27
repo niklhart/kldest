@@ -26,18 +26,18 @@ the true distribution \eqn{P} and \code{m} samples from the approximate distribu
 
 \item{estimator}{The Kullback-Leibler divergence estimation method; a
 function expecting two inputs (\code{X} and \code{Y} or \code{q}, depending on arguments
-provided). Defaults to \code{kld_est_1nn}.}
+provided). Defaults to \code{kld_est_nn}.}
 
 \item{B}{Number of bootstrap replicates (default: \code{500}), the larger, the
 more accurate, but also more computationally expensive.}
 
 \item{alpha}{Error level, defaults to \code{0.05}.}
 
-\item{size}{A function specifying the size of the subsamples, defaults to
-\eqn{f(x) = x^{2/3}}.}
+\item{subsample.size}{A function specifying the size of the subsamples,
+defaults to \eqn{f(x) = x^{2/3}}.}
 
-\item{rate}{A function computing the convergence rate of the estimator as a
-function of sample sizes. Defaults to \eqn{f(x) = x^{1/2}}.}
+\item{convergence.rate}{A function computing the convergence rate of the
+estimator as a function of sample sizes. Defaults to \eqn{f(x) = x^{1/2}}.}
 }
 \value{
 A list with the fields \code{"est"} (the estimated KL divergence),

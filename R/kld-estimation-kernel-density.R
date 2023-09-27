@@ -6,7 +6,7 @@
 #' @description
 #' This estimation method approximates the densities of the unknown distributions
 #' \eqn{P} and \eqn{Q} by a kernel density estimate using function 'density' from
-#' package 'stats'.
+#' package 'stats'. Only the two-sample, not the one-sample problem is implemented.
 #'
 #' @inherit kld_est_nn return
 #' @param X,Y  Numeric vectors or single-column matrices, representing samples
@@ -14,15 +14,15 @@
 #'    \eqn{Q}, respectively.
 #' @param MC A boolean: use a Monte Carlo approximation instead of numerical
 #'    integration via the trapezoidal rule (default: `FALSE`)?
-#' @param ... Further parameters to passed on to function `stats::density` (e.g.,
-#'    argument `kernel`)
+#' @param ... Further parameters to passed on to `stats::density` (e.g.,
+#'    argument `bw`)
 #' @examples
 #' # KL-D between two samples from 1D Gaussians:
 #' X <- rnorm(100)
 #' Y <- rnorm(100, mean = 1, sd = 2)
-#' kl_div_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
-#' kldest_density1(X,Y)
-#' kldest_density1(X,Y, MC = TRUE)
+#' kld_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
+#' kld_est_kde1(X,Y)
+#' kld_est_kde1(X,Y, MC = TRUE)
 #' @export
 kld_est_kde1 <- function(X, Y, MC = FALSE, ...) {
 
@@ -58,6 +58,7 @@ kld_est_kde1 <- function(X, Y, MC = FALSE, ...) {
 #' 'bkde' from package 'KernSmooth'. If 'KernSmooth' is not installed, a message
 #' is issued and the (much) slower function 'kld_est_kde' is used instead.
 #'
+#' @inherit kld_est_nn return
 #' @param X,Y  `n`-by-`2` and `m`-by-`2` matrices, representing `n` samples from
 #'    the bivariate true distribution \eqn{P} and `m` samples from the approximate
 #'    distribution \eqn{Q}, respectively.
@@ -74,7 +75,6 @@ kld_est_kde1 <- function(X, Y, MC = FALSE, ...) {
 #'    grid. The weight of the uniform component is `eps` times the maximum density
 #'    estimate of \eqn{Q}. This increases the robustness of the estimator at the
 #'    expense of an additional bias. Defaults to `eps = 1e-5`.
-#' @returns A scalar, the estimated Kullback-Leibler divergence \eqn{\hat D_{KL}(P||Q)}.
 #' @examples
 #' # KL-D between two samples from 2-D Gaussians:
 #' X1 <- rnorm(1000)
@@ -167,6 +167,7 @@ kld_est_kde2 <- function(X, Y, MC = FALSE, hX = NULL, hY = NULL,
 #' dimension-dependent bandwidth parameter and a Gaussian kernel. It works for
 #' any number of dimensions but is very slow.
 #'
+#' @inherit kld_est_nn return
 #' @param X,Y  `n`-by-`d` and `m`-by-`d` matrices, representing `n` samples from
 #'    the true distribution \eqn{P} and `m` samples from the approximate distribution
 #'    \eqn{Q}, both in `d` dimensions. Vector input is treated as a column matrix.
@@ -179,7 +180,6 @@ kld_est_kde2 <- function(X, Y, MC = FALSE, hX = NULL, hY = NULL,
 #'    \deqn{h_i = \sigma_i\left(\frac{4}{(2+d)n}\right)^{1/(d+4)}.}
 #'    As an alternative, Scott's rule `"scott"` can be used,
 #'    \deqn{h_i = \frac{\sigma_i}{n^{1/(d+4)}}.}
-#' @returns A scalar, the estimated Kullback-Leibler divergence \eqn{\hat D_{KL}(P||Q)}.
 #' @example examples/continuous-estimators.R
 kld_est_kde <- function(X, Y, hX = NULL, hY = NULL, rule = c("Silverman","Scott")) {
 

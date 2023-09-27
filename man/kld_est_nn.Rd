@@ -59,9 +59,11 @@ Y <- rnorm(100, mean = 1, sd = 2)
 q <- function(x) dnorm(x, mean = 1, sd =2)
 kld_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
 kld_est_nn(X, Y)
-kld_est_nn(X, q)
+kld_est_nn(X, q = q)
 kld_est_nn(X, Y, k = 5)
-kld_est_nn(X, q, k = 5)
+kld_est_nn(X, q = q, k = 5)
+kld_est_brnn(X, Y)
+
 
 # KL-D between two samples from 2-D Gaussians:
 X1 <- rnorm(100)
@@ -74,4 +76,5 @@ kld_gaussian(mu1 = rep(0,2), sigma1 = diag(2),
              mu2 = rep(0,2), sigma2 = matrix(c(1,1,1,2),nrow=2))
 kld_est_nn(X, Y)
 kld_est_nn(X, Y, k = 5)
+kld_est_brnn(X, Y)
 }

@@ -87,14 +87,14 @@ kld_ci_bootstrap <- function(X, Y, estimator = kld_est_kde1, B = 500L, alpha = 0
 #'    `Y` or `q` must be specified.
 #' @param estimator The Kullback-Leibler divergence estimation method; a
 #'    function expecting two inputs (`X` and `Y` or `q`, depending on arguments
-#'    provided). Defaults to `kld_est_1nn`.
+#'    provided). Defaults to `kld_est_nn`.
 #' @param B Number of bootstrap replicates (default: `500`), the larger, the
 #'     more accurate, but also more computationally expensive.
 #' @param alpha Error level, defaults to `0.05`.
-#' @param size A function specifying the size of the subsamples, defaults to
-#'     \eqn{f(x) = x^{2/3}}.
-#' @param rate A function computing the convergence rate of the estimator as a
-#'     function of sample sizes. Defaults to \eqn{f(x) = x^{1/2}}.
+#' @param subsample.size A function specifying the size of the subsamples,
+#'     defaults to \eqn{f(x) = x^{2/3}}.
+#' @param convergence.rate A function computing the convergence rate of the
+#'     estimator as a function of sample sizes. Defaults to \eqn{f(x) = x^{1/2}}.
 #' @returns A list with the fields `"est"` (the estimated KL divergence),
 #'    `"boot"` (a length `B` numeric vector with KL divergence estimates on
 #'    the bootstrap subsamples), and `"ci"` (a length `2` vector containing the

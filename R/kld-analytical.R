@@ -55,8 +55,8 @@ kld_exponential <- function(lambda1, lambda2) {
 #' This function computes \eqn{D_{KL}(p||q)}, where \eqn{p\sim \text{U}(a_1,b_1)}
 #' and \eqn{q\sim \text{U}(a_2,b_2)}, with \eqn{a_2<a_1<b_1<b_2}.
 #'
-#' @param a1,a2 Range of true uniform distribution
-#' @param lambda2 Range of approximate uniform distribution
+#' @param a1,b1 Range of true uniform distribution
+#' @param a2,b2 Range of approximate uniform distribution
 #' @returns A scalar (the Kullback-Leibler divergence)
 #' @export
 #' @examples

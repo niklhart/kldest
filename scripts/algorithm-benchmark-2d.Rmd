@@ -91,7 +91,7 @@ The following algorithms are considered:
 ```{r}
 algorithms <- list(
     dens2 = function(X, Y) kld_est_kde2(X = X, Y = Y),
-    nn_1  = kld_est_1nn#,
+    nn_1  = kld_est_nn#,
 #    nn_k_gen = function(X, Y) kl_generalized_knn_eps(X = X, Y = Y, warn.max.k = FALSE)
 )
 nAlgo   <- length(algorithms)

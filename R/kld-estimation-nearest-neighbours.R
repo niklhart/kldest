@@ -85,13 +85,16 @@ kld_est_nn <- function(X, Y = NULL, q = NULL, k = 1L, eps = 0, log.q = FALSE) {
 #' Wang et al. (2009) specified in Eq.(29).
 #'
 #' Finite sample bias reduction is achieved by an adaptive choice of the number
-#' of nearest neighbours. Instead of fixing the number of nearest neighbours
-#' upfront, which results in different distances \eqn{\rho^l_i,\nu^k_i} of a
-#' datapoint \eqn{x_i} to its \eqn{l}-th nearest neighbours in \eqn{X} and
-#' \eqn{k}-th nearest neighbours in \eqn{Y}, respectively, the number of
-#' neighbours \eqn{l,k} is chosen to render \eqn{\rho^l_i,\nu^k_i} comparable.
-#' Here, this is done by choosing the maximum number of neighbours \eqn{l,k}
-#' smaller than \eqn{\delta_i:=\max(\rho^1_i,\nu^1_i)}.
+#' of nearest neighbours. Fixing the number of nearest neighbours upfront, as
+#' done in [kld_est_nn()], may result in very different distances
+#' \eqn{\rho^l_i,\nu^k_i} of a datapoint \eqn{x_i} to its \eqn{l}-th nearest
+#' neighbours in \eqn{X} and \eqn{k}-th nearest neighbours in \eqn{Y},
+#' respectively, which may lead to unequal biases in NN density estimation,
+#' especially in a high-dimensional setting.
+#' To overcome this issue, the number of neighbours \eqn{l,k} are here chosen
+#' in a way to render \eqn{\rho^l_i,\nu^k_i} comparable, by taking the largest
+#' possible number of neighbours \eqn{l_i,k_i} smaller than
+#' \eqn{\delta_i:=\max(\rho^1_i,\nu^1_i)}.
 #'
 #' Since the bias reduction explicitly uses both samples `X` and `Y`, one-sample
 #' estimation is not possible using this method.
