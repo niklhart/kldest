@@ -1,5 +1,5 @@
 ---
-title: "Algorithm benchmark in 10D"
+title: "Algorithm benchmark in high dimensions"
 ---
 
 ```{r, include = FALSE}
@@ -176,8 +176,8 @@ ggplot(results, aes(x=sample.size, y=kld, color=algorithm)) +
 
 $\Rightarrow$ the bias-reduced nearest neighbour algorithm shows much better 
 performance than either of the plain 1-nearest neighbour algorithms. In particular, 
-even if the approximate density `q` is known, it may be preferable to simulate a 
-(large) sample `Y` from $Q$ and use the bias-reduced algorithm on the two-sample
-problem, rather than using `q`.
+even if the approximate density `q` is known (e.g., a model fitted to the data `X`), 
+it may be preferable to simulate a  (large) sample `Y` from $Q$ and use the 
+bias-reduced algorithm on the two-sample problem, rather than using `q`.
 
 

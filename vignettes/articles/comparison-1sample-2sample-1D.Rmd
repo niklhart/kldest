@@ -93,12 +93,10 @@ The following algorithms are considered:
 
 ```{r}
 algorithms_XY <- list(
-    nn1_XY     = function(X, q) kld_est_nn(X, Y, k = 1L),
-    nn2_XY     = function(X, Y) kld_est_nn(X, Y, k = 2L)
+    nn_XY     = function(X, Y) kld_est_nn(X, Y)
 )
 algorithms_Xq <- list(
-    nn1_Xq = function(X, q) kld_est_nn(X, q = q, k = 1L),
-    nn2_Xq = function(X, q) kld_est_nn(X, q = q, k = 2L)
+    nn_Xq = function(X, q) kld_est_nn(X, q = q)
 )
 nAlgoXY  <- length(algorithms_XY)
 nAlgoXq  <- length(algorithms_Xq)
@@ -170,7 +168,8 @@ ggplot(results, aes(x=sample.size, y=kld, color=algorithm)) +
                                  kldtrue = vapply(distributions, function(x) x$kld,1)), 
                aes(yintercept = kldtrue)) +
     xlab("Sample sizes") + ylab("KL divergence estimate") + 
-    ggtitle("Accuracy of different algorithms")
+    ggtitle("Accuracy of different algorithms") +
+    theme(plot.title = element_text(hjust = 0.5))
 ```
 
 $\Rightarrow$ 1-sample estimation is more accurate than 2-sample estimation in

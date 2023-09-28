@@ -143,10 +143,10 @@ results <- cbind(scenarios, covered) |> melt(measure.vars  = names(algorithms),
 Compute coverage per sample size / algorithm / distribution:
 
 ```{r}
-coverage <- reshape2::dcast(results, 
-                            sample.size + algorithm + distribution ~ ., 
-                            value.var = "covered", 
-                            fun.aggregate = function(x) mean(x, na.rm = TRUE))
+coverage <- dcast(results, 
+                  sample.size + algorithm + distribution ~ ., 
+                  value.var = "covered", 
+                  fun.aggregate = function(x) mean(x, na.rm = TRUE))
 names(coverage)[4] <- "coverage"
 ```
 
@@ -166,7 +166,8 @@ $\Rightarrow$ coverage of the confidence intervals based on nearest neighbour
 density estimation approaches the nominal coverage of 95% for increasing sample 
 sizes. For the Gaussian case, in which the kernel density based method performs
 well in the estimation benchmark, this also holds for the kernel density method.
-However, due to the bias in 
+However, due to the bias in estimating KL divergence between exponential or
+uniform distributions, uncertainty quantification also fails.
 
 When using bootstrapping instead of subsampling, results are similar for kernel
 density estimation, but change dramatically for nearest neighbour density 
