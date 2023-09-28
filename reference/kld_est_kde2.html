@@ -30,7 +30,7 @@ is issued and the (much) slower function 'kld_est_kde' is used instead."><!-- ma
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/algorithm-benchmark-10d.html">Algorithm benchmark in 10D</a>
+    <a class="dropdown-item" href="../articles/algorithm-benchmark-10d.html">Algorithm benchmark in high dimensions</a>
     <a class="dropdown-item" href="../articles/algorithm-benchmark-1d.html">Algorithm benchmark in 1D</a>
     <a class="dropdown-item" href="../articles/algorithm-benchmark-2d.html">Algorithm benchmark in 2D</a>
     <a class="dropdown-item" href="../articles/comparison-1sample-2sample-1D.html">Comparing 1- vs. 2-sample estimation in 1-D</a>
@@ -124,7 +124,7 @@ expense of an additional bias. Defaults to <code>eps = 1e-5</code>.</p></dd>
 <span class="r-in"><span>             mu2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">2</span><span class="op">)</span>, sigma2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span>,nrow<span class="op">=</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.5</span>
 <span class="r-in"><span><span class="fu">kld_est_kde2</span><span class="op">(</span><span class="va">X</span>,<span class="va">Y</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.406806</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.4036217</span>
 <span class="r-in"><span><span class="co"># kld_est_kde2(X,Y, MC = TRUE)</span></span></span>
 </code></pre></div>
     </div>

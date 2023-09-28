@@ -28,7 +28,7 @@ density estimation in a Monte Carlo approximation of \(D_{KL}(P||Q)\)."><!-- mat
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/algorithm-benchmark-10d.html">Algorithm benchmark in 10D</a>
+    <a class="dropdown-item" href="../articles/algorithm-benchmark-10d.html">Algorithm benchmark in high dimensions</a>
     <a class="dropdown-item" href="../articles/algorithm-benchmark-1d.html">Algorithm benchmark in 1D</a>
     <a class="dropdown-item" href="../articles/algorithm-benchmark-2d.html">Algorithm benchmark in 2D</a>
     <a class="dropdown-item" href="../articles/comparison-1sample-2sample-1D.html">Comparing 1- vs. 2-sample estimation in 1-D</a>
@@ -124,15 +124,15 @@ Distributions", IEEE International Symposium on Information Theory (2008).</p>
 <span class="r-in"><span><span class="fu"><a href="kld_gaussian.html">kld_gaussian</a></span><span class="op">(</span>mu1 <span class="op">=</span> <span class="fl">0</span>, sigma1 <span class="op">=</span> <span class="fl">1</span>, mu2 <span class="op">=</span> <span class="fl">1</span>, sigma2 <span class="op">=</span> <span class="fl">2</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.4431472</span>
 <span class="r-in"><span><span class="fu">kld_est_nn</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.05713868</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.8154309</span>
 <span class="r-in"><span><span class="fu">kld_est_nn</span><span class="op">(</span><span class="va">X</span>, q <span class="op">=</span> <span class="va">q</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2605974</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.5567322</span>
 <span class="r-in"><span><span class="fu">kld_est_nn</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, k <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.4753029</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.5923557</span>
 <span class="r-in"><span><span class="fu">kld_est_nn</span><span class="op">(</span><span class="va">X</span>, q <span class="op">=</span> <span class="va">q</span>, k <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.462866</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.4506908</span>
 <span class="r-in"><span><span class="fu"><a href="kld_est_brnn.html">kld_est_brnn</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.1992163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.8192153</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># KL-D between two samples from 2-D Gaussians:</span></span></span>
@@ -146,11 +146,11 @@ Distributions", IEEE International Symposium on Information Theory (2008).</p>
 <span class="r-in"><span>             mu2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">2</span><span class="op">)</span>, sigma2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span>,nrow<span class="op">=</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.5</span>
 <span class="r-in"><span><span class="fu">kld_est_nn</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.3897454</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2109734</span>
 <span class="r-in"><span><span class="fu">kld_est_nn</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, k <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.117931</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.3999108</span>
 <span class="r-in"><span><span class="fu"><a href="kld_est_brnn.html">kld_est_brnn</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.3822306</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.3277731</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
