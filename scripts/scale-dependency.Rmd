@@ -33,14 +33,16 @@ $i$-th variable in the combined sample $(\mathbf X,\mathbf Y)$.
 We then set $g(x_1,...,x_d) := (F_1(x_1),...,F_d(x_d))$ and consider the 
 transformed samples $g(\mathbf X)$ and $g(\mathbf Y)$.
 
-## Simulation study
+### Preliminaries
+
+Load libraries
 
 ```{r}
 library(kldest)
 library(ggplot2)
 ```
 
-### Scenario 1: independent 2D Gaussians
+## Scenario 1: independent 2D Gaussians
 
 We first consider a 2D problem with different locations/scales on the two 
 variables, and independent variables.
@@ -58,7 +60,6 @@ nrep <- 100L
 n <- 1000L
 kld_orig <- numeric(nrep)
 kld_unif <- numeric(nrep)
-kld_exp  <- numeric(nrep)
 for (i in 1:nrep) {
     X <- cbind(rnorm(n, mean = mu1[1], sd = sqrt(sigma1[1])),
                rnorm(n, mean = mu1[2], sd = sqrt(sigma1[2])))
@@ -69,13 +70,9 @@ for (i in 1:nrep) {
     
     kld_orig[i] <- kld_est_nn(X, Y)
     
-    F1 <- ecdf(c(X[,1],Y[,1]))
-    F2 <- ecdf(c(X[,2],Y[,2]))
-
-    F12 <- function(x) cbind(F1(x[,1]),F2(x[,2]))                
-    FX <- F12(X)
-    FY <- F12(Y)
-    kld_unif[i] <- kld_est_nn(FX, FY)
+    uXY <- to_uniform_scale(X, Y)
+    
+    kld_unif[i] <- kld_est_nn(X = uXY$X, Y = uXY$Y)
 }
 ```
 
@@ -99,13 +96,103 @@ Illustration of a sample on uniform scale
 
 ```{r}
 plot(NA, 
-     xlim = range(c(FX[,1],FY[,1])),
-     ylim = range(c(FX[,2],FY[,2])),
+     xlim = 0:1,
+     ylim = 0:1,
      xlab = "First variable",
      ylab = "Second variable",
      main = "Samples on uniform scale")
-points(FX[,1], FX[,2])
-points(FY[,1], FY[,2], col="red2")
+points(uXY$X[,1], uXY$X[,2])
+points(uXY$Y[,1], uXY$Y[,2], col="red2")
+legend("topright", legend = c("X","Y"), col = c("black","red"), pch = 1)
+```
+### Results
+
+Format the results
+
+```{r}
+kld <- rbind(
+    data.frame(kld = kld_orig, scale = "orig"),
+    data.frame(kld = kld_unif, scale = "unif")
+)
+```
+
+
+Display the results
+
+```{r}
+ggplot(data = kld) + geom_boxplot(aes(x=scale,y=kld)) + 
+    geom_hline(data = data.frame(kld = kld_true), aes(yintercept = kld), color='red') +
+    ggtitle("Uncorrelated Gaussians")
+```
+
+$\Rightarrow$ slightly better on uniform scale. I would have expected the method 
+to work much worse on the nonlinearly transformed non-uniform scale. It seems
+that the NN method is quite robust to such distortions, even though it works with
+Euclidian distances in the end.
+
+## Scenario 2: correlated 2D Gaussians
+
+We now consider a 2D problem with different locations/scales on the two 
+variables, and correlated variables.
+
+True KL divergence:
+
+```{r}
+mu1 <- c(2,0); Sigma1 <- cbind(c(2,1),c(1,1))
+mu2 <- c(0,2); Sigma2 <- cbind(c(2,-1),c(-1,2))
+kld_true <- kld_gaussian(mu1 = mu1, sigma1 = Sigma1, mu2 = mu2, sigma2 = Sigma2)
+```
+
+Sampling on different scales
+
+```{r}
+nrep <- 100L
+n <- 1000L
+kld_orig <- numeric(nrep)
+kld_unif <- numeric(nrep)
+for (i in 1:nrep) {
+    X <- MASS::mvrnorm(n, mu = mu1, Sigma = Sigma1)
+    Y <- MASS::mvrnorm(n, mu = mu2, Sigma = Sigma2)
+
+    transf <- exp
+    X <- transf(X)
+    Y <- transf(Y)
+    
+    kld_orig[i] <- kld_est_nn(X, Y)
+    
+    uXY <- to_uniform_scale(X, Y)
+    
+    kld_unif[i] <- kld_est_nn(X = uXY$X, Y = uXY$Y)
+}
+```
+
+### Illustrations
+
+Illustration of a sample on original scale
+
+```{r}
+plot(NA, 
+     xlim = range(c(X[,1],Y[,1])),
+     ylim = range(c(X[,2],Y[,2])),
+     xlab = "First variable",
+     ylab = "Second variable",
+     main = "Samples on original scale")
+points(X[,1], X[,2])
+points(Y[,1], Y[,2], col="red2")
+legend("topright", legend = c("X","Y"), col = c("black","red"), pch = 1)
+```
+
+Illustration of a sample on uniform scale
+
+```{r}
+plot(NA, 
+     xlim = 0:1,
+     ylim = 0:1,
+     xlab = "First variable",
+     ylab = "Second variable",
+     main = "Samples on uniform scale")
+points(uXY$X[,1], uXY$X[,2])
+points(uXY$Y[,1], uXY$Y[,2], col="red2")
 legend("topright", legend = c("X","Y"), col = c("black","red"), pch = 1)
 ```
 ### Results
@@ -131,3 +218,6 @@ $\Rightarrow$ slightly better on uniform scale. I would have expected the method
 to work much worse on the nonlinearly transformed non-uniform scale. It seems
 that the NN method is quite robust to such distortions, even though it works with
 Euclidian distances in the end.
+
+
+
