@@ -71,9 +71,21 @@ kld_ci_bootstrap <- function(X, Y, estimator = kld_est_kde1, B = 500L, alpha = 0
 #' Uncertainty of KL divergence estimate using Politis/Romano's subsampling bootstrap.
 #'
 #' This function computes a confidence interval for KL divergence based on the
-#' subsampling bootstrap by Politis and Romano. The calculated interval has
-#' asymptotic coverage \eqn{1 - \alpha} as long as \eqn{b_n/n\rightarrow 0},
-#' \eqn{b_n\rightarrow\infty} and \eqn{\frac{\tau_b}{\tau_n}\rightarrow 0}.
+#' subsampling bootstrap introduced by Politis and Romano. See **Details** for
+#' theoretical properties of this method.
+#'
+#' In general terms, tetting \eqn{b_n} be the subsample size for a sample of
+#' size \eqn{n}, and \eqn{\tau_n} the convergence rate of the estimator, a
+#' confidence interval calculated by subsampling has asymptotic coverage
+#' \eqn{1 - \alpha} as long as \eqn{b_n/n\rightarrow 0},
+#' \eqn{b_n\rightarrow\infty} and \eqn{\frac{\tau_{b_n}}{\tau_n}\rightarrow 0}.
+#'
+#' The convergence rate of the nearest-neighbour based KL divergence estimator
+#' being \eqn{\tau_n = \sqrt{n}}, the condition on the subsample size reduces to
+#' \eqn{b_n/n\rightarrow 0} and \eqn{b_n\rightarrow\infty}. By default,
+#' \eqn{b_n = n^{2/3}}. In a two-sample problem, \eqn{n} and \eqn{b_n} are
+#' replaced by effective sample sizes \eqn{n_\text{eff} = \min(n,m)} and
+#' \eqn{b_{n,\text{eff}} = \min(b_n,b_m)}.
 #'
 #' Reference:
 #'
@@ -96,7 +108,14 @@ kld_ci_bootstrap <- function(X, Y, estimator = kld_est_kde1, B = 500L, alpha = 0
 #'     defaults to \eqn{f(x) = x^{2/3}}.
 #' @param convergence.rate A function computing the convergence rate of the
 #'     estimator as a function of sample sizes. Defaults to \eqn{f(x) = x^{1/2}}.
-#' @param method Either `"quantile` (the default) or `"se"``.
+#' @param method Either `"quantile"` (the default), also known as the reverse
+#'     percentile method, or `"se"` for a normal approximation of the KL
+#'     divergence estimator using the standard error of the subsamples.
+#' @param n.cores Number of cores to use in parallel computing (defaults to `1`,
+#'     which means that no parallel computing is used).
+#'     To use this option, the `parallel` package must be installed and the OS
+#'     must be of UNIX type (i.e., not Windows). Otherwise, `n.cores` will be
+#'     reset to `1`, with a message.
 #' @returns A list with the following fields:
 #'    * `"est"` (the estimated KL divergence),
 #'    * `"boot"` (a length `B` numeric vector with KL divergence estimates on
@@ -119,11 +138,28 @@ kld_ci_subsampling <- function(X, Y = NULL, q = NULL, estimator = kld_est_nn,
                                B = 500L, alpha = 0.05,
                                subsample.size = function(x) x^(2/3),
                                convergence.rate = sqrt,
-                               method = c("quantile","se")) {
+                               method = c("quantile","se"),
+                               n.cores = 1L) {
 
+    # select CI computation method
     method <- match.arg(method)
 
-    # Important dimensions for X
+    # fallback if trying to parallelize on a Windows machine
+    if (n.cores > 1L && .Platform$OS.type != "unix") {
+        message("Parallelization with package 'parallel' is only available on UNIX systems.")
+        n.cores <- 1L
+    }
+
+    # fallback if package 'parallel' is not installed
+    if (n.cores > 1 && !requireNamespace("parallel", quietly = TRUE)) {
+        message("To use parallelization, package 'parallel' must be installed.")
+        n.cores <- 1L
+    }
+
+    # uniformize syntax with/without parallel computing
+    applyfun <- function(...) if (n.cores > 1L) parallel::mclapply(..., mc.cores = n.cores) else lapply(...)
+
+    # important dimensions for X
     X <- as.matrix(X)
     n <- nrow(X)
     sn <- subsample.size(n)
@@ -146,17 +182,16 @@ kld_ci_subsampling <- function(X, Y = NULL, q = NULL, estimator = kld_est_nn,
         neff <- n
     }
 
-    kld_boot <- numeric(B)
-
-    for (b in 1:B) {
+    # subsampling procedure (without replacement)
+    kld_boot <- unlist(applyfun(X = 1:B, FUN = function(i) {
         iX <- sample.int(n, size = sn)
         if (two.sample) {
             iY <- sample.int(m, size = sm)
-            kld_boot[b] <- estimator(X[iX, ], Y = Y[iY, ])
+            estimator(X[iX, ], Y = Y[iY, ])
         } else {
-            kld_boot[b] <- estimator(X[iX, ], q = q)
+            estimator(X[iX, ], q = q)
         }
-    }
+    }))
 
     # computation of confidence levels
     switch(method,
@@ -170,8 +205,10 @@ kld_ci_subsampling <- function(X, Y = NULL, q = NULL, estimator = kld_est_nn,
            se = {
                se_boot <- sd(kld_boot) * convergence.rate(seff) / convergence.rate(neff)
                ci_boot <- kld_hat + c(-1,1)*qnorm(1-alpha/2)*se_boot
+               names(ci_boot) <- paste0(100*c(alpha/2,1-alpha/2),"%")
            })
 
+    # output list
     list(
         est  = kld_hat,
         boot = kld_boot,
@@ -180,65 +217,3 @@ kld_ci_subsampling <- function(X, Y = NULL, q = NULL, estimator = kld_est_nn,
 }
 
 
-#' Parallel version of kld_ci_subsampling, for testing (unfinished, not exported)
-#'
-kld_ci_subsampling2 <- function(X, Y = NULL, q = NULL, estimator = kld_est_nn,
-                               B = 500L, alpha = 0.05,
-                               subsample.size = function(x) x^(2/3),
-                               convergence.rate = sqrt,
-                               method = c("quantile","se"),
-                               n.cores = 1L) {
-
-    # fallback if package 'parallel' is not installed
-    if (n.cores > 1 && !requireNamespace("parallel", quietly = TRUE)) {
-        message("To use parallelization, package 'parallel' must be installed.")
-        n.cores <- 1L
-    }
-
-    # Important dimensions for X
-    X <- as.matrix(X)
-    n <- nrow(X)
-    sn <- subsample.size(n)
-
-    # check validity of input: one- or two-sample problem?
-    two.sample <- is_two_sample(Y, q)
-
-    if (two.sample) {
-        Y <- as.matrix(Y)
-        m <- nrow(Y)
-        kld_hat  <- estimator(X, Y = Y)
-
-        sm <- subsample.size(m)
-        seff <- min(sn,sm)
-        neff <- min(n,m)
-    } else {
-        kld_hat <- estimator(X, q = q)
-
-        seff <- sn
-        neff <- n
-    }
-
-
-    kld_boot <- unlist(parallel::mclapply(1:B, function(i) {
-        iX <- sample.int(n, size = sn)
-        if (two.sample) {
-            iY <- sample.int(m, size = sm)
-            estimator(X[iX, ], Y = Y[iY, ])
-        } else {
-            estimator(X[iX, ], q = q)
-        }
-    }))
-
-    # computation of confidence levels
-    z_star <- convergence.rate(seff) * (kld_boot - kld_hat)
-    crit_val <- quantile(z_star, probs = c(1-alpha/2, alpha/2), na.rm = TRUE)
-    ci_boot <- kld_hat - crit_val/convergence.rate(neff)
-    names(ci_boot) <- names(ci_boot)[2:1]
-
-    list(
-        est  = kld_hat,
-        boot = kld_boot,
-        ci   = ci_boot,
-        se   = sd(kld_boot) * convergence.rate(seff) / convergence.rate(neff)
-    )
-}

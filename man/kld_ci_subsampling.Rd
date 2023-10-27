@@ -13,7 +13,8 @@ kld_ci_subsampling(
   alpha = 0.05,
   subsample.size = function(x) x^(2/3),
   convergence.rate = sqrt,
-  method = c("quantile", "se")
+  method = c("quantile", "se"),
+  n.cores = 1L
 )
 }
 \arguments{
@@ -40,7 +41,15 @@ defaults to \eqn{f(x) = x^{2/3}}.}
 \item{convergence.rate}{A function computing the convergence rate of the
 estimator as a function of sample sizes. Defaults to \eqn{f(x) = x^{1/2}}.}
 
-\item{method}{Either \verb{"quantile} (the default) or `"se"``.}
+\item{method}{Either \code{"quantile"} (the default), also known as the reverse
+percentile method, or \code{"se"} for a normal approximation of the KL
+divergence estimator using the standard error of the subsamples.}
+
+\item{n.cores}{Number of cores to use in parallel computing (defaults to \code{1},
+which means that no parallel computing is used).
+To use this option, the \code{parallel} package must be installed and the OS
+must be of UNIX type (i.e., not Windows). Otherwise, \code{n.cores} will be
+reset to \code{1}, with a message.}
 }
 \value{
 A list with the following fields:
@@ -54,11 +63,23 @@ estimated confidence interval).
 }
 \description{
 This function computes a confidence interval for KL divergence based on the
-subsampling bootstrap by Politis and Romano. The calculated interval has
-asymptotic coverage \eqn{1 - \alpha} as long as \eqn{b_n/n\rightarrow 0},
-\eqn{b_n\rightarrow\infty} and \eqn{\frac{\tau_b}{\tau_n}\rightarrow 0}.
+subsampling bootstrap introduced by Politis and Romano. See \strong{Details} for
+theoretical properties of this method.
 }
 \details{
+In general terms, tetting \eqn{b_n} be the subsample size for a sample of
+size \eqn{n}, and \eqn{\tau_n} the convergence rate of the estimator, a
+confidence interval calculated by subsampling has asymptotic coverage
+\eqn{1 - \alpha} as long as \eqn{b_n/n\rightarrow 0},
+\eqn{b_n\rightarrow\infty} and \eqn{\frac{\tau_{b_n}}{\tau_n}\rightarrow 0}.
+
+The convergence rate of the nearest-neighbour based KL divergence estimator
+being \eqn{\tau_n = \sqrt{n}}, the condition on the subsample size reduces to
+\eqn{b_n/n\rightarrow 0} and \eqn{b_n\rightarrow\infty}. By default,
+\eqn{b_n = n^{2/3}}. In a two-sample problem, \eqn{n} and \eqn{b_n} are
+replaced by effective sample sizes \eqn{n_\text{eff} = \min(n,m)} and
+\eqn{b_{n,\text{eff}} = \min(b_n,b_m)}.
+
 Reference:
 
 Politis and Romano, "Large sample confidence regions based on subsamples under
