@@ -12,7 +12,8 @@ kld_ci_subsampling(
   B = 500L,
   alpha = 0.05,
   subsample.size = function(x) x^(2/3),
-  convergence.rate = sqrt
+  convergence.rate = sqrt,
+  method = c("quantile", "se")
 )
 }
 \arguments{
@@ -38,12 +39,18 @@ defaults to \eqn{f(x) = x^{2/3}}.}
 
 \item{convergence.rate}{A function computing the convergence rate of the
 estimator as a function of sample sizes. Defaults to \eqn{f(x) = x^{1/2}}.}
+
+\item{method}{Either \verb{"quantile} (the default) or `"se"``.}
 }
 \value{
-A list with the fields \code{"est"} (the estimated KL divergence),
-\code{"boot"} (a length \code{B} numeric vector with KL divergence estimates on
-the bootstrap subsamples), and \code{"ci"} (a length \code{2} vector containing the
-lower and upper limits of the estimated confidence interval).
+A list with the following fields:
+\itemize{
+\item \code{"est"} (the estimated KL divergence),
+\item \code{"boot"} (a length \code{B} numeric vector with KL divergence estimates on
+the bootstrap subsamples),
+\item \code{"ci"} (a length \code{2} vector containing the lower and upper limits of the
+estimated confidence interval).
+}
 }
 \description{
 This function computes a confidence interval for KL divergence based on the

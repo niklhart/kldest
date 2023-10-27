@@ -1,0 +1,128 @@
+---
+title: "Optimal size of subsamples"
+author: "Niklas Hartung"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Aim
+
+Determine the optimal subsample size in the subsampling procedure.
+
+
+### Preliminaries
+
+```{r}
+library(kldest)
+```
+
+## Visual inspection
+
+To start with, I take a small set $b_1, ..., b_K$ and visualize the subsampling
+CIs gaphically.
+
+```{r}
+n <- 100
+X <- rnorm(n)
+Y <- rnorm(n, mean = 1, sd = 2)
+
+kld_true <- kld_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
+
+# Geometrically spaced subsample sizes, as in Bichel and Sakov (2008)
+q <- 0.9
+s_vec <- unique(floor(q^(1:20)*n))
+nexpo <- length(s_vec)
+res <- vector(length = nexpo, mode = "list")
+for (i in 1:nexpo) {
+    set.seed(1)
+    res[[i]] <- kld_ci_subsampling(X = X, Y = Y, subsample.size = function(x) s_vec[i])
+}
+```
+
+
+Graphical representation
+
+```{r}
+plot(NA, xlim = c(-2,2), ylim = range(s_vec) + c(-0.5,0.5), 
+     main = "CI as a function of subsample size",
+     xlab = "Range of KL-D values", ylab = "Subsample size")
+abline(v = kld_true, col = "red")
+for (i in 1:nexpo) {
+    lines(x = unname(res[[i]]$ci), y = rep(s_vec[i],2))
+}
+```
+
+$\Rightarrow$ pretty stable, unless the subsample size is really large.
+
+
+## Theories for picking a subsample size
+
+### Politis et al. (2001)
+
+We use "Algorithm 6.1" from Politis et al. (2001), "On the asymptotic theory of 
+subsampling", which consists of the following steps:
+
+* Compute subsampling intervals $I_i=[l_i,u_i]$ for different subsample sizes $b_1, ..., b_K$.
+* For $i \in \{k+1,...,K-k\}$, compute the "volatility index" 
+  $v_i = \text{sd}(l_{i-k},...,l_{i+k}) + \text{sd}(l_{i-k},...,l_{i+k})$
+* Select the subsample size with the lowest volatility index.
+
+In the original procedure, $b_i = B_\text{min}+i-1$, i.e. *all subsample sizes* 
+between $B_\text{min}$ and $B_\text{max} = B_\text{min}+K-1$ are explored. 
+Since that seems like too much effort, I've rather taken a selection of values,
+as also done in Bichel and Sakov (2008).
+
+
+```{r}
+li <- vapply(res, function(x) x$ci[1], 1)
+ui <- vapply(res, function(x) x$ci[2], 1)
+
+k <- 3
+trimmed_sd <- function(x, k) {
+    n <- length(x)
+    nout <- n-2*k
+    xout <- numeric(nout)
+    for (i in 1:nout) {
+        xout[i] <- sd(x[i+1:(2*k)])
+    }
+    xout
+}
+
+vi <- trimmed_sd(li, k = k) + trimmed_sd(ui, k = k)
+
+trim <- function(x, k) tail(head(s_vec,-k),-k)
+
+plot(trim(s_vec,k), vi, type = "l", xlab = "Subsample size",
+     ylab = "Volatility index", main = paste0("Politis et al. (2001) method (k=",k,")"))
+```
+
+$\Rightarrow$ this seems very rough, not a good idea to search for a minimum...!?
+
+### Bickel and Sakov (2008)
+
+Bickel and Sakov (2008) uses the empirical cdf of the bootstrap replicates:
+
+* For a fixed $0<q<1$, let $b_k = q^k n$ for $k=0,1,2,...$
+* For each $k$, determine the empirical cdf $\hat F_{b_k}$ of $B>>1$ the 
+  subsampling estimates with subsample size $b_k$
+* For $k=1,2,...$, compute $\sup_x|F_{b_{k-1}}(x)-F_{b_k}(x)|$
+* Choose $k$ for which this functional is smallest.
+
+```{r}
+ecdflist <- lapply(res, function(x) ecdf(x$boot))
+xmin <- min(vapply(res, function(x) min(x$boot),1))
+xmax <- max(vapply(res, function(x) max(x$boot),1))
+xeval <- seq(xmin, xmax, length = 100)
+mat <- vapply(ecdflist, function(x) x(xeval), xeval)
+dmat <- abs(diff(t(mat)))
+maxdmat <- apply(dmat, 1, max)
+
+plot(tail(s_vec,-1), maxdmat, type = "l", xlab = "Subsample size",
+     ylab = "Sup of ECDF differences", main = "Bichel and Sakov (2008) method")
+```
+
+

@@ -1,0 +1,24 @@
+---
+title: "Parallelization tests"
+author: "Niklas Hartung"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Aim
+
+In this document, I want to evaluate whether a considerable speedup can be 
+obtained when using parallelized subsampling.
+
+## Study design
+
+The distribution doesn't matter in this case, so I just stick with a Gaussian.
+However, I want to see the dependency on the sample size.
+
+
+
+

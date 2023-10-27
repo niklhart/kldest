@@ -61,7 +61,8 @@ kld_ci_bootstrap <- function(X, Y, estimator = kld_est_kde1, B = 500L, alpha = 0
     list(
         est  = kld_hat,
         boot = kld_boot,
-        ci   = ci_boot
+        ci   = ci_boot,
+        se   = sd(kld_boot)
     )
 }
 
@@ -95,10 +96,13 @@ kld_ci_bootstrap <- function(X, Y, estimator = kld_est_kde1, B = 500L, alpha = 0
 #'     defaults to \eqn{f(x) = x^{2/3}}.
 #' @param convergence.rate A function computing the convergence rate of the
 #'     estimator as a function of sample sizes. Defaults to \eqn{f(x) = x^{1/2}}.
-#' @returns A list with the fields `"est"` (the estimated KL divergence),
-#'    `"boot"` (a length `B` numeric vector with KL divergence estimates on
-#'    the bootstrap subsamples), and `"ci"` (a length `2` vector containing the
-#'    lower and upper limits of the estimated confidence interval).
+#' @param method Either `"quantile` (the default) or `"se"``.
+#' @returns A list with the following fields:
+#'    * `"est"` (the estimated KL divergence),
+#'    * `"boot"` (a length `B` numeric vector with KL divergence estimates on
+#'    the bootstrap subsamples),
+#'    * `"ci"` (a length `2` vector containing the lower and upper limits of the
+#'    estimated confidence interval).
 #' @examples
 #' # 1D Gaussian (one- and two-sample problems)
 #' X <- rnorm(100)
@@ -114,7 +118,10 @@ kld_ci_bootstrap <- function(X, Y, estimator = kld_est_kde1, B = 500L, alpha = 0
 kld_ci_subsampling <- function(X, Y = NULL, q = NULL, estimator = kld_est_nn,
                                B = 500L, alpha = 0.05,
                                subsample.size = function(x) x^(2/3),
-                               convergence.rate = sqrt) {
+                               convergence.rate = sqrt,
+                               method = c("quantile","se")) {
+
+    method <- match.arg(method)
 
     # Important dimensions for X
     X <- as.matrix(X)
@@ -152,6 +159,77 @@ kld_ci_subsampling <- function(X, Y = NULL, q = NULL, estimator = kld_est_nn,
     }
 
     # computation of confidence levels
+    switch(method,
+           quantile = {
+               z_star <- convergence.rate(seff) * (kld_boot - kld_hat)
+               crit_val <- quantile(z_star, probs = c(1-alpha/2, alpha/2), na.rm = TRUE)
+               ci_boot <- kld_hat - crit_val/convergence.rate(neff)
+               names(ci_boot) <- names(ci_boot)[2:1]
+
+           },
+           se = {
+               se_boot <- sd(kld_boot) * convergence.rate(seff) / convergence.rate(neff)
+               ci_boot <- kld_hat + c(-1,1)*qnorm(1-alpha/2)*se_boot
+           })
+
+    list(
+        est  = kld_hat,
+        boot = kld_boot,
+        ci   = ci_boot
+    )
+}
+
+
+#' Parallel version of kld_ci_subsampling, for testing (unfinished, not exported)
+#'
+kld_ci_subsampling2 <- function(X, Y = NULL, q = NULL, estimator = kld_est_nn,
+                               B = 500L, alpha = 0.05,
+                               subsample.size = function(x) x^(2/3),
+                               convergence.rate = sqrt,
+                               method = c("quantile","se"),
+                               n.cores = 1L) {
+
+    # fallback if package 'parallel' is not installed
+    if (n.cores > 1 && !requireNamespace("parallel", quietly = TRUE)) {
+        message("To use parallelization, package 'parallel' must be installed.")
+        n.cores <- 1L
+    }
+
+    # Important dimensions for X
+    X <- as.matrix(X)
+    n <- nrow(X)
+    sn <- subsample.size(n)
+
+    # check validity of input: one- or two-sample problem?
+    two.sample <- is_two_sample(Y, q)
+
+    if (two.sample) {
+        Y <- as.matrix(Y)
+        m <- nrow(Y)
+        kld_hat  <- estimator(X, Y = Y)
+
+        sm <- subsample.size(m)
+        seff <- min(sn,sm)
+        neff <- min(n,m)
+    } else {
+        kld_hat <- estimator(X, q = q)
+
+        seff <- sn
+        neff <- n
+    }
+
+
+    kld_boot <- unlist(parallel::mclapply(1:B, function(i) {
+        iX <- sample.int(n, size = sn)
+        if (two.sample) {
+            iY <- sample.int(m, size = sm)
+            estimator(X[iX, ], Y = Y[iY, ])
+        } else {
+            estimator(X[iX, ], q = q)
+        }
+    }))
+
+    # computation of confidence levels
     z_star <- convergence.rate(seff) * (kld_boot - kld_hat)
     crit_val <- quantile(z_star, probs = c(1-alpha/2, alpha/2), na.rm = TRUE)
     ci_boot <- kld_hat - crit_val/convergence.rate(neff)
@@ -160,6 +238,7 @@ kld_ci_subsampling <- function(X, Y = NULL, q = NULL, estimator = kld_est_nn,
     list(
         est  = kld_hat,
         boot = kld_boot,
-        ci   = ci_boot
+        ci   = ci_boot,
+        se   = sd(kld_boot) * convergence.rate(seff) / convergence.rate(neff)
     )
 }

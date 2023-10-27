@@ -79,26 +79,24 @@ scenarios <- combinations(
 )
 ```
 
-### Algorithms & bootstrap methods
+### Algorithm & bootstrap methods
 
-The following algorithms are considered:
+The following estimator is considered:
 
 ```{r}
-algorithms <- list(
-    nn1  = kld_est_nn,
-    kde1 = kld_est_kde1
-)
-nAlgo   <- length(algorithms)
+estimator <- kld_est_nn
 ```
 
-We use the subsampling bootstrap:
+We use the following subsampling variants:
 
 ```{r}
-resampling_method <- "subsampling"
-resampling_fun <- switch(resampling_method,
-       bootstrap   = kld_ci_bootstrap,
-       subsampling = function(...) kld_ci_subsampling(..., subsample.size = sqrt)
+resampling <- list(
+    sub_n12 = function(...) kld_ci_subsampling(..., subsample.size = function(n) n^(1/2)), 
+    sub_n23 = function(...) kld_ci_subsampling(..., subsample.size = function(n) n^(2/3)), 
+    sub_n12se = function(...) kld_ci_subsampling(..., subsample.size = function(n) n^(1/2), method = "se"),
+    sub_n23se = function(...) kld_ci_subsampling(..., subsample.size = function(n) n^(2/3), method = "se")
 )
+nResamp <- length(resampling)
 ```
 
 ## Uncertainty quantification of estimators
@@ -109,8 +107,8 @@ resampling_fun <- switch(resampling_method,
 # allocating results matrices
 nscenario  <- nrow(scenarios)
 covered <- matrix(nrow = nscenario, 
-                  ncol = nAlgo, 
-                  dimnames = list(NULL, names(algorithms)))
+                  ncol = nResamp, 
+                  dimnames = list(NULL, names(resampling)))
 
 # looping over scenarios
 for (i in 1:nscenario) {
@@ -125,8 +123,8 @@ for (i in 1:nscenario) {
     Y <- samples$Y
     
     # different algorithms are evaluated on the same samples
-    for (j in 1:nAlgo) {
-        kldboot <- resampling_fun(X, Y, estimator = algorithms[[j]], B = 500L)
+    for (j in 1:nResamp) {
+        kldboot <- resampling[[j]](X, Y, estimator = estimator, B = 500L)
         covered[i,j] <- kldboot$ci[1] <= kld && kld <= kldboot$ci[2]
     }
 }
@@ -135,16 +133,16 @@ for (i in 1:nscenario) {
 Combine scenarios with CI coverage information:
 
 ```{r}
-results <- cbind(scenarios, covered) |> melt(measure.vars  = names(algorithms),
+results <- cbind(scenarios, covered) |> melt(measure.vars  = names(resampling),
                                              value.name    = "covered",
-                                             variable.name = "algorithm") 
+                                             variable.name = "resampling") 
 ```
 
 Compute coverage per sample size / algorithm / distribution:
 
 ```{r}
 coverage <- dcast(results, 
-                  sample.size + algorithm + distribution ~ ., 
+                  sample.size + resampling + distribution ~ ., 
                   value.var = "covered", 
                   fun.aggregate = function(x) mean(x, na.rm = TRUE))
 names(coverage)[4] <- "coverage"
@@ -153,18 +151,25 @@ names(coverage)[4] <- "coverage"
 ### Results: coverage of confidence intervals for KL divergence
 
 ```{r}
-ggplot(coverage, aes(x = sample.size, y = coverage, color = algorithm)) + 
+ggplot(coverage, aes(x = sample.size, y = coverage, color = resampling)) + 
     facet_wrap("distribution") +
     geom_line() + 
     scale_x_log10() +
     geom_hline(yintercept = 0.95, lty = 2) + 
-    ggtitle(paste("Resampling method:",resampling_method)) +
+    scale_color_discrete(name = "CI method", 
+                        labels = c("Reverse percentile, s = n^(1/2)",
+                                   "Reverse percentile, s = n^(2/3)",
+                                   "1.96 standard error, s = n^(1/2)",
+                                   "1.96 standard error, s = n^(2/3)")) +
+    ggtitle("Subsampling-based confidence intervals") +
     theme(plot.title = element_text(hjust = 0.5))
 ```
 
 $\Rightarrow$ coverage of the confidence intervals based on nearest neighbour 
 density estimation approaches the nominal coverage of 95% for increasing sample 
-sizes. For the Gaussian case, in which the kernel density based method performs
+sizes. 
+
+For the Gaussian case, in which the kernel density based method performs
 well in the estimation benchmark, this also holds for the kernel density method.
 However, due to the bias in estimating KL divergence between exponential or
 uniform distributions, uncertainty quantification also fails.
