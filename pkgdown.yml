@@ -7,7 +7,7 @@ articles:
   algorithm-benchmark-2d: algorithm-benchmark-2d.html
   comparison-1sample-2sample-1D: comparison-1sample-2sample-1D.html
   uncertainty-quantification: uncertainty-quantification.html
-last_built: 2023-10-27T07:05Z
+last_built: 2023-10-27T09:47Z
 urls:
   reference: https://niklhart.github.io/kldest/reference
   article: https://niklhart.github.io/kldest/articles
