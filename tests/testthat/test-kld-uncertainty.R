@@ -37,20 +37,25 @@ test_that("kld_ci_subsampling has the correct coverage on an easy example", {
 
 test_that("kld_ci_subsampling parallelization works", {
 
+    # NOTE: there is still randomness in the test due to different seeds used in
+    # the parallel processes. I use a huge value of B and a large tolerance to
+    # compensate for this. But it would be better to have a truly reproducible
+    # way of handling thos
+
     # input parameters
     set.seed(123456)
     n <- 100
     alpha <- 0.4
-    B <- 500
+    B <- 5000
     X <- rnorm(n)
 
     # 1-sample case only
     q <- function(x) dnorm(x, mean =1, sd = 2)
 
     ci_1s_seq <- kld_ci_subsampling(X, q = q, B = B, alpha = alpha, n.cores = 1)$ci
-    ci_1s_par <- kld_ci_subsampling(X, q = q, B = B, alpha = alpha, n.cores = 8)$ci
+    ci_1s_par <- kld_ci_subsampling(X, q = q, B = B, alpha = alpha, n.cores = 2)$ci
 
-    expect_equal(ci_1s_par,ci_1s_seq, tolerance = 0.02)
+    expect_equal(ci_1s_par,ci_1s_seq, tolerance = 0.05)
 
 })
 
