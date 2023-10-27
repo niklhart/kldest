@@ -8,4 +8,4 @@
 .quarto
 inst/doc
 docs
-*.html
+scripts/*.html
