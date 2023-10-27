@@ -69,7 +69,8 @@ asymptotic coverage \(1 - \alpha\) as long as \(b_n/n\rightarrow 0\),
 <span>  B <span class="op">=</span> <span class="fl">500L</span>,</span>
 <span>  alpha <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  subsample.size <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span><span class="op">^</span><span class="op">(</span><span class="fl">2</span><span class="op">/</span><span class="fl">3</span><span class="op">)</span>,</span>
-<span>  convergence.rate <span class="op">=</span> <span class="va">sqrt</span></span>
+<span>  convergence.rate <span class="op">=</span> <span class="va">sqrt</span>,</span>
+<span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"quantile"</span>, <span class="st">"se"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -111,16 +112,21 @@ defaults to \(f(x) = x^{2/3}\).</p></dd>
 <dd><p>A function computing the convergence rate of the
 estimator as a function of sample sizes. Defaults to \(f(x) = x^{1/2}\).</p></dd>
 
+
+<dt>method</dt>
+<dd><p>Either <code>"quantile</code> (the default) or `"se"``.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>A list with the fields <code>"est"</code> (the estimated KL divergence),
-<code>"boot"</code> (a length <code>B</code> numeric vector with KL divergence estimates on
-the bootstrap subsamples), and <code>"ci"</code> (a length <code>2</code> vector containing the
-lower and upper limits of the estimated confidence interval).</p>
-    </div>
+<p>A list with the following fields:</p><ul><li><p><code>"est"</code> (the estimated KL divergence),</p></li>
+<li><p><code>"boot"</code> (a length <code>B</code> numeric vector with KL divergence estimates on
+the bootstrap subsamples),</p></li>
+<li><p><code>"ci"</code> (a length <code>2</code> vector containing the lower and upper limits of the
+estimated confidence interval).</p></li>
+</ul></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Reference:</p>
@@ -137,15 +143,15 @@ minimal assumptions", The Annals of Statistics, Vol. 22, No. 4 (1994).</p>
 <span class="r-in"><span><span class="fu"><a href="kld_gaussian.html">kld_gaussian</a></span><span class="op">(</span>mu1 <span class="op">=</span> <span class="fl">0</span>, sigma1 <span class="op">=</span> <span class="fl">1</span>, mu2 <span class="op">=</span> <span class="fl">1</span>, sigma2 <span class="op">=</span> <span class="fl">2</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.4431472</span>
 <span class="r-in"><span><span class="fu"><a href="kld_est_nn.html">kld_est_nn</a></span><span class="op">(</span><span class="va">X</span>, Y <span class="op">=</span> <span class="va">Y</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.6942589</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.3987724</span>
 <span class="r-in"><span><span class="fu"><a href="kld_est_nn.html">kld_est_nn</a></span><span class="op">(</span><span class="va">X</span>, q <span class="op">=</span> <span class="va">q</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.7165976</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2619072</span>
 <span class="r-in"><span><span class="fu">kld_ci_subsampling</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span><span class="op">$</span><span class="va">ci</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      2.5%     97.5% </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.2976328 1.1713685 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        2.5%       97.5% </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.08363868  0.74593640 </span>
 <span class="r-in"><span><span class="fu">kld_ci_subsampling</span><span class="op">(</span><span class="va">X</span>, q <span class="op">=</span> <span class="va">q</span><span class="op">)</span><span class="op">$</span><span class="va">ci</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      2.5%     97.5% </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.3759336 1.0595422 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       2.5%      97.5% </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -0.1127820  0.4324783 </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -124,15 +124,15 @@ Distributions", IEEE International Symposium on Information Theory (2008).</p>
 <span class="r-in"><span><span class="fu"><a href="kld_gaussian.html">kld_gaussian</a></span><span class="op">(</span>mu1 <span class="op">=</span> <span class="fl">0</span>, sigma1 <span class="op">=</span> <span class="fl">1</span>, mu2 <span class="op">=</span> <span class="fl">1</span>, sigma2 <span class="op">=</span> <span class="fl">2</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.4431472</span>
 <span class="r-in"><span><span class="fu">kld_est_nn</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.7532748</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2949553</span>
 <span class="r-in"><span><span class="fu">kld_est_nn</span><span class="op">(</span><span class="va">X</span>, q <span class="op">=</span> <span class="va">q</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.5465343</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.3966024</span>
 <span class="r-in"><span><span class="fu">kld_est_nn</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, k <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.575415</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.1959166</span>
 <span class="r-in"><span><span class="fu">kld_est_nn</span><span class="op">(</span><span class="va">X</span>, q <span class="op">=</span> <span class="va">q</span>, k <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.4331822</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.37585</span>
 <span class="r-in"><span><span class="fu"><a href="kld_est_brnn.html">kld_est_brnn</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.7846972</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2999357</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># KL-D between two samples from 2-D Gaussians:</span></span></span>
@@ -146,11 +146,11 @@ Distributions", IEEE International Symposium on Information Theory (2008).</p>
 <span class="r-in"><span>             mu2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">2</span><span class="op">)</span>, sigma2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">1</span>,<span class="fl">2</span><span class="op">)</span>,nrow<span class="op">=</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.5</span>
 <span class="r-in"><span><span class="fu">kld_est_nn</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.4749195</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.5988154</span>
 <span class="r-in"><span><span class="fu">kld_est_nn</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span>, k <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.1925972</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2380853</span>
 <span class="r-in"><span><span class="fu"><a href="kld_est_brnn.html">kld_est_brnn</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.47538</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.560825</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
