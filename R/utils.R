@@ -49,7 +49,8 @@ trapz <- function(h, fx) {
                sum(fx) - 0.5*(fx[1] + fx[dims])
            },
            "2" = {
-               sum(fx) - 0.5*(sum(fx[c(1,dims[1]),]) + sum(fx[,c(1,dims[2])])) + 0.25 * sum(fx[c(1,dims[1]),c(1,dims[2])])
+               sum(fx) - 0.5*(sum(fx[c(1,dims[1]),]) + sum(fx[,c(1,dims[2])])) +
+                   0.25 * sum(fx[c(1,dims[1]),c(1,dims[2])])
            },
            stop("Case d>2 not implemented yet.")
     )

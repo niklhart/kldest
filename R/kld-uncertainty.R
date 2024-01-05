@@ -28,6 +28,7 @@
 #'    lower and upper limits of the estimated confidence interval).
 #' @examples
 #' # 1D Gaussian, two samples
+#' set.seed(0)
 #' X <- rnorm(100)
 #' Y <- rnorm(100, mean = 1, sd = 2)
 #' kld_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
@@ -116,6 +117,8 @@ kld_ci_bootstrap <- function(X, Y, estimator = kld_est_kde1, B = 500L, alpha = 0
 #'     To use this option, the `parallel` package must be installed and the OS
 #'     must be of UNIX type (i.e., not Windows). Otherwise, `n.cores` will be
 #'     reset to `1`, with a message.
+#' @param ... Arguments passed on to `estimator`, i.e. via the call
+#'     `estimator(X, Y = Y, ...)` or `estimator(X, q = q, ...)`.
 #' @returns A list with the following fields:
 #'    * `"est"` (the estimated KL divergence),
 #'    * `"boot"` (a length `B` numeric vector with KL divergence estimates on
@@ -124,6 +127,7 @@ kld_ci_bootstrap <- function(X, Y, estimator = kld_est_kde1, B = 500L, alpha = 0
 #'    estimated confidence interval).
 #' @examples
 #' # 1D Gaussian (one- and two-sample problems)
+#' set.seed(0)
 #' X <- rnorm(100)
 #' Y <- rnorm(100, mean = 1, sd = 2)
 #' q <- function(x) dnorm(x, mean =1, sd = 2)
@@ -139,7 +143,8 @@ kld_ci_subsampling <- function(X, Y = NULL, q = NULL, estimator = kld_est_nn,
                                subsample.size = function(x) x^(2/3),
                                convergence.rate = sqrt,
                                method = c("quantile","se"),
-                               n.cores = 1L) {
+                               n.cores = 1L,
+                               ...) {
 
     # select CI computation method
     method <- match.arg(method)
@@ -151,16 +156,13 @@ kld_ci_subsampling <- function(X, Y = NULL, q = NULL, estimator = kld_est_nn,
     }
 
     # fallback if package 'parallel' is not installed
-    if (n.cores > 1 && !requireNamespace("parallel", quietly = TRUE)) {
+    if (n.cores > 1L && !requireNamespace("parallel", quietly = TRUE)) {
         message("To use parallelization, package 'parallel' must be installed.")
         n.cores <- 1L
     }
 
-    # uniformize syntax with/without parallel computing
-    applyfun <- function(...) if (n.cores > 1L) parallel::mclapply(..., mc.cores = n.cores) else lapply(...)
-
     # important dimensions for X
-    X <- as.matrix(X)
+    if (is.vector(X)) X <- as.matrix(X)
     n <- nrow(X)
     sn <- subsample.size(n)
 
@@ -168,30 +170,30 @@ kld_ci_subsampling <- function(X, Y = NULL, q = NULL, estimator = kld_est_nn,
     two.sample <- is_two_sample(Y, q)
 
     if (two.sample) {
-        Y <- as.matrix(Y)
+        if (is.vector(Y)) Y <- as.matrix(Y)
         m <- nrow(Y)
-        kld_hat  <- estimator(X, Y = Y)
+        kld_hat  <- estimator(X, Y = Y, ...)
 
         sm <- subsample.size(m)
         seff <- min(sn,sm)
         neff <- min(n,m)
     } else {
-        kld_hat <- estimator(X, q = q)
+        kld_hat <- estimator(X, q = q, ...)
 
         seff <- sn
         neff <- n
     }
 
-    # subsampling procedure (without replacement)
-    kld_boot <- unlist(applyfun(X = 1:B, FUN = function(i) {
-        iX <- sample.int(n, size = sn)
-        if (two.sample) {
+    # specialize subsampling routine to one- or two-sample problem
+    subsfun <- if (two.sample) function(i) {
+            iX <- sample.int(n, size = sn)
             iY <- sample.int(m, size = sm)
-            estimator(X[iX, ], Y = Y[iY, ])
-        } else {
-            estimator(X[iX, ], q = q)
-        }
-    }))
+            estimator(X[iX, ], Y = Y[iY, ], ...)
+    } else function(i) estimator(X[sample.int(n, size = sn), ], q = q, ...)
+
+    # apply subsampling using uniformized syntax with/without parallel computing
+    applyfun <- function(...) if (n.cores > 1L) parallel::mclapply(..., mc.cores = n.cores) else lapply(...)
+    kld_boot <- unlist(applyfun(X = 1:B, FUN = subsfun))
 
     # computation of confidence levels
     switch(method,

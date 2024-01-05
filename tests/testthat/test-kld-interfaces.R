@@ -5,6 +5,8 @@ test_that("kld_est works as expected for discrete data", {
     Yn <- c(1,2,2,2)
     Xc <- as.character(Xn)
     Yc <- as.character(Yn)
+    Xf <- as.factor(Xn)
+    Yf <- as.factor(Yn)
     Xnd <- data.frame(Xn)
     Ynd <- data.frame(Yn)
     Xcd <- data.frame(Xc)
@@ -12,12 +14,14 @@ test_that("kld_est works as expected for discrete data", {
 
     KL_num <- kld_est(Xn, Yn, vartype = "d")
     KL_chr <- kld_est(Xc, Yc)
-    KL_ndf  <- kld_est(Xnd, Ynd, vartype = "d")
-    KL_cdf  <- kld_est(Xcd, Ycd)
+    KL_fct <- kld_est(Xf, Yf)
+    KL_ndf <- kld_est(Xnd, Ynd, vartype = "d")
+    KL_cdf <- kld_est(Xcd, Ycd)
     KL_ref <- kld_discrete(c(0.5,0.5), c(0.25,0.75))
 
-    expect_equal(KL_num,KL_ref)
-    expect_equal(KL_chr,KL_ref)
+    expect_equal(KL_num, KL_ref)
+    expect_equal(KL_chr, KL_ref)
+    expect_equal(KL_fct, KL_ref)
     expect_equal(KL_ndf, KL_ref)
     expect_equal(KL_cdf, KL_ref)
 
@@ -42,11 +46,11 @@ test_that("kld_est works as expected for discrete data", {
     KL2_ref <- kld_discrete(matrix(c(1,0,1,1)/3,nrow=2),
                             matrix(0.25,nrow=2,ncol=2))
 
-    expect_equal(KL2_num,KL2_ref)
-    expect_equal(KL2_chr,KL2_ref)
-    expect_equal(KL2_dnn,KL2_ref)
-    expect_equal(KL2_dcc,KL2_ref)
-    expect_equal(KL2_dnc,KL2_ref)
+    expect_equal(KL2_num, KL2_ref)
+    expect_equal(KL2_chr, KL2_ref)
+    expect_equal(KL2_dnn, KL2_ref)
+    expect_equal(KL2_dcc, KL2_ref)
+    expect_equal(KL2_dnc, KL2_ref)
 
     # 1D example (one sample)
     Xd <- c(0,0,1,1,1)

@@ -46,6 +46,7 @@ is issued and the (much) slower function 'kld_est_kde' is used instead.
 }
 \examples{
 # KL-D between two samples from 2-D Gaussians:
+set.seed(0)
 X1 <- rnorm(1000)
 X2 <- rnorm(1000)
 Y1 <- rnorm(1000)

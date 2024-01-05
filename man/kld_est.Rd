@@ -14,23 +14,24 @@ kld_est(
 )
 }
 \arguments{
-\item{X, Y}{Data frames or matrices with the same number of columns \code{d}
-(multivariate samples), or numeric/character vectors (univariate samples,
-i.e. \code{d=1}), representing \code{n} samples from the true distribution \eqn{P}
-and \code{m} samples from the approximate distribution \eqn{Q}, both in \code{d}
-dimensions. \code{Y} can be left blank if \code{q} is specified (see below).}
+\item{X, Y}{\code{n}-by-\code{d} and \code{m}-by-\code{d} data frames or matrices (multivariate
+samples), or numeric/character vectors (univariate samples, i.e. \code{d = 1}),
+representing \code{n} samples from the true distribution \eqn{P} and \code{m}
+samples from the approximate distribution \eqn{Q} in \code{d} dimensions.
+\code{Y} can be left blank if \code{q} is specified (see below).}
 
 \item{q}{The density function of the approximate distribution \eqn{Q}. Either
 \code{Y} or \code{q} must be specified. In general, \code{q} must be given in decomposed
-form, \eqn{q(y_c|y_d)q(y_d)}, specified as a named list with field \code{cond}
-for the conditional density \eqn{q(y_c|y_d)} (a function that expects two
-arguments \code{y_c} and \code{y_d}) and \code{disc} for the discrete marginal density
-\eqn{q(y_d)} (a function that expects one argument \code{y_d}). If this is not
-possible, it may be preferable to simulate a large sample from \eqn{Q} and
-use the two-sample syntax instead. For compatibility with the continuous
-and discrete one-sample estimators, if the sample(s) is/are all continuous
-or all discrete, instead of specifying \code{q} as a length 2 list, it may also
-be given as a function handle computing the continous or discrete density.}
+form, \eqn{q(y_c,y_d)=q_{c|d}(y_c|y_d)q_d(y_d)}, specified as a named list
+with field \code{cond} for the conditional density \eqn{q_{c|d}(y_c|y_d)} (a
+function that expects two arguments \code{y_c} and \code{y_d}) and \code{disc} for the
+discrete marginal density \eqn{q_d(y_d)} (a function that expects one
+argument \code{y_d}). If such a decomposition is not available, it may be
+preferable to simulate a large sample from \eqn{Q} and use the two-sample
+syntax instead. For compatibility with the continuous and discrete
+one-sample estimators, if the samples are all continuous or all discrete,
+instead of specifying \code{q} as a length 2 list of functions, it may also be
+directly given as a function computing the continuous or discrete density.}
 
 \item{estimator.continuous, estimator.discrete}{KL divergence estimators for
 continuous and discrete data, respectively. Both are function with two
@@ -41,9 +42,9 @@ one-sample problem is considered. Defaults are \code{kld_est_nn} and
 \item{vartype}{A length \code{d} character vector, with \code{vartype[i] = "c"} meaning
 the \code{i}-th variable is continuous, and \code{vartype[i] = "d"} meaning it is
 discrete. If unspecified, \code{vartype} is \code{"c"} for numeric columns and \code{"d"}
-for character or factor columns. This default will not work if levels of
-discrete variables are encoded using numbers (e.g., \code{0} for females and
-\code{1} for males) or for count data.}
+for character or factor columns. This default will mostly work, except if
+levels of discrete variables are encoded using numbers (e.g., \code{0} for
+females and \code{1} for males) or for count data.}
 }
 \value{
 A scalar, the estimated Kullback-Leibler divergence \eqn{\hat D_{KL}(P||Q)}.
@@ -65,6 +66,7 @@ is approximated using relative frequencies.
 }
 \examples{
 # 2D example, two samples
+set.seed(0)
 X <- data.frame(cont  = rnorm(10),
                 discr = c(rep('a',4),rep('b',6)))
 Y <- data.frame(cont  = c(rnorm(5), rnorm(5, sd = 2)),
@@ -72,6 +74,7 @@ Y <- data.frame(cont  = c(rnorm(5), rnorm(5, sd = 2)),
 kld_est(X, Y)
 
 # 2D example, one sample
+set.seed(0)
 X <- data.frame(cont  = rnorm(10),
                 discr = c(rep(0,4),rep(1,6)))
 q <- list(cond = function(xc,xd) dnorm(xc, mean = xd, sd = 1),

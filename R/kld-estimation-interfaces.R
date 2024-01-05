@@ -18,22 +18,23 @@
 #' is approximated using relative frequencies.
 #'
 #' @inherit kld_est_kde return
-#' @param X,Y Data frames or matrices with the same number of columns `d`
-#'    (multivariate samples), or numeric/character vectors (univariate samples,
-#'    i.e. `d=1`), representing `n` samples from the true distribution \eqn{P}
-#'    and `m` samples from the approximate distribution \eqn{Q}, both in `d`
-#'    dimensions. `Y` can be left blank if `q` is specified (see below).
+#' @param X,Y `n`-by-`d` and `m`-by-`d` data frames or matrices (multivariate
+#'    samples), or numeric/character vectors (univariate samples, i.e. `d = 1`),
+#'    representing `n` samples from the true distribution \eqn{P} and `m`
+#'    samples from the approximate distribution \eqn{Q} in `d` dimensions.
+#'    `Y` can be left blank if `q` is specified (see below).
 #' @param q The density function of the approximate distribution \eqn{Q}. Either
 #'    `Y` or `q` must be specified. In general, `q` must be given in decomposed
-#'    form, \eqn{q(y_c|y_d)q(y_d)}, specified as a named list with field `cond`
-#'    for the conditional density \eqn{q(y_c|y_d)} (a function that expects two
-#'    arguments `y_c` and `y_d`) and `disc` for the discrete marginal density
-#'    \eqn{q(y_d)} (a function that expects one argument `y_d`). If this is not
-#'    possible, it may be preferable to simulate a large sample from \eqn{Q} and
-#'    use the two-sample syntax instead. For compatibility with the continuous
-#'    and discrete one-sample estimators, if the sample(s) is/are all continuous
-#'    or all discrete, instead of specifying `q` as a length 2 list, it may also
-#'    be given as a function handle computing the continous or discrete density.
+#'    form, \eqn{q(y_c,y_d)=q_{c|d}(y_c|y_d)q_d(y_d)}, specified as a named list
+#'    with field `cond` for the conditional density \eqn{q_{c|d}(y_c|y_d)} (a
+#'    function that expects two arguments `y_c` and `y_d`) and `disc` for the
+#'    discrete marginal density \eqn{q_d(y_d)} (a function that expects one
+#'    argument `y_d`). If such a decomposition is not available, it may be
+#'    preferable to simulate a large sample from \eqn{Q} and use the two-sample
+#'    syntax instead. For compatibility with the continuous and discrete
+#'    one-sample estimators, if the samples are all continuous or all discrete,
+#'    instead of specifying `q` as a length 2 list of functions, it may also be
+#'    directly given as a function computing the continuous or discrete density.
 #' @param estimator.continuous,estimator.discrete KL divergence estimators for
 #'    continuous and discrete data, respectively. Both are function with two
 #'    arguments `X` and `Y` or `X` and `q`, depending on whether a two-sample or
@@ -42,11 +43,12 @@
 #' @param vartype A length `d` character vector, with `vartype[i] = "c"` meaning
 #'    the `i`-th variable is continuous, and `vartype[i] = "d"` meaning it is
 #'    discrete. If unspecified, `vartype` is `"c"` for numeric columns and `"d"`
-#'    for character or factor columns. This default will not work if levels of
-#'    discrete variables are encoded using numbers (e.g., `0` for females and
-#'    `1` for males) or for count data.
+#'    for character or factor columns. This default will mostly work, except if
+#'    levels of discrete variables are encoded using numbers (e.g., `0` for
+#'    females and `1` for males) or for count data.
 #' @examples
 #' # 2D example, two samples
+#' set.seed(0)
 #' X <- data.frame(cont  = rnorm(10),
 #'                 discr = c(rep('a',4),rep('b',6)))
 #' Y <- data.frame(cont  = c(rnorm(5), rnorm(5, sd = 2)),
@@ -54,6 +56,7 @@
 #' kld_est(X, Y)
 #'
 #' # 2D example, one sample
+#' set.seed(0)
 #' X <- data.frame(cont  = rnorm(10),
 #'                 discr = c(rep(0,4),rep(1,6)))
 #' q <- list(cond = function(xc,xd) dnorm(xc, mean = xd, sd = 1),
@@ -67,7 +70,7 @@ kld_est <- function(X, Y = NULL, q = NULL, estimator.continuous = kld_est_nn,
     if (is.null(vartype)) {
         vartype <- if (is.numeric(X)) {
             "c"
-        } else if (is.character(X)) {
+        } else if (is.character(X) || is.factor(X)) {
             "d"
         } else if (is.data.frame(X)) {
             ifelse(vapply(X, is.numeric, logical(1)),
@@ -109,13 +112,11 @@ kld_est <- function(X, Y = NULL, q = NULL, estimator.continuous = kld_est_nn,
         KLdisc <- estimator.discrete(Xdisc,Ydisc)
 
     } else {
-
         qXcond <- lapply(Xdisc[match(levels(iXdisc),iXdisc), ],
                          function(d) {force(d); function(c) q$cond(c,d)})
         KLcont <- mapply(FUN = estimator.continuous, X = sXcont, q = qXcond)
         KLdisc <- estimator.discrete(Xdisc, q = q$disc)
     }
-
 
     # return compound KL divergence
     tdisc <- table(iXdisc)

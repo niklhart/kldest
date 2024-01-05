@@ -38,6 +38,7 @@ any number of dimensions but is very slow.
 }
 \examples{
 # KL-D between two samples from 1-D Gaussians:
+set.seed(0)
 X <- rnorm(100)
 Y <- rnorm(100, mean = 1, sd = 2)
 kld_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
@@ -46,6 +47,7 @@ kld_est_nn(X, Y)
 kld_est_brnn(X, Y)
 
 # KL-D between two samples from 2-D Gaussians:
+set.seed(0)
 X1 <- rnorm(100)
 X2 <- rnorm(100)
 Y1 <- rnorm(100)

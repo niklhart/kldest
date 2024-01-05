@@ -18,6 +18,7 @@
 #'    argument `bw`)
 #' @examples
 #' # KL-D between two samples from 1D Gaussians:
+#' set.seed(0)
 #' X <- rnorm(100)
 #' Y <- rnorm(100, mean = 1, sd = 2)
 #' kld_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
@@ -77,6 +78,7 @@ kld_est_kde1 <- function(X, Y, MC = FALSE, ...) {
 #'    expense of an additional bias. Defaults to `eps = 1e-5`.
 #' @examples
 #' # KL-D between two samples from 2-D Gaussians:
+#' set.seed(0)
 #' X1 <- rnorm(1000)
 #' X2 <- rnorm(1000)
 #' Y1 <- rnorm(1000)

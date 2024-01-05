@@ -27,6 +27,7 @@ package 'stats'. Only the two-sample, not the one-sample problem is implemented.
 }
 \examples{
 # KL-D between two samples from 1D Gaussians:
+set.seed(0)
 X <- rnorm(100)
 Y <- rnorm(100, mean = 1, sd = 2)
 kld_gaussian(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)

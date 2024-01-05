@@ -42,6 +42,102 @@ library(kldest)
 library(ggplot2)
 ```
 
+For reproducibility
+
+```{r}
+set.seed(0)
+```
+
+### Global simulation parameters
+
+```{r}
+n <- 100L
+nrep <- 100L
+estimator <- kld_est_nn
+```
+
+### Define scenarios
+
+```{r}
+scenarios <- list(
+    "2-D, independent" = list(mu1    = c(2,0),
+                              sigma1 = diag(c(1,100)),
+                              mu2    = c(0,10),
+                              sigma2 = diag(c(1,100))),
+    "2-D, corr. diff." = list(mu1    = c(0,0),
+                              sigma1 = constDiagMatrix(dim = 2, diag = 3, offDiag = 1),
+                              mu2    = c(0,0),
+                              sigma2 = constDiagMatrix(dim = 2, diag = 3, offDiag = -1)),
+    "10-D, corr. diff." = list(mu1    = rep(0,10),
+                               sigma1 = constDiagMatrix(dim = 10, diag = 1, offDiag = 0.999),
+                               mu2    = rep(0,10),
+                               sigma2 = diag(10))
+)
+```
+
+Compute true KL-D in each scenario
+
+```{r}
+kld_true <- vapply(scenarios, function(x) do.call(kld_gaussian,x), 1)
+```
+
+## Simulation study: scale dependency
+
+```{r}
+kld_unif <- kld_orig <- matrix(nrow = nrep, 
+                               ncol = length(scenarios), 
+                               dimnames = c(list(NULL), list(names(scenarios))))
+
+for (j in seq_along(scenarios)) {
+    
+    p <- scenarios[[j]]
+    
+    for (i in 1:nrep) {
+        X <- MASS::mvrnorm(n, mu = p$mu1, Sigma = p$sigma1)
+        Y <- MASS::mvrnorm(n, mu = p$mu2, Sigma = p$sigma2)
+    
+        transf <- exp
+        X <- transf(X)
+        Y <- transf(Y)
+        
+        kld_orig[i,j] <- estimator(X, Y)
+        
+        uXY <- to_uniform_scale(X, Y)
+        
+        kld_unif[i,j] <- estimator(X = uXY$X, Y = uXY$Y)
+    }
+
+}
+```
+
+Post-processing
+
+```{r}
+res <- rbind(
+    cbind(as.data.frame(kld_orig), nrep = 1:nrep, Scale = "orig"),
+    cbind(as.data.frame(kld_unif), nrep = 1:nrep, Scale = "unif")
+) |> reshape2::melt(id.vars = c("nrep","Scale"), 
+                    variable.name = "Scenario",
+                    value.name = "KLD")
+```
+
+Transformation of `kld_true`:
+
+```{r}
+kld_true <- data.frame(Scenario = names(kld_true), KLD = unname(kld_true))
+```
+
+
+Graphical display
+
+```{r}
+ggplot(res, aes(x = Scale, y = KLD)) + 
+    geom_boxplot() + 
+    facet_wrap("Scenario", scales = "free_y") +
+    geom_hline(data = kld_true, aes(yintercept = KLD), color = "red")
+```
+
+
 ## Scenario 1: independent 2D Gaussians
 
 We first consider a 2D problem with different locations/scales on the two 
@@ -56,8 +152,8 @@ kld_true <- kld_gaussian(mu1 = mu1, sigma1 = diag(sigma1), mu2 = mu2, sigma2 = d
 ```
 
 ```{r}
-nrep <- 100L
-n <- 1000L
+nrep <- 1000L
+n <- 50L
 kld_orig <- numeric(nrep)
 kld_unif <- numeric(nrep)
 for (i in 1:nrep) {
@@ -146,8 +242,8 @@ kld_true <- kld_gaussian(mu1 = mu1, sigma1 = Sigma1, mu2 = mu2, sigma2 = Sigma2)
 Sampling on different scales
 
 ```{r}
-nrep <- 100L
-n <- 1000L
+nrep <- 1000L
+n <- 50L
 kld_orig <- numeric(nrep)
 kld_unif <- numeric(nrep)
 for (i in 1:nrep) {
@@ -195,6 +291,7 @@ points(uXY$X[,1], uXY$X[,2])
 points(uXY$Y[,1], uXY$Y[,2], col="red2")
 legend("topright", legend = c("X","Y"), col = c("black","red"), pch = 1)
 ```
+
 ### Results
 
 Format the results
@@ -218,6 +315,192 @@ $\Rightarrow$ slightly better on uniform scale. I would have expected the method
 to work much worse on the nonlinearly transformed non-uniform scale. It seems
 that the NN method is quite robust to such distortions, even though it works with
 Euclidian distances in the end.
+
+
+## Scenario 3: 2D Gaussians differing in their correlation structure
+
+We now consider a 2D problem with different locations/scales on the two 
+variables, and correlated variables.
+
+True KL divergence:
+
+```{r}
+mu1 <- c(0,0); Sigma1 <- cbind(c(3,1),c(1,3))
+mu2 <- c(0,0); Sigma2 <- cbind(c(3,-1),c(-1,3))
+kld_true <- kld_gaussian(mu1 = mu1, sigma1 = Sigma1, mu2 = mu2, sigma2 = Sigma2)
+```
+
+Sampling on different scales
+
+```{r}
+nrep <- 1000L
+n <- 100L
+kld_orig <- numeric(nrep)
+kld_unif <- numeric(nrep)
+for (i in 1:nrep) {
+    X <- MASS::mvrnorm(n, mu = mu1, Sigma = Sigma1)
+    Y <- MASS::mvrnorm(n, mu = mu2, Sigma = Sigma2)
+
+    transf <- exp
+    X <- transf(X)
+    Y <- transf(Y)
+    
+    kld_orig[i] <- kld_est_nn(X, Y)
+    
+    uXY <- to_uniform_scale(X, Y)
+    
+    kld_unif[i] <- kld_est_nn(X = uXY$X, Y = uXY$Y)
+}
+```
+
+### Illustrations
+
+Illustration of a sample on original scale
+
+```{r}
+plot(NA, 
+     xlim = range(c(X[,1],Y[,1])),
+     ylim = range(c(X[,2],Y[,2])),
+     xlab = "First variable",
+     ylab = "Second variable",
+     main = "Samples on original scale")
+points(X[,1], X[,2])
+points(Y[,1], Y[,2], col="red2")
+legend("topright", legend = c("X","Y"), col = c("black","red"), pch = 1)
+```
+
+Illustration of a sample on uniform scale
+
+```{r}
+plot(NA, 
+     xlim = 0:1,
+     ylim = 0:1,
+     xlab = "First variable",
+     ylab = "Second variable",
+     main = "Samples on uniform scale")
+points(uXY$X[,1], uXY$X[,2])
+points(uXY$Y[,1], uXY$Y[,2], col="red2")
+legend("topright", legend = c("X","Y"), col = c("black","red"), pch = 1)
+```
+
+### Results
+
+Format the results
+
+```{r}
+kld <- rbind(
+    data.frame(kld = kld_orig, scale = "orig"),
+    data.frame(kld = kld_unif, scale = "unif")
+)
+```
+
+
+Display the results
+
+```{r}
+ggplot(data = kld) + geom_boxplot(aes(x=scale,y=kld)) + 
+    geom_hline(data = data.frame(kld = kld_true), aes(yintercept = kld), color='red')
+```
+
+$\Rightarrow$ slightly better on uniform scale. I would have expected the method 
+to work much worse on the nonlinearly transformed non-uniform scale. It seems
+that the NN method is quite robust to such distortions, even though it works with
+Euclidian distances in the end.
+
+
+
+## Scenario 4: 2D Gaussians differing in their correlation structure
+
+We now consider a high-dimensional problem with different locations/scales on the two 
+variables, and correlated variables.
+
+True KL divergence:
+
+```{r}
+d <- 10
+mu <- rep(n,d)
+Sigma1 <- constDiagMatrix(dim = d, diag = 1, offDiag = 0.99)
+Sigma2 <- constDiagMatrix(dim = d, diag = 1, offDiag = 0)
+kld_true <- kld_gaussian(mu1 = mu, sigma1 = Sigma1, mu2 = mu, sigma2 = Sigma2)
+```
+
+Sampling on different scales
+
+```{r}
+nrep <- 1000L
+n <- 100L
+kld_orig <- numeric(nrep)
+kld_unif <- numeric(nrep)
+for (i in 1:nrep) {
+    X <- MASS::mvrnorm(n, mu = mu, Sigma = Sigma1)
+    Y <- MASS::mvrnorm(n, mu = mu, Sigma = Sigma2)
+
+    transf <- exp
+    X <- transf(X)
+    Y <- transf(Y)
+    
+    kld_orig[i] <- kld_est_nn(X, Y)
+    
+    uXY <- to_uniform_scale(X, Y)
+    
+    kld_unif[i] <- kld_est_nn(X = uXY$X, Y = uXY$Y)
+}
+```
+
+### Illustrations
+
+Illustration of a sample on original scale
+
+```{r}
+plot(NA, 
+     xlim = range(c(X[,1],Y[,1])),
+     ylim = range(c(X[,2],Y[,2])),
+     xlab = "First variable",
+     ylab = "Second variable",
+     main = "Samples on original scale")
+points(X[,1], X[,2])
+points(Y[,1], Y[,2], col="red2")
+legend("topright", legend = c("X","Y"), col = c("black","red"), pch = 1)
+```
+
+Illustration of a sample on uniform scale
+
+```{r}
+plot(NA, 
+     xlim = 0:1,
+     ylim = 0:1,
+     xlab = "First variable",
+     ylab = "Second variable",
+     main = "Samples on uniform scale")
+points(uXY$X[,1], uXY$X[,2])
+points(uXY$Y[,1], uXY$Y[,2], col="red2")
+legend("topright", legend = c("X","Y"), col = c("black","red"), pch = 1)
+```
+
+### Results
+
+Format the results
+
+```{r}
+kld <- rbind(
+    data.frame(kld = kld_orig, scale = "orig"),
+    data.frame(kld = kld_unif, scale = "unif")
+)
+```
+
+
+Display the results
+
+```{r}
+ggplot(data = kld) + geom_boxplot(aes(x=scale,y=kld)) + 
+    geom_hline(data = data.frame(kld = kld_true), aes(yintercept = kld), color='red')
+```
+
+$\Rightarrow$ slightly better on uniform scale. I would have expected the method 
+to work much worse on the nonlinearly transformed non-uniform scale. It seems
+that the NN method is quite robust to such distortions, even though it works with
+Euclidian distances in the end.
+
 
 
 

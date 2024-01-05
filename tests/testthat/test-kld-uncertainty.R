@@ -40,7 +40,7 @@ test_that("kld_ci_subsampling parallelization works", {
     # NOTE: there is still randomness in the test due to different seeds used in
     # the parallel processes. I use a huge value of B and a large tolerance to
     # compensate for this. But it would be better to have a truly reproducible
-    # way of handling thos
+    # way of handling this
 
     # input parameters
     set.seed(123456)
@@ -56,6 +56,26 @@ test_that("kld_ci_subsampling parallelization works", {
     ci_1s_par <- kld_ci_subsampling(X, q = q, B = B, alpha = alpha, n.cores = 2)$ci
 
     expect_equal(ci_1s_par,ci_1s_seq, tolerance = 0.05)
+
+})
+
+
+test_that("kld_ci_subsampling works with mixed data", {
+
+    # input parameters
+    set.seed(123456)
+    n <- 100
+    alpha <- 0.4
+
+    # 2-sample case only
+    X <- data.frame(c = rnorm(n),
+                    d = rbinom(n, size = 1, prob = 0.5))
+    Y <- data.frame(c = rnorm(n, mean = 1, sd = 2),
+                    d = rbinom(n, size = 1, prob = 0.3))
+
+    # only check that subsampling runs without errors, no reference value
+    expect_no_error(kld_ci_subsampling(X, Y = Y, B = 50, alpha = alpha, estimator = kld_est,
+                                       vartype = c("c","d")))
 
 })
 

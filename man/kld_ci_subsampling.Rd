@@ -14,7 +14,8 @@ kld_ci_subsampling(
   subsample.size = function(x) x^(2/3),
   convergence.rate = sqrt,
   method = c("quantile", "se"),
-  n.cores = 1L
+  n.cores = 1L,
+  ...
 )
 }
 \arguments{
@@ -50,6 +51,9 @@ which means that no parallel computing is used).
 To use this option, the \code{parallel} package must be installed and the OS
 must be of UNIX type (i.e., not Windows). Otherwise, \code{n.cores} will be
 reset to \code{1}, with a message.}
+
+\item{...}{Arguments passed on to \code{estimator}, i.e. via the call
+\code{estimator(X, Y = Y, ...)} or \code{estimator(X, q = q, ...)}.}
 }
 \value{
 A list with the following fields:
@@ -87,6 +91,7 @@ minimal assumptions", The Annals of Statistics, Vol. 22, No. 4 (1994).
 }
 \examples{
 # 1D Gaussian (one- and two-sample problems)
+set.seed(0)
 X <- rnorm(100)
 Y <- rnorm(100, mean = 1, sd = 2)
 q <- function(x) dnorm(x, mean =1, sd = 2)

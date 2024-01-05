@@ -1,5 +1,5 @@
 ---
-title: "Parallelization tests"
+title: "Parallelization test"
 author: "Niklas Hartung"
 date: "`r Sys.Date()`"
 output: html_document
@@ -11,13 +11,69 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Aim
 
-In this document, I want to evaluate whether a considerable speedup can be 
-obtained when using parallelized subsampling.
+Evaluate how much uncertainty quantification can be
+sped up when using parallelized subsampling.
+
+### Preparations
+
+Load required **R** packages & initialize seed
+
+```{r}
+library(kldest)
+library(ggplot2)
+library(reshape2)
+library(microbenchmark)
+set.seed(0)
+```
 
 ## Study design
 
-The distribution doesn't matter in this case, so I just stick with a Gaussian.
-However, I want to see the dependency on the sample size.
+The underlying distribution shouldn't matter for an evaluation of speedup, so I 
+just stick with a Gaussian.
+
+```{r}
+p <- list(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2)
+sample_X <- function(n) rnorm(n, mean = p$mu1, sd = sqrt(p$sigma1))
+sample_Y <- function(m) rnorm(m, mean = p$mu2, sd = sqrt(p$sigma2))
+kld_true <- do.call(kld_gaussian, p)
+```
+
+For each of the distributions specified above, samples of different sizes are 
+drawn, with several replicates per distribution and sample size.
+
+```{r}
+samplesize <- c(10,100,1000,10000)
+```
+
+Run
+
+```{r}
+nsampsize <- length(samplesize)
+res <- vector(mode = "list", length = nsampsize)
+for (i in 1:nsampsize) {
+    
+    sz <- samplesize[i]
+    X <- sample_X(sz)
+    Y <- sample_Y(sz)
+    
+    res[[i]] <- microbenchmark(
+        sequential = kld_ci_subsampling(X = X, Y = Y, n.cores = 1),
+        parallel_8 = kld_ci_subsampling(X = X, Y = Y, n.cores = 8)
+    )
+    res[[i]]$samplesize <- sz
+}
+
+resdf <- do.call(rbind,res)
+resdf$time <- resdf$time/1e9
+```
+
+
+```{r}
+ggplot(resdf, aes(x = expr, y = time)) + geom_boxplot() + facet_wrap(samplesize) +
+    scale_y_log10() +
+    ylab('Time [sec]')
+```
+
 
 
 

@@ -56,6 +56,7 @@ Theory, Vol. 55, No. 5 (2009). DOI: https://doi.org/10.1109/TIT.2009.2016060
 }
 \examples{
 # KL-D between one or two samples from 1-D Gaussians:
+set.seed(0)
 X <- rnorm(100)
 Y <- rnorm(100, mean = 1, sd = 2)
 q <- function(x) dnorm(x, mean = 1, sd =2)
@@ -68,6 +69,7 @@ kld_est_brnn(X, Y)
 
 
 # KL-D between two samples from 2-D Gaussians:
+set.seed(0)
 X1 <- rnorm(100)
 X2 <- rnorm(100)
 Y1 <- rnorm(100)
