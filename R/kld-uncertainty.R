@@ -112,12 +112,22 @@ kld_ci_bootstrap <- function(X, Y, estimator = kld_est_kde1, B = 500L,
 #' Politis and Romano, "Large sample confidence regions based on subsamples under
 #' minimal assumptions", The Annals of Statistics, Vol. 22, No. 4 (1994).
 #'
-#' @param X,Y `n`-by-`d` and `m`-by-`d` matrices, representing `n` samples from
-#'    the true distribution \eqn{P} and `m` samples from the approximate distribution
-#'    \eqn{Q}, both in `d` dimensions. Vector input is treated as a column matrix.
+#' @param X,Y `n`-by-`d` and `m`-by-`d` data frames or matrices (multivariate
+#'    samples), or numeric/character vectors (univariate samples, i.e. `d = 1`),
+#'    representing `n` samples from the true distribution \eqn{P} and `m`
+#'    samples from the approximate distribution \eqn{Q} in `d` dimensions.
 #'    `Y` can be left blank if `q` is specified (see below).
 #' @param q The density function of the approximate distribution \eqn{Q}. Either
-#'    `Y` or `q` must be specified.
+#'    `Y` or `q` must be specified. If the distributions are all continuous or
+#'    all discrete, `q` can be directly specified as the probability density/mass
+#'    function. However, for mixed continuous/discrete distributions, `q` must
+#'    be given in decomposed form, \eqn{q(y_c,y_d)=q_{c|d}(y_c|y_d)q_d(y_d)},
+#'    specified as a named list with field `cond` for the conditional density
+#'    \eqn{q_{c|d}(y_c|y_d)} (a function that expects two arguments `y_c` and
+#'    `y_d`) and `disc` for the discrete marginal density \eqn{q_d(y_d)} (a
+#'    function that expects one argument `y_d`). If such a decomposition is not
+#'    available, it may be preferable to instead simulate a large sample from
+#'    \eqn{Q} and use the two-sample syntax.
 #' @param estimator The Kullback-Leibler divergence estimation method; a
 #'    function expecting two inputs (`X` and `Y` or `q`, depending on arguments
 #'    provided). Defaults to `kld_est_nn`.

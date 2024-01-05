@@ -19,13 +19,23 @@ kld_ci_subsampling(
 )
 }
 \arguments{
-\item{X, Y}{\code{n}-by-\code{d} and \code{m}-by-\code{d} matrices, representing \code{n} samples from
-the true distribution \eqn{P} and \code{m} samples from the approximate distribution
-\eqn{Q}, both in \code{d} dimensions. Vector input is treated as a column matrix.
+\item{X, Y}{\code{n}-by-\code{d} and \code{m}-by-\code{d} data frames or matrices (multivariate
+samples), or numeric/character vectors (univariate samples, i.e. \code{d = 1}),
+representing \code{n} samples from the true distribution \eqn{P} and \code{m}
+samples from the approximate distribution \eqn{Q} in \code{d} dimensions.
 \code{Y} can be left blank if \code{q} is specified (see below).}
 
 \item{q}{The density function of the approximate distribution \eqn{Q}. Either
-\code{Y} or \code{q} must be specified.}
+\code{Y} or \code{q} must be specified. If the distributions are all continuous or
+all discrete, \code{q} can be directly specified as the probability density/mass
+function. However, for mixed continuous/discrete distributions, \code{q} must
+be given in decomposed form, \eqn{q(y_c,y_d)=q_{c|d}(y_c|y_d)q_d(y_d)},
+specified as a named list with field \code{cond} for the conditional density
+\eqn{q_{c|d}(y_c|y_d)} (a function that expects two arguments \code{y_c} and
+\code{y_d}) and \code{disc} for the discrete marginal density \eqn{q_d(y_d)} (a
+function that expects one argument \code{y_d}). If such a decomposition is not
+available, it may be preferable to instead simulate a large sample from
+\eqn{Q} and use the two-sample syntax.}
 
 \item{estimator}{The Kullback-Leibler divergence estimation method; a
 function expecting two inputs (\code{X} and \code{Y} or \code{q}, depending on arguments

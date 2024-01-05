@@ -24,19 +24,18 @@
 #'    samples from the approximate distribution \eqn{Q} in `d` dimensions.
 #'    `Y` can be left blank if `q` is specified (see below).
 #' @param q The density function of the approximate distribution \eqn{Q}. Either
-#'    `Y` or `q` must be specified. In general, `q` must be given in decomposed
-#'    form, \eqn{q(y_c,y_d)=q_{c|d}(y_c|y_d)q_d(y_d)}, specified as a named list
-#'    with field `cond` for the conditional density \eqn{q_{c|d}(y_c|y_d)} (a
-#'    function that expects two arguments `y_c` and `y_d`) and `disc` for the
-#'    discrete marginal density \eqn{q_d(y_d)} (a function that expects one
-#'    argument `y_d`). If such a decomposition is not available, it may be
-#'    preferable to simulate a large sample from \eqn{Q} and use the two-sample
-#'    syntax instead. For compatibility with the continuous and discrete
-#'    one-sample estimators, if the samples are all continuous or all discrete,
-#'    instead of specifying `q` as a length 2 list of functions, it may also be
-#'    directly given as a function computing the continuous or discrete density.
+#'    `Y` or `q` must be specified. If the distributions are all continuous or
+#'    all discrete, `q` can be directly specified as the probability density/mass
+#'    function. However, for mixed continuous/discrete distributions, `q` must
+#'    be given in decomposed form, \eqn{q(y_c,y_d)=q_{c|d}(y_c|y_d)q_d(y_d)},
+#'    specified as a named list with field `cond` for the conditional density
+#'    \eqn{q_{c|d}(y_c|y_d)} (a function that expects two arguments `y_c` and
+#'    `y_d`) and `disc` for the discrete marginal density \eqn{q_d(y_d)} (a
+#'    function that expects one argument `y_d`). If such a decomposition is not
+#'    available, it may be preferable to instead simulate a large sample from
+#'    \eqn{Q} and use the two-sample syntax.
 #' @param estimator.continuous,estimator.discrete KL divergence estimators for
-#'    continuous and discrete data, respectively. Both are function with two
+#'    continuous and discrete data, respectively. Both are functions with two
 #'    arguments `X` and `Y` or `X` and `q`, depending on whether a two-sample or
 #'    one-sample problem is considered. Defaults are `kld_est_nn` and
 #'    `kld_est_discrete`, respectively.
