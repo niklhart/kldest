@@ -26,6 +26,10 @@
 #'    `"boot"` (a length `B` numeric vector with KL divergence estimates on
 #'    the bootstrap samples), and `"ci"` (a length `2` vector containing the
 #'    lower and upper limits of the estimated confidence interval).
+#' @param method Either `"quantile"` (the default), also known as the reverse
+#'     percentile method, or `"se"` for a normal approximation of the KL
+#'     divergence estimator using the standard error of the subsamples.
+#' @param ... Arguments passed on to `estimator`, i.e. as `estimator(X, Y, ...)`.
 #' @examples
 #' # 1D Gaussian, two samples
 #' set.seed(0)
@@ -36,34 +40,49 @@
 #' kld_ci_bootstrap(X, Y)
 #'
 #' @export
-kld_ci_bootstrap <- function(X, Y, estimator = kld_est_kde1, B = 500L, alpha = 0.05) {
+kld_ci_bootstrap <- function(X, Y, estimator = kld_est_kde1, B = 500L,
+                             alpha = 0.05, method = c("quantile","se"),
+                             ...) {
 
-    X <- as.matrix(X)
-    Y <- as.matrix(Y)
+    # select CI computation method
+    method <- match.arg(method)
+
+    # important dimensions for X and Y
+    if (is.vector(X)) X <- as.matrix(X)
+    if (is.vector(Y)) Y <- as.matrix(Y)
 
     n <- nrow(X)
     m <- nrow(Y)
     d <- ncol(X)
 
-    kld_hat <- estimator(X,Y)
+    kld_hat <- estimator(X, Y, ...)
     kld_boot <- numeric(B)
 
     for (b in 1:B) {
         iX <- sample.int(n, replace = TRUE)
         iY <- sample.int(m, replace = TRUE)
 
-        kld_boot[b] <- estimator(X[iX, ], Y[iY, ])
+        kld_boot[b] <- estimator(X[iX, ], Y[iY, ], ...)
     }
 
     # computation of confidence levels
-    q_boot <- quantile(kld_boot, probs = c(1-alpha/2, alpha/2), na.rm = TRUE)
-    ci_boot <- 2*kld_hat - q_boot
+    switch(method,
+           quantile = {
+               q_boot <- quantile(kld_boot, probs = c(1-alpha/2, alpha/2), na.rm = TRUE)
+               ci_boot <- 2*kld_hat - q_boot
+               names(ci_boot) <- names(ci_boot)[2:1]
+           },
+           se = {
+               se_boot <- sd(kld_boot)
+               ci_boot <- kld_hat + c(-1,1)*qnorm(1-alpha/2)*se_boot
+               names(ci_boot) <- paste0(100*c(alpha/2,1-alpha/2),"%")
+           })
 
+    # output list
     list(
         est  = kld_hat,
         boot = kld_boot,
-        ci   = ci_boot,
-        se   = sd(kld_boot)
+        ci   = ci_boot
     )
 }
 

@@ -4,7 +4,15 @@
 \alias{kld_ci_bootstrap}
 \title{Uncertainty of KL divergence estimate using Efron's bootstrap.}
 \usage{
-kld_ci_bootstrap(X, Y, estimator = kld_est_kde1, B = 500L, alpha = 0.05)
+kld_ci_bootstrap(
+  X,
+  Y,
+  estimator = kld_est_kde1,
+  B = 500L,
+  alpha = 0.05,
+  method = c("quantile", "se"),
+  ...
+)
 }
 \arguments{
 \item{X, Y}{\code{n}-by-\code{d} and \code{m}-by-\code{d} matrices, representing \code{n} samples from
@@ -20,6 +28,12 @@ which can only deal with one-dimensional two-sample problems (i.e.,
 more accurate, but also more computationally expensive.}
 
 \item{alpha}{Error level, defaults to \code{0.05}.}
+
+\item{method}{Either \code{"quantile"} (the default), also known as the reverse
+percentile method, or \code{"se"} for a normal approximation of the KL
+divergence estimator using the standard error of the subsamples.}
+
+\item{...}{Arguments passed on to \code{estimator}, i.e. as \code{estimator(X, Y, ...)}.}
 }
 \value{
 A list with the fields \code{"est"} (the estimated KL divergence),
