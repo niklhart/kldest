@@ -11,7 +11,7 @@ $$D_{KL}\big(p(\cdot|x_d)||q(\cdot|x_d)\big)$$
 are approximated via nearest neighbour- or kernel-based density estimates on
 the datasets X and Y stratified by the discrete variables, and
 $$D_{KL}\big(p_{x_d}||q_{x_d}\big)$$
-is approximated using relative frequencies."><title>Kullback-Leibler divergence estimator for discrete, continuous or mixed data. — kld_est • kldest</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Kullback-Leibler divergence estimator for discrete, continuous or mixed data. — kld_est"><meta property="og:description" content="For two mixed continuous/discrete distributions with densities \(p\) and
+is approximated using relative frequencies."><title>Kullback-Leibler divergence estimator for discrete, continuous or mixed data. — kld_est • kldest</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Kullback-Leibler divergence estimator for discrete, continuous or mixed data. — kld_est"><meta property="og:description" content="For two mixed continuous/discrete distributions with densities \(p\) and
 \(q\), and denoting \(x = (x_\text{c},x_\text{d})\), the Kullback-Leibler
 divergence \(D_{KL}(p||q)\) is given as
 $$D_{KL}(p||q) = \sum_{x_d} \int p(x_c,x_d) \log\left(\frac{p(x_c,x_d)}{q(x_c,x_d)}\right)dx_c.$$
@@ -101,25 +101,26 @@ is approximated using relative frequencies.</p>
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>X, Y</dt>
-<dd><p>Data frames or matrices with the same number of columns <code>d</code>
-(multivariate samples), or numeric/character vectors (univariate samples,
-i.e. <code>d=1</code>), representing <code>n</code> samples from the true distribution \(P\)
-and <code>m</code> samples from the approximate distribution \(Q\), both in <code>d</code>
-dimensions. <code>Y</code> can be left blank if <code>q</code> is specified (see below).</p></dd>
+<dd><p><code>n</code>-by-<code>d</code> and <code>m</code>-by-<code>d</code> data frames or matrices (multivariate
+samples), or numeric/character vectors (univariate samples, i.e. <code>d = 1</code>),
+representing <code>n</code> samples from the true distribution \(P\) and <code>m</code>
+samples from the approximate distribution \(Q\) in <code>d</code> dimensions.
+<code>Y</code> can be left blank if <code>q</code> is specified (see below).</p></dd>
 
 
 <dt>q</dt>
 <dd><p>The density function of the approximate distribution \(Q\). Either
 <code>Y</code> or <code>q</code> must be specified. In general, <code>q</code> must be given in decomposed
-form, \(q(y_c|y_d)q(y_d)\), specified as a named list with field <code>cond</code>
-for the conditional density \(q(y_c|y_d)\) (a function that expects two
-arguments <code>y_c</code> and <code>y_d</code>) and <code>disc</code> for the discrete marginal density
-\(q(y_d)\) (a function that expects one argument <code>y_d</code>). If this is not
-possible, it may be preferable to simulate a large sample from \(Q\) and
-use the two-sample syntax instead. For compatibility with the continuous
-and discrete one-sample estimators, if the sample(s) is/are all continuous
-or all discrete, instead of specifying <code>q</code> as a length 2 list, it may also
-be given as a function handle computing the continous or discrete density.</p></dd>
+form, \(q(y_c,y_d)=q_{c|d}(y_c|y_d)q_d(y_d)\), specified as a named list
+with field <code>cond</code> for the conditional density \(q_{c|d}(y_c|y_d)\) (a
+function that expects two arguments <code>y_c</code> and <code>y_d</code>) and <code>disc</code> for the
+discrete marginal density \(q_d(y_d)\) (a function that expects one
+argument <code>y_d</code>). If such a decomposition is not available, it may be
+preferable to simulate a large sample from \(Q\) and use the two-sample
+syntax instead. For compatibility with the continuous and discrete
+one-sample estimators, if the samples are all continuous or all discrete,
+instead of specifying <code>q</code> as a length 2 list of functions, it may also be
+directly given as a function computing the continuous or discrete density.</p></dd>
 
 
 <dt>estimator.continuous, estimator.discrete</dt>
@@ -134,9 +135,9 @@ one-sample problem is considered. Defaults are <code>kld_est_nn</code> and
 <dd><p>A length <code>d</code> character vector, with <code>vartype[i] = "c"</code> meaning
 the <code>i</code>-th variable is continuous, and <code>vartype[i] = "d"</code> meaning it is
 discrete. If unspecified, <code>vartype</code> is <code>"c"</code> for numeric columns and <code>"d"</code>
-for character or factor columns. This default will not work if levels of
-discrete variables are encoded using numbers (e.g., <code>0</code> for females and
-<code>1</code> for males) or for count data.</p></dd>
+for character or factor columns. This default will mostly work, except if
+levels of discrete variables are encoded using numbers (e.g., <code>0</code> for
+females and <code>1</code> for males) or for count data.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -149,20 +150,22 @@ discrete variables are encoded using numbers (e.g., <code>0</code> for females a
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># 2D example, two samples</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>cont  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                discr <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">'a'</span>,<span class="fl">4</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">'b'</span>,<span class="fl">6</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>cont  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">5</span>, sd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                discr <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">'a'</span>,<span class="fl">5</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">'b'</span>,<span class="fl">5</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">kld_est</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.4482071</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.5099841</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># 2D example, one sample</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>cont  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                discr <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">4</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">6</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">q</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cond <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">xc</span>,<span class="va">xd</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span><span class="va">xc</span>, mean <span class="op">=</span> <span class="va">xd</span>, sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>          disc <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">xd</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">dbinom</a></span><span class="op">(</span><span class="va">xd</span>, size <span class="op">=</span> <span class="fl">1</span>, prob <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">kld_est</span><span class="op">(</span><span class="va">X</span>, q <span class="op">=</span> <span class="va">q</span>, vartype <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"c"</span>,<span class="st">"d"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.4875457</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.8126271</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

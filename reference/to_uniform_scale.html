@@ -4,7 +4,7 @@ approximations can be computed on a conveniently chosen scale. This helper
 functions transforms each variable in a way that all marginal distributions
 of the joint dataset \((X,Y)\) are uniform. In this way, the scales of
 different variables are rendered comparable, with the idea of a better
-performance of neighbour-based methods in this situation."><title>Transform samples to uniform scale — to_uniform_scale • kldest</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Transform samples to uniform scale — to_uniform_scale"><meta property="og:description" content="Since Kullback-Leibler divergence is scale-invariant, its sample-based
+performance of neighbour-based methods in this situation."><title>Transform samples to uniform scale — to_uniform_scale • kldest</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Transform samples to uniform scale — to_uniform_scale"><meta property="og:description" content="Since Kullback-Leibler divergence is scale-invariant, its sample-based
 approximations can be computed on a conveniently chosen scale. This helper
 functions transforms each variable in a way that all marginal distributions
 of the joint dataset \((X,Y)\) are uniform. In this way, the scales of
@@ -97,29 +97,29 @@ the true distribution \(P\) and <code>m</code> samples from the approximate dist
 <span class="r-in"><span><span class="fu">to_uniform_scale</span><span class="op">(</span><span class="va">X</span>, <span class="va">Y</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $X</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       [,1] [,2]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.30 0.95</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 1.00 0.30</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 0.55 0.65</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 0.50 0.75</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 0.90 0.85</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] 0.60 0.60</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 0.95 0.80</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 0.85 0.50</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 0.15 0.55</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 0.35 0.90</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.25 0.70</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 0.10 0.60</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 0.70 0.85</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 0.60 0.20</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 0.90 0.50</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] 0.05 0.75</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 0.30 0.95</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 1.00 0.80</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 0.40 0.65</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 0.85 0.90</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $Y</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       [,1] [,2]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.05 0.25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 0.75 0.70</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 0.25 0.10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 0.10 0.05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 0.80 0.45</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] 0.45 0.20</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 0.70 0.35</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 0.40 0.15</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 0.65 0.40</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 0.20 1.00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1,] 0.55 0.30</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2,] 0.20 0.35</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3,] 0.50 0.10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4,] 0.45 0.40</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5,] 0.65 0.55</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6,] 0.35 0.15</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7,] 0.80 1.00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8,] 0.95 0.25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9,] 0.15 0.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10,] 0.75 0.45</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 </code></pre></div>
     </div>
