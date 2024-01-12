@@ -22,14 +22,18 @@
 #' @param B Number of bootstrap replicates (default: `500`), the larger, the
 #'     more accurate, but also more computationally expensive.
 #' @param alpha Error level, defaults to `0.05`.
-#' @returns A list with the fields `"est"` (the estimated KL divergence),
-#'    `"boot"` (a length `B` numeric vector with KL divergence estimates on
-#'    the bootstrap samples), and `"ci"` (a length `2` vector containing the
-#'    lower and upper limits of the estimated confidence interval).
 #' @param method Either `"quantile"` (the default), also known as the reverse
 #'     percentile method, or `"se"` for a normal approximation of the KL
 #'     divergence estimator using the standard error of the subsamples.
+#' @param include.boot Boolean, `TRUE` means KL divergene estimates on bootstrap
+#'     samples are included in the returned list.
 #' @param ... Arguments passed on to `estimator`, i.e. as `estimator(X, Y, ...)`.
+#' @returns A list with the following fields:
+#'    * `"est"` (the estimated KL divergence),
+#'    * `"boot"` (a length `B` numeric vector with KL divergence estimates on
+#'    the bootstrap subsamples), only included if `include.boot = TRUE`,
+#'    * `"ci"` (a length `2` vector containing the lower and upper limits of the
+#'    estimated confidence interval).
 #' @examples
 #' # 1D Gaussian, two samples
 #' set.seed(0)
@@ -42,6 +46,7 @@
 #' @export
 kld_ci_bootstrap <- function(X, Y, estimator = kld_est_kde1, B = 500L,
                              alpha = 0.05, method = c("quantile","se"),
+                             include.boot = FALSE,
                              ...) {
 
     # select CI computation method
@@ -79,11 +84,12 @@ kld_ci_bootstrap <- function(X, Y, estimator = kld_est_kde1, B = 500L,
            })
 
     # output list
-    list(
+    out <- list(
         est  = kld_hat,
-        boot = kld_boot,
         ci   = ci_boot
     )
+    if (include.boot) out <- append(out, list(boot = kld_boot))
+    out
 }
 
 
@@ -141,6 +147,8 @@ kld_ci_bootstrap <- function(X, Y, estimator = kld_est_kde1, B = 500L,
 #' @param method Either `"quantile"` (the default), also known as the reverse
 #'     percentile method, or `"se"` for a normal approximation of the KL
 #'     divergence estimator using the standard error of the subsamples.
+#' @param include.boot Boolean, `TRUE` means KL divergene estimates on subsamples
+#'     are included in the returned list.
 #' @param n.cores Number of cores to use in parallel computing (defaults to `1`,
 #'     which means that no parallel computing is used).
 #'     To use this option, the `parallel` package must be installed and the OS
@@ -151,7 +159,7 @@ kld_ci_bootstrap <- function(X, Y, estimator = kld_est_kde1, B = 500L,
 #' @returns A list with the following fields:
 #'    * `"est"` (the estimated KL divergence),
 #'    * `"boot"` (a length `B` numeric vector with KL divergence estimates on
-#'    the bootstrap subsamples),
+#'    the bootstrap subsamples), only included if `include.boot = TRUE`,
 #'    * `"ci"` (a length `2` vector containing the lower and upper limits of the
 #'    estimated confidence interval).
 #' @examples
@@ -172,6 +180,7 @@ kld_ci_subsampling <- function(X, Y = NULL, q = NULL, estimator = kld_est_nn,
                                subsample.size = function(x) x^(2/3),
                                convergence.rate = sqrt,
                                method = c("quantile","se"),
+                               include.boot = FALSE,
                                n.cores = 1L,
                                ...) {
 
@@ -240,11 +249,12 @@ kld_ci_subsampling <- function(X, Y = NULL, q = NULL, estimator = kld_est_nn,
            })
 
     # output list
-    list(
+    out <- list(
         est  = kld_hat,
-        boot = kld_boot,
         ci   = ci_boot
     )
+    if (include.boot) out <- append(out, list(boot = kld_boot))
+    out
 }
 
 

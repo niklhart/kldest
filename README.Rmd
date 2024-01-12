@@ -52,6 +52,12 @@ most flexible approach.
 library(kldest)
 ```
 
+Set a seed for reproducibility
+
+```{r}
+set.seed(0)
+```
+
 ### KL divergence between 1-D Gaussians
 
 Analytical KL divergence:

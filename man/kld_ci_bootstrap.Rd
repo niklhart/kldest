@@ -11,6 +11,7 @@ kld_ci_bootstrap(
   B = 500L,
   alpha = 0.05,
   method = c("quantile", "se"),
+  include.boot = FALSE,
   ...
 )
 }
@@ -33,13 +34,20 @@ more accurate, but also more computationally expensive.}
 percentile method, or \code{"se"} for a normal approximation of the KL
 divergence estimator using the standard error of the subsamples.}
 
+\item{include.boot}{Boolean, \code{TRUE} means KL divergene estimates on bootstrap
+samples are included in the returned list.}
+
 \item{...}{Arguments passed on to \code{estimator}, i.e. as \code{estimator(X, Y, ...)}.}
 }
 \value{
-A list with the fields \code{"est"} (the estimated KL divergence),
-\code{"boot"} (a length \code{B} numeric vector with KL divergence estimates on
-the bootstrap samples), and \code{"ci"} (a length \code{2} vector containing the
-lower and upper limits of the estimated confidence interval).
+A list with the following fields:
+\itemize{
+\item \code{"est"} (the estimated KL divergence),
+\item \code{"boot"} (a length \code{B} numeric vector with KL divergence estimates on
+the bootstrap subsamples), only included if \code{include.boot = TRUE},
+\item \code{"ci"} (a length \code{2} vector containing the lower and upper limits of the
+estimated confidence interval).
+}
 }
 \description{
 This function computes a confidence interval for KL divergence based on Efron's

@@ -45,6 +45,12 @@ the most flexible approach.
 library(kldest)
 ```
 
+Set a seed for reproducibility
+
+``` r
+set.seed(0)
+```
+
 ### KL divergence between 1-D Gaussians
 
 Analytical KL divergence:
@@ -60,7 +66,7 @@ Estimate based on two samples from these Gaussians:
 X <- rnorm(100)
 Y <- rnorm(100, mean = 1, sd = 2)
 kld_est_nn(X, Y)
-#> [1] 0.630473
+#> [1] 0.2169136
 ```
 
 Estimate based on a sample from the first Gaussian and the density of
@@ -69,15 +75,15 @@ the second:
 ``` r
 q <- function(x) dnorm(x, mean = 1, sd =2)
 kld_est_nn(X, q = q)
-#> [1] 0.3904603
+#> [1] 0.6374628
 ```
 
 Uncertainty quantification via subsampling:
 
 ``` r
 kld_ci_subsampling(X, q = q)$ci
-#>       2.5%      97.5% 
-#> 0.06544115 0.65278508
+#>      2.5%     97.5% 
+#> 0.2601375 0.9008446
 ```
 
 ### KL divergence between 2-D Gaussians
@@ -102,5 +108,5 @@ X <- cbind(X1,X2)
 Y <- cbind(Y1,Y2)
 
 kld_est_nn(X, Y)
-#> [1] 0.2497069
+#> [1] 0.3358918
 ```
