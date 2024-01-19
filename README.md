@@ -81,7 +81,11 @@ kld_est_nn(X, q = q)
 Uncertainty quantification via subsampling:
 
 ``` r
-kld_ci_subsampling(X, q = q)$ci
+kld_ci_subsampling(X, q = q)
+#> $est
+#> [1] 0.6374628
+#> 
+#> $ci
 #>      2.5%     97.5% 
 #> 0.2601375 0.9008446
 ```
