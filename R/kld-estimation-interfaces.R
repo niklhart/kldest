@@ -97,24 +97,25 @@ kld_est <- function(X, Y = NULL, q = NULL, estimator.continuous = kld_est_nn,
     }
 
     # now we know it's a mixed discrete/continuous dataset
-    Xcont  <- as.matrix(X[vartype == "c"])
+    Xcont  <- as.data.frame(X[vartype == "c"])
     Xdisc  <- X[vartype == "d"]
     iXdisc <- interaction(Xdisc, drop = TRUE)
-    sXcont <- split(Xcont, f = iXdisc)
+    sXcont <- lapply(X = split(Xcont, f = iXdisc), FUN = as.matrix)
 
     if (two.sample) {
-        Ycont <- as.matrix(Y[vartype == "c"])
+        Ycont <- as.data.frame(Y[vartype == "c"])
         Ydisc <- Y[vartype == "d"]
-        sYcont <- split(Ycont, f = interaction(Ydisc, drop = TRUE))
+        sYcont <- lapply(X = split(Ycont, f = interaction(Ydisc, drop = TRUE)),
+                         FUN = as.matrix)
 
         KLcont <- mapply(FUN = estimator.continuous, X = sXcont, Y = sYcont)
-        KLdisc <- estimator.discrete(Xdisc,Ydisc)
+        KLdisc <- estimator.discrete(X = Xdisc, Y = Ydisc)
 
     } else {
         qXcond <- lapply(Xdisc[match(levels(iXdisc),iXdisc), ],
                          function(d) {force(d); function(c) q$cond(c,d)})
         KLcont <- mapply(FUN = estimator.continuous, X = sXcont, q = qXcond)
-        KLdisc <- estimator.discrete(Xdisc, q = q$disc)
+        KLdisc <- estimator.discrete(X = Xdisc, q = q$disc)
     }
 
     # return compound KL divergence
