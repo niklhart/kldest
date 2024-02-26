@@ -1,0 +1,115 @@
+---
+title: "Empirical convergence rate of KL divergence estimators"
+author: "Niklas Hartung"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Topic
+
+The subsampling method, used to generate confidence intervals for a KL divergence 
+estimate, requires the convergence rate of the estimator as an input. 
+
+According to literature (Noh 2014, Singh 2016, Zhao 2020), the 1-NN estimator has
+a variance of O(1/n) and a dimension-dependent bias. The exact shape of the bias
+depends on the smoothness assumptions for the distribution. As a default in the
+subsampling method, a $\sqrt{n}$ convergence rate is assumed, which implies that 
+the bias term is not of larger order than the variance.
+
+As an alternative to using such a theoretically derived convergence rate, it can
+be determined empirically using the method described in Politis et al. (1999).
+
+For now, only the one-sample variant is implemented.
+
+### Preliminaries
+
+Load libraries
+
+```{r}
+library(kldest)
+library(ggplot2)
+```
+
+For reproducibility
+
+```{r}
+set.seed(0)
+```
+
+### Simulation parameters
+
+Global parameters
+
+```{r}
+n <- 1000L      # sample size
+n.sizes <- 5L   # number of different subsample sizes
+B <- 1000L       # number of subsamples to simulate per subsample size   
+```
+
+Estimators to be evaluated. Currently, the bias-reduced algorithm cannot be used
+since it relies on two samples, for which function `convergence_rate` is not 
+implemented yet.
+
+```{r}
+estimators <- list(
+    "nn1"   = kld_est_nn#,
+#    "brnn1" = function(...) kld_est_brnn(..., warn.max.k = FALSE)
+)
+nestim <- length(estimators)
+```
+
+Different distributions $p$ and $q$:
+
+```{r}
+scenarios <- list(
+    "2-D, independent" = list(mu1    = c(2,0),
+                              sigma1 = diag(c(1,100)),
+                              mu2    = c(0,10),
+                              sigma2 = diag(c(1,100))),
+    "2-D, corr. diff." = list(mu1    = c(0,0),
+                              sigma1 = constDiagMatrix(dim = 2, diag = 3, offDiag = 1),
+                              mu2    = c(0,0),
+                              sigma2 = constDiagMatrix(dim = 2, diag = 3, offDiag = -1)),
+    "10-D, corr. diff." = list(mu1    = rep(0,10),
+                               sigma1 = constDiagMatrix(dim = 10, diag = 1, offDiag = 0.999),
+                               mu2    = rep(0,10),
+                               sigma2 = diag(10))
+)
+```
+
+Compute true KL-D in each scenario (for completeness, not really needed here)
+
+```{r}
+(kld_true <- vapply(scenarios, function(x) do.call(kld_gaussian,x), 1))
+```
+
+## Simulation study: empirical convergence rate
+
+```{r}
+rates <- matrix(nrow = length(scenarios), 
+                ncol = nestim, 
+                dimnames = list(names(scenarios), names(estimators)))
+
+for (i in seq_along(scenarios)) {
+    
+    p <- scenarios[[i]]
+    
+    X <- MASS::mvrnorm(n, mu = p$mu1, Sigma = p$sigma1)
+    q <- function(x) mvdnorm(x, mu = p$mu2, Sigma = p$sigma2)
+    # Y <- MASS::mvrnorm(n, mu = p$mu2, Sigma = p$sigma2)       # not supported yet...
+    
+    for (j in 1:nestim) {
+        rates[i,j] <- convergence_rate(estimators[[j]], X = X, q = q, 
+                                       n.sizes = n.sizes, B = B, plot = TRUE)
+    }
+}
+```
+
+$\Rightarrow$ even in high-dimensional examples, the convergence rate is 
+approximately as expected from the variance term.
+
+

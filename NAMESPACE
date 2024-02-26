@@ -2,6 +2,7 @@
 
 export(combinations)
 export(constDiagMatrix)
+export(convergence_rate)
 export(kld_ci_bootstrap)
 export(kld_ci_subsampling)
 export(kld_discrete)

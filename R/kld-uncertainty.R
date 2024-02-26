@@ -106,11 +106,11 @@ kld_ci_bootstrap <- function(X, Y, estimator = kld_est_kde1, B = 500L,
 #' \eqn{1 - \alpha} as long as \eqn{b_n/n\rightarrow 0},
 #' \eqn{b_n\rightarrow\infty} and \eqn{\frac{\tau_{b_n}}{\tau_n}\rightarrow 0}.
 #'
-#' The convergence rate of the nearest-neighbour based KL divergence estimator
-#' being \eqn{\tau_n = \sqrt{n}}, the condition on the subsample size reduces to
-#' \eqn{b_n/n\rightarrow 0} and \eqn{b_n\rightarrow\infty}. By default,
-#' \eqn{b_n = n^{2/3}}. In a two-sample problem, \eqn{n} and \eqn{b_n} are
-#' replaced by effective sample sizes \eqn{n_\text{eff} = \min(n,m)} and
+#' In many cases, the convergence rate of the nearest-neighbour based KL
+#' divergence estimator is \eqn{\tau_n = \sqrt{n}} and the condition on the
+#' subsample size reduces to \eqn{b_n/n\rightarrow 0} and \eqn{b_n\rightarrow\infty}.
+#' By default, \eqn{b_n = n^{2/3}}. In a two-sample problem, \eqn{n} and \eqn{b_n}
+#' are replaced by effective sample sizes \eqn{n_\text{eff} = \min(n,m)} and
 #' \eqn{b_{n,\text{eff}} = \min(b_n,b_m)}.
 #'
 #' Reference:
