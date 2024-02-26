@@ -164,11 +164,11 @@ size \(n\), and \(\tau_n\) the convergence rate of the estimator, a
 confidence interval calculated by subsampling has asymptotic coverage
 \(1 - \alpha\) as long as \(b_n/n\rightarrow 0\),
 \(b_n\rightarrow\infty\) and \(\frac{\tau_{b_n}}{\tau_n}\rightarrow 0\).</p>
-<p>The convergence rate of the nearest-neighbour based KL divergence estimator
-being \(\tau_n = \sqrt{n}\), the condition on the subsample size reduces to
-\(b_n/n\rightarrow 0\) and \(b_n\rightarrow\infty\). By default,
-\(b_n = n^{2/3}\). In a two-sample problem, \(n\) and \(b_n\) are
-replaced by effective sample sizes \(n_\text{eff} = \min(n,m)\) and
+<p>In many cases, the convergence rate of the nearest-neighbour based KL
+divergence estimator is \(\tau_n = \sqrt{n}\) and the condition on the
+subsample size reduces to \(b_n/n\rightarrow 0\) and \(b_n\rightarrow\infty\).
+By default, \(b_n = n^{2/3}\). In a two-sample problem, \(n\) and \(b_n\)
+are replaced by effective sample sizes \(n_\text{eff} = \min(n,m)\) and
 \(b_{n,\text{eff}} = \min(b_n,b_m)\).</p>
 <p>Reference:</p>
 <p>Politis and Romano, "Large sample confidence regions based on subsamples under
