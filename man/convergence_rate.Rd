@@ -12,7 +12,6 @@ convergence_rate(
   n.sizes = 4,
   spacing.factor = 1.5,
   typical.subsample = function(n) sqrt(n),
-  b = NULL,
   B = 500L,
   plot = FALSE
 )
@@ -45,11 +44,6 @@ sizes (default: \code{1.5}).}
 
 \item{typical.subsample}{A function that produces a typical subsample size,
 used as the geometric mean of subsample sizes (default: \code{sqrt(n)}).}
-
-\item{b}{Subsample sizes to be used. The default \code{NULL} means \code{b} is computed
-from \code{n.sizes}, \code{spacing.factor} and \code{typical.subsample}. If a non-\code{NULL}
-value for \code{b} is given, inputs \code{n.sizes}, \code{spacing.factor} and
-\code{typical.subsample} are ignored.}
 
 \item{B}{Number of subsamples to draw per subsample size.}
 

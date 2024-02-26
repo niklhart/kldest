@@ -19,10 +19,6 @@
 #'     sizes (default: `1.5`).
 #' @param typical.subsample A function that produces a typical subsample size,
 #'     used as the geometric mean of subsample sizes (default: `sqrt(n)`).
-#' @param b Subsample sizes to be used. The default `NULL` means `b` is computed
-#'     from `n.sizes`, `spacing.factor` and `typical.subsample`. If a non-`NULL`
-#'     value for `b` is given, inputs `n.sizes`, `spacing.factor` and
-#'     `typical.subsample` are ignored.
 #' @param B Number of subsamples to draw per subsample size.
 #' @param plot A boolean (default: `FALSE`) controlling whether to produce a
 #'     diagnostic plot visualizing the fit.
@@ -42,7 +38,7 @@
 convergence_rate <- function(estimator, X, Y = NULL, q = NULL,
                              n.sizes = 4, spacing.factor = 1.5,
                              typical.subsample = function(n) sqrt(n),
-                             b = NULL, B = 500L, plot = FALSE) {
+                             B = 500L, plot = FALSE) {
 
     two.sample <- is_two_sample(Y, q)
 
@@ -50,46 +46,69 @@ convergence_rate <- function(estimator, X, Y = NULL, q = NULL,
     if (is.vector(X)) X <- as.matrix(X)
     n <- nrow(X)
 
-    # determine subsample sizes from input parameters
-    if (is.null(b)) {
-        bmin <- typical.subsample(n) / sqrt((n.sizes-1)*spacing.factor)
-        b <- floor(bmin * spacing.factor^(0:(n.sizes-1)))
+    # subsample rule
+    subsample.sizes <- function(n) {
+        b_min <- typical.subsample(n) / sqrt((n.sizes-1)*spacing.factor)
+        floor(b_min * spacing.factor^(0:(n.sizes-1)))
     }
 
     if (two.sample) {
-        stop("Two-sample version not implemented yet.")
 
-    } else {
+        Y <- as.matrix(Y) # number of dimensions must be the same in X and Y
+        m <- nrow(Y)      # number of samples in Y
+
+        # determine subsample sizes from input parameters
+        bn <- subsample.sizes(n)
+        bm <- subsample.sizes(m)
+        b  <- pmin(bn,bm)
+
+        theta.hat <- estimator(X, Y = Y)
+
+        theta.star <- matrix(NA, B, n.sizes)
+        for (i in 1:B) {
+            X.star <- X
+            Y.star <- Y
+            # backwards nested subsampling
+            for (j in n.sizes:1) {
+                X.star <- sample(X.star, bn[j], replace = FALSE)
+                Y.star <- sample(Y.star, bm[j], replace = FALSE)
+                theta.star[i, j] <- estimator(X.star, Y = Y.star)
+            }
+        }
+
+    } else { # one sample
+
+        b <- subsample.sizes(n)
 
         theta.hat <- estimator(X, q = q)
 
-        theta.star <- matrix(NA, B, length(b))
+        theta.star <- matrix(NA, B, n.sizes)
         for (i in 1:B) {
             X.star <- X
             # backwards nested subsampling
-            for (j in length(b):1) {
+            for (j in n.sizes:1) {
                 X.star <- sample(X.star, b[j], replace = FALSE)
                 theta.star[i, j] <- estimator(X.star, q = q)
             }
         }
-
-        zmat <- theta.star - theta.hat
-
-        # calculate quantile differences
-        l_probs <- seq(0.05, 0.45, by = 0.05)
-        u_probs <- seq(0.55, 0.95, by = 0.05)
-        lqmat <- log(apply(zmat, MARGIN = 2, FUN = function(x) quantile(x, u_probs))
-                     - apply(zmat, MARGIN = 2, FUN = function(x) quantile(x, l_probs)))
-        dimnames(lqmat) <- list(NULL,b)
-
-        y <- colMeans(lqmat)
-        beta <- -cov(y, log(b)) / var(log(b))
     }
+
+    zmat <- theta.star - theta.hat
+
+    # calculate quantile differences
+    l_probs <- seq(0.05, 0.45, by = 0.05)
+    u_probs <- seq(0.55, 0.95, by = 0.05)
+    lqmat <- log(apply(zmat, MARGIN = 2, FUN = function(x) quantile(x, u_probs))
+                 - apply(zmat, MARGIN = 2, FUN = function(x) quantile(x, l_probs)))
+    dimnames(lqmat) <- list(NULL,b)
+
+    y <- colMeans(lqmat)
+    beta <- -cov(y, log(b)) / var(log(b))
 
     if (plot) {
         inter <- mean(y) + beta * mean(log(b))
         plot(rep(b, each = nrow(lqmat)), as.vector(lqmat),
-             xlab = "Subsample size",
+             xlab = if (two.sample) "Effective subsample size" else "Subsample size",
              ylab = "log(high quantile - low quantile)",
              main = paste0("Empirical convergence rate (beta = ",signif(beta,3),")"),
              log = "x")

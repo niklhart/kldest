@@ -23,7 +23,7 @@ the bias term is not of larger order than the variance.
 As an alternative to using such a theoretically derived convergence rate, it can
 be determined empirically using the method described in Politis et al. (1999).
 
-For now, only the one-sample variant is implemented.
+Both the one-sample and two-sample variants are implemented.
 
 ### Preliminaries
 
@@ -48,18 +48,6 @@ Global parameters
 n <- 1000L      # sample size
 n.sizes <- 5L   # number of different subsample sizes
 B <- 1000L       # number of subsamples to simulate per subsample size   
-```
-
-Estimators to be evaluated. Currently, the bias-reduced algorithm cannot be used
-since it relies on two samples, for which function `convergence_rate` is not 
-implemented yet.
-
-```{r}
-estimators <- list(
-    "nn1"   = kld_est_nn#,
-#    "brnn1" = function(...) kld_est_brnn(..., warn.max.k = FALSE)
-)
-nestim <- length(estimators)
 ```
 
 Different distributions $p$ and $q$:
@@ -87,7 +75,19 @@ Compute true KL-D in each scenario (for completeness, not really needed here)
 (kld_true <- vapply(scenarios, function(x) do.call(kld_gaussian,x), 1))
 ```
 
-## Simulation study: empirical convergence rate
+## Simulation study: empirical convergence rate, one sample
+
+Estimators to be evaluated. The bias-reduced algorithm is not used since it relies 
+on two samples.
+
+```{r}
+estimators <- list(
+    "nn1"   = kld_est_nn
+)
+nestim <- length(estimators)
+```
+
+Computation of empirical convergence rate
 
 ```{r}
 rates <- matrix(nrow = length(scenarios), 
@@ -100,8 +100,7 @@ for (i in seq_along(scenarios)) {
     
     X <- MASS::mvrnorm(n, mu = p$mu1, Sigma = p$sigma1)
     q <- function(x) mvdnorm(x, mu = p$mu2, Sigma = p$sigma2)
-    # Y <- MASS::mvrnorm(n, mu = p$mu2, Sigma = p$sigma2)       # not supported yet...
-    
+
     for (j in 1:nestim) {
         rates[i,j] <- convergence_rate(estimators[[j]], X = X, q = q, 
                                        n.sizes = n.sizes, B = B, plot = TRUE)
@@ -112,4 +111,38 @@ for (i in seq_along(scenarios)) {
 $\Rightarrow$ even in high-dimensional examples, the convergence rate is 
 approximately as expected from the variance term.
 
+## Simulation study: empirical convergence rate, two samples
 
+Estimators to be evaluated 
+
+```{r}
+estimators <- list(
+    "nn1"   = kld_est_nn,
+    "brnn1" = function(...) kld_est_brnn(..., warn.max.k = FALSE)
+)
+nestim <- length(estimators)
+```
+
+Computation of empirical convergence rate
+
+```{r}
+rates <- matrix(nrow = length(scenarios), 
+                ncol = nestim, 
+                dimnames = list(names(scenarios), names(estimators)))
+
+for (i in seq_along(scenarios)) {
+    
+    p <- scenarios[[i]]
+    
+    X <- MASS::mvrnorm(n, mu = p$mu1, Sigma = p$sigma1)
+    Y <- MASS::mvrnorm(n, mu = p$mu2, Sigma = p$sigma2)
+    
+    for (j in 1:nestim) {
+        rates[i,j] <- convergence_rate(estimators[[j]], X = X, Y = Y, 
+                                       n.sizes = n.sizes, B = B, plot = TRUE)
+    }
+}
+```
+
+$\Rightarrow$ even in high-dimensional examples, the convergence rate is 
+approximately as expected from the variance term.
