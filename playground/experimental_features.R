@@ -1,5 +1,51 @@
 # experimental features not included into the current version.
 
+
+#' Nearest-neighbour density ratio based KL divergence estimator.
+#'
+#' Currently, this estimator is not part of the kldest package. Its performance
+#' for small samples is poor, since a single point in `Y` for which no point in
+#' `X` is closer than the `k`-th nearest neighbour in `Y` suffices for the KL
+#' divergence estimate to be `-Inf`.
+#'
+#' @inherit kld_est_kde return
+#' @inheritParams kld_est_nn
+#' @param k Number of nearest neighbours to consider for NN density estimation.
+#'    Defaults to `k = neff^(1/(d+1))`, where `neff = min(n,m)`. The choice of
+#'    `k` is quite important for accuracy and the default may not be optimal.
+#' @examples
+#' # 1D example
+#' set.seed(0)
+#' X <- rnorm(100)
+#' Y <- rnorm(100, mean = 1)
+#' kld_est_nndr(X,Y)
+kld_est_nndr <- function(X, Y, k = NULL, eps = 0) {
+
+    # get important dimensions
+    X <- as.matrix(X)
+    Y <- as.matrix(Y)  # number of dimensions must be the same in X and Y
+    d <- ncol(X)       # number of dimensions
+    n <- nrow(X)       # number of samples in X
+    m <- nrow(Y)       # number of samples in Y
+
+    # default number of nearest neighbours (Noshad et al., 2017)
+    if (is.null(k)) k <- ceiling(min(n,m)^(1/(d+1)))
+
+    # combined dataset
+    Z <- rbind(X,Y)
+
+    idx.ZY <- RANN::nn2(Z, Y, k = k, eps = eps)$nn.idx
+    Mi <- rowSums(idx.ZY > n)
+    Ni <- k - Mi
+
+    # return
+    -1/n * sum(log(Ni / (Mi + 1)))
+
+}
+
+
+
+
 #' Zhang/Grabchak KL divergence estimator for samples from discrete distributions
 #'
 #' CAVE: not implemented yet!

@@ -68,6 +68,25 @@ kld_uniform <- function(a1, b1, a2, b2) {
     log((b2-a2)/(b1-a1))
 }
 
+#' Analytical KL divergence between a uniform and a Gaussian distribution
+#'
+#' This function computes \eqn{D_{KL}(p||q)}, where \eqn{p\sim \text{U}(a,b)}
+#' and \eqn{q\sim \mathcal{N}(\mu,\sigma^2)}.
+#'
+#' @param a,b Parameters of uniform (true) distribution
+#' @param mu,sigma2 Parameters of Gaussian (approximate) distribution
+#' @returns A scalar (the Kullback-Leibler divergence)
+#' @export
+#' @examples
+#' kld_uniform_gaussian(a = 0, b = 1, mu = 0, sigma2 = 1)
+kld_uniform_gaussian <- function(a = 0, b = 1, mu = 0, sigma2 = 1) {
+
+    stopifnot(a < b, sigma2 > 0)
+
+    log(sqrt(2*pi*sigma2)/(b-a)) + ((b-mu)^3 - (a-mu)^3) / (6*(b-a)*sigma2)
+
+}
+
 #' Analytical KL divergence for two discrete distributions
 #'
 #' @param P,Q Numerical arrays with the same dimensions, representing discrete
