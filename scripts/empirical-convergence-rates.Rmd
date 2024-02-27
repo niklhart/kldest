@@ -45,9 +45,9 @@ set.seed(0)
 Global parameters
 
 ```{r}
-n <- 1000L      # sample size
+n <- 5000L      # sample size
 n.sizes <- 5L   # number of different subsample sizes
-B <- 1000L       # number of subsamples to simulate per subsample size   
+B <- 500L       # number of subsamples to simulate per subsample size   
 ```
 
 Different distributions $p$ and $q$:
@@ -62,10 +62,10 @@ scenarios <- list(
                               sigma1 = constDiagMatrix(dim = 2, diag = 3, offDiag = 1),
                               mu2    = c(0,0),
                               sigma2 = constDiagMatrix(dim = 2, diag = 3, offDiag = -1)),
-    "10-D, corr. diff." = list(mu1    = rep(0,10),
+    "10-D, corr. diff." = list(mu1    = rep(0, 10),
                                sigma1 = constDiagMatrix(dim = 10, diag = 1, offDiag = 0.999),
-                               mu2    = rep(0,10),
-                               sigma2 = diag(10))
+                               mu2    = rep(1, 10),
+                               sigma2 = constDiagMatrix(dim = 10, diag = 1, offDiag = 0.999))
 )
 ```
 

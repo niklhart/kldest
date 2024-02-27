@@ -1,5 +1,5 @@
 ---
-title: "Confidence intervals for KL divergence"
+title: "Confidence intervals for KL divergence (1-D)"
 ---
 
 ```{r, include = FALSE}
@@ -22,12 +22,14 @@ for which analytical KL divergence values are known:
 * $\text{Exp}(1)$ vs. $\text{Exp}(1/12)$,
 * $\mathcal{N}(0,1)$ vs. $\mathcal{N}(1,2^2)$,
 * $\mathcal{U}(1,2)$ vs. $\mathcal{U}(0,4)$.
+* $\mathcal{U}(0,1)$ vs. $\mathcal{N}(0,1)$.
 
 ```{r}
 p <- list(
     exponential = list(lambda1 = 1, lambda2 = 1/12),
     gaussian    = list(mu1 = 0, sigma1 = 1, mu2 = 1, sigma2 = 2^2),
-    uniform     = list(a1 = 1, b1 = 2, a2 = 0, b2 = 4)
+    uniform     = list(a1 = 1, b1 = 2, a2 = 0, b2 = 4),
+    unif_gauss  = list(a = 0, b = 1, mu = 0, sigma2 = 1)
 )
 distributions <- list(
     exponential = list(
@@ -53,6 +55,14 @@ distributions <- list(
             list(X = X, Y = Y)
         },
         kld = do.call(kld_uniform, p$uniform)
+    ),
+    unif_gauss = list(
+        samples = function(n, m) {
+            X <- runif(n, min = p$unif_gauss$a, max = p$unif_gauss$b)
+            Y <- rnorm(m, mean = p$unif_gauss$mu, sd = sqrt(p$unif_gauss$sigma2))
+            list(X = X, Y = Y)
+        },
+        kld = do.call(kld_uniform_gaussian, p$unif_gauss)
     )
 )
 ```
@@ -69,7 +79,7 @@ For each of the distributions specified above, samples of different sizes are
 drawn, with several replicates per distribution and sample size.
 
 ```{r}
-samplesize <- c(10,100,1000,10000)
+samplesize <- c(100,1000)#,10000)
 nRep       <- 100L
 
 scenarios <- combinations(
@@ -91,10 +101,11 @@ We use the following subsampling variants:
 
 ```{r}
 resampling <- list(
-    sub_n12 = function(...) kld_ci_subsampling(..., subsample.size = function(n) n^(1/2)), 
-    sub_n23 = function(...) kld_ci_subsampling(..., subsample.size = function(n) n^(2/3)), 
-    sub_n12se = function(...) kld_ci_subsampling(..., subsample.size = function(n) n^(1/2), method = "se"),
-    sub_n23se = function(...) kld_ci_subsampling(..., subsample.size = function(n) n^(2/3), method = "se")
+    sub_n12_tau12 = function(...) kld_ci_subsampling(..., subsample.size = function(n) n^(1/2)), 
+    sub_n23_tau12 = function(...) kld_ci_subsampling(..., subsample.size = function(n) n^(2/3)), 
+    sub_n12_tauest = function(...) kld_ci_subsampling(..., convergence.rate = NULL, subsample.size = function(n) n^(1/2)), 
+    sub_n12se_tau12 = function(...) kld_ci_subsampling(..., subsample.size = function(n) n^(1/2), method = "se"),
+    sub_n23se_tau12 = function(...) kld_ci_subsampling(..., subsample.size = function(n) n^(2/3), method = "se")
 )
 nResamp <- length(resampling)
 ```
@@ -157,10 +168,13 @@ ggplot(coverage, aes(x = sample.size, y = coverage, color = resampling)) +
     scale_x_log10() +
     geom_hline(yintercept = 0.95, lty = 2) + 
     scale_color_discrete(name = "CI method", 
-                        labels = c("Reverse percentile, s = n^(1/2)",
-                                   "Reverse percentile, s = n^(2/3)",
-                                   "1.96 standard error, s = n^(1/2)",
-                                   "1.96 standard error, s = n^(2/3)")) +
+                        labels = c("Reverse percentile, s = n^(1/2), tau = n^(1/2)",
+                                   "Reverse percentile, s = n^(2/3), tau = n^(1/2)",
+                                   "Reverse percentile, s = n^(1/2), tau estimated",
+                                   "Reverse percentile, s = n^(2/3), tau estimated"#,
+                                  # "1.96 standard error, s = n^(1/2), tau = n^(1/2)",
+                                  # "1.96 standard error, s = n^(2/3), tau = n^(1/2)"
+                                  )) +
     ggtitle("Subsampling-based confidence intervals") +
     theme(plot.title = element_text(hjust = 0.5))
 ```

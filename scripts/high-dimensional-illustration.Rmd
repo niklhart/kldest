@@ -1,0 +1,167 @@
+---
+title: "High-Dimensional Illustration of kldest"
+author: "Niklas Hartung"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Load required packages
+
+```{r setup}
+library(kldest)
+library(ggplot2)
+library(MASS)
+library(reshape2)
+```
+
+For reproducibility 
+
+```{r seed}
+set.seed(0)
+```
+
+
+## 2-D correlated example
+
+```{r}
+D <- 2
+Sigma <- constDiagMatrix(dim = 10, diag = 1, offDiag = 0.99)
+
+X <- mvrnorm(n = 100, mu = rep(0,D), Sigma = Sigma)
+Y <- mvrnorm(n = 100, mu = rep(1,D), Sigma = Sigma)
+```
+
+Data in form of a matrix (i.i.d. samples across rows)
+
+```{r}
+head(X)
+```
+
+Plot the data
+
+```{r}
+plot(X[,1:2], xlim = c(-3,4),ylim = c(-3,4), 
+     xlab = expression(x[1]), 
+     ylab = expression(x[2]))
+points(Y[,1:2], col = "red")
+legend("topleft", 
+       c("Samples from p","Samples from q"), 
+       pch = 1, col = c("black","red"))
+```
+
+Analytical KL-D
+
+```{r}
+kld_gaussian(mu1 = rep(0,D), sigma1 = Sigma, mu2 = rep(1,D), sigma2 = Sigma)
+```
+
+Calculated KL-D
+
+```{r}
+kld_est(X, Y)
+```
+
+One-sample problem
+
+```{r}
+kld_est(X, q = function(x) mvdnorm(x, c(1,1), Sigma))
+```
+
+KL-D including a 95% confidence interval calculated by subsampling
+
+```{r}
+kld_ci_subsampling(X,Y)
+```
+
+One-sample problem
+
+```{r}
+kld_ci_subsampling(X, q = function(x) mvdnorm(x, c(1,1), Sigma))
+```
+
+
+## High-dimensional case
+
+Simulation study design (high-dimensional correlated Gaussians)
+
+```{r}
+D <- 10
+Sigma_10d <- constDiagMatrix(dim = D, diag = 1, offDiag = 0.999)
+```
+
+
+```{r}
+paramTrue   <- list(mu = rep(0, D), sigma = Sigma)
+paramApprox <- list(mu = rep(1, D), sigma = Sigma)
+```
+
+
+```{r}
+sampler <- function(n, param) mvrnorm(n = n, 
+                         mu = param$mu,   
+                         Sigma = param$sigma)
+```
+
+
+```{r}
+q <- function(x) mvdnorm(x, 
+                         mu = paramApprox$mu, 
+                         Sigma = paramApprox$sigma)
+```
+
+Analytical KL-D
+
+```{r}
+kld <- kld_gaussian(
+    mu1    = paramTrue$mu,
+    sigma1 = paramTrue$sigma,
+    mu2    = paramApprox$mu,
+    sigma2 = paramApprox$sigma
+)
+```
+
+Samples of different sizes are drawn
+
+```{r}
+samplesize <- c(100,1000,10000)
+```
+
+
+Algorithms considered:
+
+
+KL divergence estimation
+
+```{r}
+
+data.frame()
+kld_ <- matrix(NA, nrow = 3, ncol = 3)
+
+```
+
+
+
+Plotting
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

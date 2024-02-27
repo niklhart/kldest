@@ -49,6 +49,7 @@ convergence_rate <- function(estimator, X, Y = NULL, q = NULL,
     # subsample rule
     subsample.sizes <- function(n) {
         b_min <- typical.subsample(n) / sqrt((n.sizes-1)*spacing.factor)
+        if (b_min < 2) stop("Subsample size too small to continue.")
         floor(b_min * spacing.factor^(0:(n.sizes-1)))
     }
 
@@ -94,6 +95,9 @@ convergence_rate <- function(estimator, X, Y = NULL, q = NULL,
     }
 
     zmat <- theta.star - theta.hat
+
+    # Catch issues with the estimator
+    if (!is.finite(theta.hat)) return(NA)
 
     # calculate quantile differences
     l_probs <- seq(0.05, 0.45, by = 0.05)

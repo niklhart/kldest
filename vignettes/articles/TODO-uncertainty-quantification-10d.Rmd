@@ -1,0 +1,181 @@
+---
+title: "Confidence intervals for KL divergence (high-dimensional)"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Load required packages
+
+```{r setup}
+library(kldest)
+library(ggplot2)
+library(MASS)
+library(reshape2)
+```
+
+For reproducibility 
+
+```{r seed}
+set.seed(0)
+```
+
+Simulation study design (high-dimensional correlated Gaussians)
+
+```{r}
+D <- 20
+Sigma <- constDiagMatrix(dim = D, diag = 1, offDiag = 0.999)
+```
+
+
+```{r}
+paramTrue   <- list(mu = rep(0, D), sigma = Sigma)
+paramApprox <- list(mu = rep(1, D), sigma = Sigma)
+```
+
+
+```{r}
+sampler <- function(n, param) mvrnorm(n = n, 
+                         mu = param$mu,   
+                         Sigma = param$sigma)
+```
+
+
+```{r}
+q <- function(x) mvdnorm(x, 
+                         mu = paramApprox$mu, 
+                         Sigma = paramApprox$sigma)
+```
+
+Analytical KL-D
+
+```{r}
+kld <- kld_gaussian(
+    mu1    = paramTrue$mu,
+    sigma1 = paramTrue$sigma,
+    mu2    = paramApprox$mu,
+    sigma2 = paramApprox$sigma
+)
+```
+
+Samples of different sizes are drawn, with several replicates per sample size
+
+```{r}
+samplesize <- c(30,100,300,1000)
+nRep       <- 500L
+scenarios  <- combinations(
+    sample.size  = samplesize,
+    replicate    = 1:nRep
+)
+```
+
+### Subsampling variants
+
+We use the following variants of the subsampling method:
+
+```{r}
+subsfun <- function(...) kld_ci_subsampling(..., subsample.size = function(n) n^(1/2))
+
+resampling <- list(
+    sub_nn_tau12 = function(...) subsfun(..., estimator = kld_est_nn), 
+    sub_nn_tauest = function(...) subsfun(..., estimator = kld_est_nn, convergence.rate = NULL)
+)
+nResamp <- length(resampling)
+```
+
+```{r, eval = FALSE, echo = FALSE}
+subsfun <- function(...) kld_ci_subsampling(..., subsample.size = function(n) n^(1/2))
+
+resampling <- list(
+    sub_nn_tau12 = function(...) subsfun(..., estimator = kld_est_nn), 
+    sub_br_tau12 = function(...) subsfun(..., estimator = kld_est_brnn), 
+    sub_nn_tauest = function(...) subsfun(..., estimator = kld_est_nn, convergence.rate = NULL), 
+    sub_br_tauest = function(...) subsfun(..., estimator = kld_est_brnn, convergence.rate = NULL)
+)
+nResamp <- length(resampling)
+```
+
+```{r, eval = FALSE, echo = FALSE}
+resampling <- list(
+    sub_n12_tau12 = function(...) kld_ci_subsampling(..., subsample.size = function(n) n^(1/2)), 
+    sub_n23_tau12 = function(...) kld_ci_subsampling(..., subsample.size = function(n) n^(2/3)), 
+    sub_n12_tauest = function(...) kld_ci_subsampling(..., convergence.rate = NULL, subsample.size = function(n) n^(1/2)), 
+    sub_n23_tauest = function(...) kld_ci_subsampling(..., convergence.rate = NULL, subsample.size = function(n) n^(2/3)), 
+    sub_n12se_tau12 = function(...) kld_ci_subsampling(..., subsample.size = function(n) n^(1/2), method = "se"),
+    sub_n23se_tau12 = function(...) kld_ci_subsampling(..., subsample.size = function(n) n^(2/3), method = "se")
+)
+nResamp <- length(resampling)
+```
+
+## Uncertainty quantification of estimators
+
+### Calculation of empirical coverage 
+
+```{r}
+# allocating results matrices
+nscenario  <- nrow(scenarios)
+covered <- matrix(nrow = nscenario, 
+                  ncol = nResamp, 
+                  dimnames = list(NULL, names(resampling)))
+
+# looping over scenarios
+for (i in 1:nscenario) {
+
+    n   <- scenarios$sample.size[i]
+    X   <- sampler(n = n, param = paramTrue)
+    Y   <- sampler(n = n, param = paramApprox)
+
+    # different algorithms are evaluated on the same samples
+    for (j in 1:nResamp) {
+        kldboot <- resampling[[j]](X, Y, B = 1000L)
+        covered[i,j] <- kldboot$ci[1] <= kld && kld <= kldboot$ci[2]
+    }
+}
+```
+
+Combine scenarios with CI coverage information:
+
+```{r}
+results <- cbind(scenarios, covered) |> melt(measure.vars  = names(resampling),
+                                             value.name    = "covered",
+                                             variable.name = "resampling") 
+```
+
+Compute coverage per sample size / algorithm / distribution:
+
+```{r}
+coverage <- dcast(results, 
+                  sample.size + resampling ~ ., 
+                  value.var = "covered", 
+                  fun.aggregate = function(x) mean(x, na.rm = TRUE))
+names(coverage)[3] <- "coverage"
+```
+
+### Results: coverage of confidence intervals for KL divergence
+
+```{r}
+ggplot(coverage, aes(x = sample.size, y = coverage, color = resampling)) + 
+    geom_line() + 
+    scale_x_log10() +
+    geom_hline(yintercept = 0.95, lty = 2) + 
+    # scale_color_discrete(name = "CI method", 
+    #                     labels = c("Reverse percentile, s = n^(1/2), tau = n^(1/2)",
+    #                                "Reverse percentile, s = n^(2/3), tau = n^(1/2)",
+    #                                "Reverse percentile, s = n^(1/2), tau estimated",
+    #                                "Reverse percentile, s = n^(2/3), tau estimated",
+    #                                "1.96 standard error, s = n^(1/2), tau = n^(1/2)",
+    #                                "1.96 standard error, s = n^(2/3), tau = n^(1/2)"
+    #                               )) +
+    ggtitle("Subsampling-based confidence intervals") +
+    theme(plot.title = element_text(hjust = 0.5))
+```
+
+$\Rightarrow$ coverage of the confidence intervals based on nearest neighbour 
+density estimation approaches the nominal coverage of 95% for increasing sample 
+sizes. 
+
+

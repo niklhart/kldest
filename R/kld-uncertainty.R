@@ -199,6 +199,13 @@ kld_ci_subsampling <- function(X, Y = NULL, q = NULL, estimator = kld_est_nn,
         n.cores <- 1L
     }
 
+    # estimate convergence rate if convergence.rate is NULL
+    if (is.null(convergence.rate)) {
+        beta <- convergence_rate(estimator = estimator, X = X, Y = Y, q = q,
+                                 typical.subsample = subsample.size)
+        convergence.rate <- function(n) n^beta
+    }
+
     # important dimensions for X
     if (is.vector(X)) X <- as.matrix(X)
     n <- nrow(X)
