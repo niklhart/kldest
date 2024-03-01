@@ -1,7 +1,7 @@
 Package: kldest
 Type: Package
 Title: Sample-based estimation of Kullback-Leibler divergence
-Version: 0.1.1.9000
+Version: 0.1.2
 Authors@R: 
     person("Niklas", "Hartung", , "niklas.hartung@gmail.com", 
            role = c("aut", "cre","cph"),
