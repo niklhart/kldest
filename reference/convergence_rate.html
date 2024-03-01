@@ -20,7 +20,7 @@ rate."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathj
     
     <a class="navbar-brand me-2" href="../index.html">kldest</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,8 @@ rate."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathj
     <a class="dropdown-item" href="../articles/algorithm-benchmark-1d.html">Algorithm benchmark in 1D</a>
     <a class="dropdown-item" href="../articles/algorithm-benchmark-2d.html">Algorithm benchmark in 2D</a>
     <a class="dropdown-item" href="../articles/comparison-1sample-2sample-1D.html">Comparing 1- vs. 2-sample estimation in 1-D</a>
-    <a class="dropdown-item" href="../articles/uncertainty-quantification.html">Confidence intervals for KL divergence</a>
+    <a class="dropdown-item" href="../articles/uncertainty-quantification-10d.html">Confidence intervals for KL divergence (high-dimensional)</a>
+    <a class="dropdown-item" href="../articles/uncertainty-quantification-1d.html">Confidence intervals for KL divergence (1-D)</a>
   </div>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
@@ -75,7 +76,6 @@ rate.</p>
 <span>  n.sizes <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  spacing.factor <span class="op">=</span> <span class="fl">1.5</span>,</span>
 <span>  typical.subsample <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">n</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>,</span>
-<span>  b <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  B <span class="op">=</span> <span class="fl">500L</span>,</span>
 <span>  plot <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -121,13 +121,6 @@ sizes (default: <code>1.5</code>).</p></dd>
 <dt>typical.subsample</dt>
 <dd><p>A function that produces a typical subsample size,
 used as the geometric mean of subsample sizes (default: <code>sqrt(n)</code>).</p></dd>
-
-
-<dt>b</dt>
-<dd><p>Subsample sizes to be used. The default <code>NULL</code> means <code>b</code> is computed
-from <code>n.sizes</code>, <code>spacing.factor</code> and <code>typical.subsample</code>. If a non-<code>NULL</code>
-value for <code>b</code> is given, inputs <code>n.sizes</code>, <code>spacing.factor</code> and
-<code>typical.subsample</code> are ignored.</p></dd>
 
 
 <dt>B</dt>

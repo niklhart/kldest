@@ -25,7 +25,10 @@
     <loc>https://niklhart.github.io/kldest/articles/index.html</loc>
   </url>
   <url>
-    <loc>https://niklhart.github.io/kldest/articles/uncertainty-quantification.html</loc>
+    <loc>https://niklhart.github.io/kldest/articles/uncertainty-quantification-10d.html</loc>
+  </url>
+  <url>
+    <loc>https://niklhart.github.io/kldest/articles/uncertainty-quantification-1d.html</loc>
   </url>
   <url>
     <loc>https://niklhart.github.io/kldest/authors.html</loc>
@@ -86,6 +89,9 @@
   </url>
   <url>
     <loc>https://niklhart.github.io/kldest/reference/kld_uniform.html</loc>
+  </url>
+  <url>
+    <loc>https://niklhart.github.io/kldest/reference/kld_uniform_gaussian.html</loc>
   </url>
   <url>
     <loc>https://niklhart.github.io/kldest/reference/kldest-package.html</loc>

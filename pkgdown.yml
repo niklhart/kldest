@@ -1,4 +1,4 @@
-pandoc: 2.19.2
+pandoc: 3.1.11
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
@@ -6,8 +6,9 @@ articles:
   algorithm-benchmark-1d: algorithm-benchmark-1d.html
   algorithm-benchmark-2d: algorithm-benchmark-2d.html
   comparison-1sample-2sample-1D: comparison-1sample-2sample-1D.html
-  uncertainty-quantification: uncertainty-quantification.html
-last_built: 2024-02-26T10:48Z
+  uncertainty-quantification-10d: uncertainty-quantification-10d.html
+  uncertainty-quantification-1d: uncertainty-quantification-1d.html
+last_built: 2024-03-01T10:57Z
 urls:
   reference: https://niklhart.github.io/kldest/reference
   article: https://niklhart.github.io/kldest/articles
