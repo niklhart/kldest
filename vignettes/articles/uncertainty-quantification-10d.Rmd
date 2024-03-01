@@ -24,10 +24,14 @@ For reproducibility
 set.seed(0)
 ```
 
-Simulation study design (high-dimensional correlated Gaussians)
+We consider two highly correlated Gaussian distributions in 10-D. 
+This is a scenario in which the KL divergence estimation benchmark has shown 
+bias reduction to yield a considerable benefit. 
+Here, we investigate coverage of subsampling based confidence intervals for 
+these two estimators. 
 
 ```{r}
-D <- 20
+D <- 10
 Sigma <- constDiagMatrix(dim = D, diag = 1, offDiag = 0.999)
 ```
 
@@ -73,30 +77,20 @@ scenarios  <- combinations(
 )
 ```
 
-### Subsampling variants
+### Subsampling methods
 
-We use the following variants of the subsampling method:
+We use the following subsampling methods:
 
 ```{r}
-subsfun <- function(...) kld_ci_subsampling(..., subsample.size = function(n) n^(1/2))
-
-resampling <- list(
-    sub_nn_tau12 = function(...) subsfun(..., estimator = kld_est_nn), 
-    sub_nn_tauest = function(...) subsfun(..., estimator = kld_est_nn, convergence.rate = NULL)
+subsmethod <- list(
+    sub_nn = function(...) kld_ci_subsampling(..., estimator = kld_est_nn), 
+    sub_br = function(...) kld_ci_subsampling(..., estimator = kld_est_brnn)
 )
-nResamp <- length(resampling)
-```
-
-```{r, eval = FALSE, echo = FALSE}
-subsfun <- function(...) kld_ci_subsampling(..., subsample.size = function(n) n^(1/2))
-
-resampling <- list(
-    sub_nn_tau12 = function(...) subsfun(..., estimator = kld_est_nn), 
-    sub_br_tau12 = function(...) subsfun(..., estimator = kld_est_brnn), 
-    sub_nn_tauest = function(...) subsfun(..., estimator = kld_est_nn, convergence.rate = NULL), 
-    sub_br_tauest = function(...) subsfun(..., estimator = kld_est_brnn, convergence.rate = NULL)
+subsamplingMethodLabels <- c(
+    sub_nn = "Plain 1-NN",
+    sub_br = "Bias-reduced"
 )
-nResamp <- length(resampling)
+nmethod <- length(subsmethod)
 ```
 
 ```{r, eval = FALSE, echo = FALSE}
@@ -119,8 +113,8 @@ nResamp <- length(resampling)
 # allocating results matrices
 nscenario  <- nrow(scenarios)
 covered <- matrix(nrow = nscenario, 
-                  ncol = nResamp, 
-                  dimnames = list(NULL, names(resampling)))
+                  ncol = nmethod, 
+                  dimnames = list(NULL, names(subsmethod)))
 
 # looping over scenarios
 for (i in 1:nscenario) {
@@ -130,8 +124,8 @@ for (i in 1:nscenario) {
     Y   <- sampler(n = n, param = paramApprox)
 
     # different algorithms are evaluated on the same samples
-    for (j in 1:nResamp) {
-        kldboot <- resampling[[j]](X, Y, B = 1000L)
+    for (j in 1:nmethod) {
+        kldboot <- subsmethod[[j]](X, Y, B = 1000L)
         covered[i,j] <- kldboot$ci[1] <= kld && kld <= kldboot$ci[2]
     }
 }
@@ -140,16 +134,16 @@ for (i in 1:nscenario) {
 Combine scenarios with CI coverage information:
 
 ```{r}
-results <- cbind(scenarios, covered) |> melt(measure.vars  = names(resampling),
+results <- cbind(scenarios, covered) |> melt(measure.vars  = names(subsmethod),
                                              value.name    = "covered",
-                                             variable.name = "resampling") 
+                                             variable.name = "subsmethod") 
 ```
 
 Compute coverage per sample size / algorithm / distribution:
 
 ```{r}
 coverage <- dcast(results, 
-                  sample.size + resampling ~ ., 
+                  sample.size + subsmethod ~ ., 
                   value.var = "covered", 
                   fun.aggregate = function(x) mean(x, na.rm = TRUE))
 names(coverage)[3] <- "coverage"
@@ -158,19 +152,13 @@ names(coverage)[3] <- "coverage"
 ### Results: coverage of confidence intervals for KL divergence
 
 ```{r}
-ggplot(coverage, aes(x = sample.size, y = coverage, color = resampling)) + 
+ggplot(coverage, aes(x = sample.size, y = coverage, color = subsmethod)) + 
     geom_line() + 
     scale_x_log10() +
     geom_hline(yintercept = 0.95, lty = 2) + 
-    # scale_color_discrete(name = "CI method", 
-    #                     labels = c("Reverse percentile, s = n^(1/2), tau = n^(1/2)",
-    #                                "Reverse percentile, s = n^(2/3), tau = n^(1/2)",
-    #                                "Reverse percentile, s = n^(1/2), tau estimated",
-    #                                "Reverse percentile, s = n^(2/3), tau estimated",
-    #                                "1.96 standard error, s = n^(1/2), tau = n^(1/2)",
-    #                                "1.96 standard error, s = n^(2/3), tau = n^(1/2)"
-    #                               )) +
-    ggtitle("Subsampling-based confidence intervals") +
+    scale_color_discrete(name = "Estimator",
+                        labels = subsamplingMethodLabels) +
+    ggtitle("Coverage of subsampling-based confidence intervals (10-D)") +
     theme(plot.title = element_text(hjust = 0.5))
 ```
 
