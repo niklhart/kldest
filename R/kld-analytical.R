@@ -111,7 +111,7 @@ kld_discrete <- function(P,Q) {
     Q <- as.array(Q)
     if (any(dim(P) != dim(Q))) stop("Inputs must have the same dimensions.")
     if (any(P < 0 | Q < 0)) stop("Input arrays must be nonnegative.")
-    if ((sum(P) != 1) || sum(Q) != 1) stop("Input arrays must sum up to 1.")
+    if (any(abs(c(sum(P),sum(Q)) - 1) > sqrt(.Machine$double.eps))) stop("Input arrays must sum up to 1.")
 
     # Calculation, taking care of edge case P[i] == 0:
     posP <- P > 0

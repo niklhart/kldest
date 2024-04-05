@@ -144,3 +144,30 @@ test_that("kld_est works as expected for mixed data", {
 
 })
 
+
+test_that("kld_est works for mixed data with missing level in X", {
+
+    # check that heuristic for detecting column type works
+    Xnnn <- data.frame(A = 1:5, B = 6:10, C = c(1,1,2,2,2))
+    Ynnn <- data.frame(A = 11:16, B = 15:20, C = c(1,2,1,2,3,3))
+
+    KLnnn_est <- kld_est(Xnnn, Ynnn, vartype = c("c","c","d"))
+
+    # check that computed KL-D agrees with hardcoded mixed KL-D
+    X1 <- Xnnn[Xnnn$C == 1, c("A","B")]
+    X2 <- Xnnn[Xnnn$C == 2, c("A","B")]
+    Y1 <- Ynnn[Ynnn$C == 1, c("A","B")]
+    Y2 <- Ynnn[Ynnn$C == 2, c("A","B")]
+
+    p1 <- mean(Xnnn$C == 1); p2 <- 1 - p1; p3 <- 0
+    q1 <- mean(Ynnn$C == 1)
+    q2 <- mean(Ynnn$C == 2)
+    q3 <- mean(Ynnn$C == 2)
+
+    KL_ref <- p1*kld_est_nn(X1, Y1) + p2*kld_est_nn(X2, Y2) + kld_discrete(c(p1,p2,p3),c(q1,q2,q3))
+
+    expect_equal(KLnnn_est,KL_ref)
+
+})
+
+

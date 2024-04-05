@@ -47,6 +47,9 @@ kld_est_nn <- function(X, Y = NULL, q = NULL, k = 1L, eps = 0, log.q = FALSE) {
     d <- ncol(X) # number of dimensions
     n <- nrow(X) # number of samples in X
 
+    # early return if there aren't enough data points in X
+    if (k >= n) return(NA_real_)
+
     # get distances to nearest neighbors from a kd-tree using nn2 from the RANN package
     # (the closest is the point itself, hence we consider one more neighbour)
     nnXX <- RANN::nn2(X, X, k = k+1, eps = eps)$nn.dists[ ,k+1]
@@ -58,6 +61,9 @@ kld_est_nn <- function(X, Y = NULL, q = NULL, k = 1L, eps = 0, log.q = FALSE) {
         # two-sample problem
         Y <- as.matrix(Y) # number of dimensions must be the same in X and Y
         m <- nrow(Y)      # number of samples in Y
+
+        # early return if there aren't enough data points in Y
+        if (k > m) return(NA_real_)
 
         nnYX <- RANN::nn2(Y, X, k = k, eps = eps)$nn.dists[ ,k]
 
@@ -122,8 +128,12 @@ kld_est_brnn <- function(X, Y, max.k = 100, warn.max.k = TRUE, eps = 0) {
     n <- nrow(X) # number of samples in X
     m <- nrow(Y) # number of samples in Y
 
+
+    # early return if there aren't enough data points in X or Y
+    if (n <= 1 || m == 0) return(NA_real_)
+
     # get distances to nearest neighbours from a kd-tree using nn2 from the RANN package
-    nnXX <- RANN::nn2(X, X, k = min(max.k+1,n), eps = eps)$nn.dists[,-1, drop = FALSE]    # delete the NN in X to X, which is X itself
+    nnXX <- RANN::nn2(X, X, k = max(min(max.k+1,n),2), eps = eps)$nn.dists[,-1, drop = FALSE]    # delete the NN in X to X, which is X itself
     nnYX <- RANN::nn2(Y, X, k = min(max.k,m), eps = eps)$nn.dists
 
     # maximum of nearest neighbours in X and Y

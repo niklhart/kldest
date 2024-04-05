@@ -250,7 +250,7 @@ kld_ci_subsampling <- function(X, Y = NULL, q = NULL, estimator = kld_est_nn,
 
            },
            se = {
-               se_boot <- sd(kld_boot) * convergence.rate(seff) / convergence.rate(neff)
+               se_boot <- sd(kld_boot, na.rm = TRUE) * convergence.rate(seff) / convergence.rate(neff)
                ci_boot <- kld_hat + c(-1,1)*qnorm(1-alpha/2)*se_boot
                names(ci_boot) <- paste0(100*c(alpha/2,1-alpha/2),"%")
            })

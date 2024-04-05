@@ -105,13 +105,20 @@ kld_est <- function(X, Y = NULL, q = NULL, estimator.continuous = kld_est_nn,
     if (two.sample) {
         Ycont <- as.data.frame(Y[vartype == "c"])
         Ydisc <- Y[vartype == "d"]
-        sYcont <- lapply(X = split(Ycont, f = interaction(Ydisc, drop = TRUE)),
-                         FUN = as.matrix)
+        # deal with possibility of missing levels
+        iYdisc <- interaction(Ydisc, drop = TRUE)
+        allLevels <- union(levels(iXdisc),levels(iYdisc))
+        levels(iXdisc) <- allLevels
+        levels(iYdisc) <- allLevels
+
+        sXcont <- lapply(X = split(Xcont, f = iXdisc), FUN = as.matrix)
+        sYcont <- lapply(X = split(Ycont, f = iYdisc), FUN = as.matrix)
 
         KLcont <- mapply(FUN = estimator.continuous, X = sXcont, Y = sYcont)
         KLdisc <- estimator.discrete(X = Xdisc, Y = Ydisc)
 
     } else {
+        sXcont <- lapply(X = split(Xcont, f = iXdisc), FUN = as.matrix)
         qXcond <- lapply(Xdisc[match(levels(iXdisc),iXdisc), ],
                          function(d) {force(d); function(c) q$cond(c,d)})
         KLcont <- mapply(FUN = estimator.continuous, X = sXcont, q = qXcond)
@@ -119,7 +126,8 @@ kld_est <- function(X, Y = NULL, q = NULL, estimator.continuous = kld_est_nn,
     }
 
     # return compound KL divergence
-    tdisc <- table(iXdisc)
+    tdisc <- as.vector(table(iXdisc))
+    KLcont[tdisc == 0] <- 0           # ensure "0 * NA = 0" (missing levels in X are ok)
     n <- sum(tdisc)
     sum(KLcont * tdisc/n) + KLdisc
 
