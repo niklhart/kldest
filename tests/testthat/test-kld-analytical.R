@@ -70,3 +70,22 @@ test_that("KL-D is 0 for identical distribution in analytical formulas", {
 
 })
 
+test_that("KL-D between uniform and Gaussian behaves as expected", {
+
+    # sd scaling
+    KL_1 <- kld_uniform_gaussian(a = -1,
+                                 b = 1,
+                                 mu = 0,
+                                 sigma2 = 1)
+    KL_10 <- kld_uniform_gaussian(a = -10,
+                                 b = 10,
+                                 mu = 0,
+                                 sigma2 = 100)
+    expect_equal(KL_1, KL_10)
+
+    # erroneous input
+    expect_error(kld_uniform_gaussian(a = 1))
+    expect_error(kld_uniform_gaussian(sigma2 = -1))
+
+})
+

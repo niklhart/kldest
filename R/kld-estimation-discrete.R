@@ -31,7 +31,6 @@ kld_est_discrete <- function(X, Y = NULL, q = NULL) {
 
     # one- or two-sample problem?
     two.sample <- is_two_sample(Y,q)
-    if (!two.sample && d > 1) stop("One-sample version currently only implemented in 1D.")
 
     if (two.sample) {
         Y <- as.data.frame(Y)
@@ -74,9 +73,10 @@ kld_est_discrete <- function(X, Y = NULL, q = NULL) {
 
     } else {
 
-        # TODO: the code below just works for a single discrete variable.
-        #       for multiple discrete variables, compute one representative per
-        #       interaction. I still have to think about the expected format.
+        if (d > 1) stop("One-sample version currently only implemented in 1D.")
+        # The code below just works for a single discrete variable. For multiple
+        # discrete variables, compute one representative per interaction.
+        # I still have to think about the expected format.
         xcat <- uLvl[[1]]
 
         # estimate KL divergence via relative frequencies

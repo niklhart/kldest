@@ -88,7 +88,6 @@ kld_est_kde1 <- function(X, Y, MC = FALSE, ...) {
 #' kld_gaussian(mu1 = rep(0,2), sigma1 = diag(2),
 #'              mu2 = rep(0,2), sigma2 = matrix(c(1,1,1,2),nrow=2))
 #' kld_est_kde2(X,Y)
-#' # kld_est_kde2(X,Y, MC = TRUE)
 #' @export
 kld_est_kde2 <- function(X, Y, MC = FALSE, hX = NULL, hY = NULL,
                         rule = c("Silverman","Scott"), eps = 1e-5) {
@@ -96,7 +95,7 @@ kld_est_kde2 <- function(X, Y, MC = FALSE, hX = NULL, hY = NULL,
 
     # fallback if package 'KernSmooth' is not installed
     if (!requireNamespace("KernSmooth", quietly = TRUE)) {
-        msg <- paste("Using the slower function 'kldest::kld_est_kde' since",
+        msg <- paste("Using the slower function 'kldest:::kld_est_kde' since",
                      "package 'KernSmooth' is not installed.")
         message(msg)
 

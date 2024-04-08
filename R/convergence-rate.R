@@ -10,8 +10,6 @@
 #' might be lower. This function allows to empirically derive the convergence
 #' rate.
 #'
-#' Note: Currently, only the one-sample version is implemented.
-#'
 #' @inheritParams kld_est
 #' @param estimator A KL divergence estimator.
 #' @param n.sizes Number of different subsample sizes to use (default: `4`).
@@ -97,7 +95,7 @@ convergence_rate <- function(estimator, X, Y = NULL, q = NULL,
     zmat <- theta.star - theta.hat
 
     # Catch issues with the estimator
-    if (!is.finite(theta.hat)) return(NA)
+    if (!is.finite(theta.hat)) return(NA_real_)
 
     # calculate quantile differences
     l_probs <- seq(0.05, 0.45, by = 0.05)

@@ -100,3 +100,52 @@ test_that("kld_ci_bootstrap has the correct coverage on an easy example", {
     expect_equal(mean(cov_2s), 1-alpha, tolerance = 0.1)
 
 })
+
+test_that("include_boot option works", {
+
+    set.seed(123456)
+
+    X <- 1:10
+    Y <- 11:20
+    B <- 20
+    KL_boot <- kld_ci_bootstrap(X, Y, B = B, include.boot = TRUE)
+    KL_subs <- kld_ci_subsampling(X, Y, B = B, include.boot = TRUE)
+
+    expect_length(KL_boot$boot, n = B)
+    expect_length(KL_subs$boot, n = B)
+})
+
+
+test_that("kld_ci_bootstrap can deal with duplicates", {
+
+    # input parameters
+    set.seed(123456)
+
+    X <- rep(0:10,2)
+    Y <- X
+    KL_se <- kld_ci_bootstrap(X, Y, method = "se")
+    KL_q  <- kld_ci_bootstrap(X, Y, method = "quantile")
+
+    expect_equal(KL_se$est, 0)
+    expect_equal(KL_q$est, 0)
+    expect_false(any(is.na(KL_se$ci)))
+    expect_false(any(is.na(KL_q$ci)))
+
+})
+
+
+test_that("kld_ci_subsampling handles convergence.rate = NULL correctly", {
+
+    set.seed(123456)
+
+    X <- 1:10
+    Y <- 11:20
+    B <- 20
+    KL_rate <- kld_ci_subsampling(X, Y, B = B, convergence.rate = NULL)
+    KL_half <- kld_ci_subsampling(X, Y, B = B)
+
+    expect_equal(KL_rate$est, KL_half$est)
+    expect_equal(KL_rate$ci, KL_half$ci, tolerance = 0.1)
+})
+
+

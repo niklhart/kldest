@@ -144,11 +144,13 @@ kld_ci_bootstrap <- function(X, Y, estimator = kld_est_kde1, B = 500L,
 #'     defaults to \eqn{f(x) = x^{2/3}}.
 #' @param convergence.rate A function computing the convergence rate of the
 #'     estimator as a function of sample sizes. Defaults to \eqn{f(x) = x^{1/2}}.
+#'     If `convergence.rate` is `NULL`, it is estimated empirically from the
+#'     sample(s) using `kldest::convergence_rate()`.
 #' @param method Either `"quantile"` (the default), also known as the reverse
 #'     percentile method, or `"se"` for a normal approximation of the KL
 #'     divergence estimator using the standard error of the subsamples.
-#' @param include.boot Boolean, `TRUE` means KL divergene estimates on subsamples
-#'     are included in the returned list.
+#' @param include.boot Boolean, `TRUE` means KL divergence estimates on subsamples
+#'     are included in the returned list. Defaults to `FALSE`.
 #' @param n.cores Number of cores to use in parallel computing (defaults to `1`,
 #'     which means that no parallel computing is used).
 #'     To use this option, the `parallel` package must be installed and the OS
@@ -158,10 +160,10 @@ kld_ci_bootstrap <- function(X, Y, estimator = kld_est_kde1, B = 500L,
 #'     `estimator(X, Y = Y, ...)` or `estimator(X, q = q, ...)`.
 #' @returns A list with the following fields:
 #'    * `"est"` (the estimated KL divergence),
-#'    * `"boot"` (a length `B` numeric vector with KL divergence estimates on
-#'    the bootstrap subsamples), only included if `include.boot = TRUE`,
 #'    * `"ci"` (a length `2` vector containing the lower and upper limits of the
 #'    estimated confidence interval).
+#'    * `"boot"` (a length `B` numeric vector with KL divergence estimates on
+#'    the bootstrap subsamples), only included if `include.boot = TRUE`,
 #' @examples
 #' # 1D Gaussian (one- and two-sample problems)
 #' set.seed(0)

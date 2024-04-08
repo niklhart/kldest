@@ -56,5 +56,4 @@ Y <- cbind(Y1,Y2)
 kld_gaussian(mu1 = rep(0,2), sigma1 = diag(2),
              mu2 = rep(0,2), sigma2 = matrix(c(1,1,1,2),nrow=2))
 kld_est_kde2(X,Y)
-# kld_est_kde2(X,Y, MC = TRUE)
 }

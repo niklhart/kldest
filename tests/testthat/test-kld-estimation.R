@@ -130,6 +130,18 @@ test_that("Bias-reduced NN behaves as expected", {
     # if max.k is too small, BRNN will trigger a warning
     expect_warning(kld_est_brnn(X, Y, max.k = 1, warn.max.k = TRUE))
 
+
+    # if n or m are too small, NA is returned
+    KL_nn1_NA <- kld_est_nn(1, 1:10)
+    KL_nn2_NA <- kld_est_nn(1:10, 1, k = 2)
+    KL_brnn1_NA <- kld_est_nn(1, 1:10)
+    KL_brnn2_NA <- kld_est_nn(1:10, numeric(0))
+
+    expect_equal(KL_nn1_NA, NA_real_)
+    expect_equal(KL_nn2_NA, NA_real_)
+    expect_equal(KL_brnn1_NA, NA_real_)
+    expect_equal(KL_brnn2_NA, NA_real_)
+
 })
 
 
@@ -179,6 +191,11 @@ test_that("KL-D estimation for discrete variables works", {
     KL_ref <- kld_discrete(c(0.4,0.6), c(0.5,0.5))
 
     expect_equal(KL_q,KL_ref)
+
+    # 2D example with one sample errors, but check that it runs up to this point
+    # (once the behaviour is implemented, expand this test!)
+    expect_error(kld_est_discrete(X = X2, q = force),
+                 "One-sample version currently only implemented in 1D.")
 
 })
 

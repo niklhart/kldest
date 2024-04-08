@@ -71,6 +71,3 @@ For high-dimensional problems, depending on the data, the convergence rate
 might be lower. This function allows to empirically derive the convergence
 rate.
 }
-\details{
-Note: Currently, only the one-sample version is implemented.
-}
