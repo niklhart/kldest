@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{trapz}
 \alias{trapz}
-\title{Trapezoidal integration in \code{d} dimensions}
+\title{Trapezoidal integration in 1 or 2 dimensions}
 \usage{
 trapz(h, fx)
 }
@@ -15,7 +15,7 @@ trapz(h, fx)
 The trapezoidal approximation of the integral.
 }
 \description{
-Trapezoidal integration in \code{d} dimensions
+Trapezoidal integration in 1 or 2 dimensions
 }
 \examples{
 # 1D example

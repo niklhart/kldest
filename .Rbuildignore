@@ -11,3 +11,4 @@
 ^scripts$
 ^playground$
 ^examples$
+^cran-comments\.md$

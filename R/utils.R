@@ -26,7 +26,7 @@ constDiagMatrix <- function(dim = 1, diag = 1, offDiag = 0) {
 }
 
 
-#' Trapezoidal integration in `d` dimensions
+#' Trapezoidal integration in 1 or 2 dimensions
 #'
 #' @param h A length `d` numeric vector of grid widths.
 #' @param fx A `d`-dimensional array (or a vector, if `d=1`).

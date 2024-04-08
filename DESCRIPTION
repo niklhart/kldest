@@ -1,16 +1,15 @@
 Package: kldest
 Type: Package
-Title: Sample-based estimation of Kullback-Leibler divergence
+Title: Sample-based Estimation of Kullback-Leibler Divergence
 Version: 0.1.3
 Authors@R: 
     person("Niklas", "Hartung", , "niklas.hartung@gmail.com", 
-           role = c("aut", "cre","cph"),
+           role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0002-4000-6525"))
 Maintainer: Niklas Hartung <niklas.hartung@gmail.com>
-Description: A collection of estimation algorithms for Kullback-Leibler 
-    divergence between two probability distributions, 
-    based on one or two samples, and including uncertainty quantification.
-    Distributions can be uni- or multivariate and continous, discrete or mixed.
+Description: Estimation algorithms for Kullback-Leibler divergence between two probability
+    distributions, based on one or two samples, and including uncertainty quantification.
+    Distributions can be uni- or multivariate and continuous, discrete or mixed.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -31,3 +30,4 @@ Config/Needs/website:
     reshape2,
     MASS
 URL: https://niklhart.github.io/kldest/
+BugReports: https://github.com/niklhart/kldest/issues

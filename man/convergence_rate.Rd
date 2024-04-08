@@ -55,13 +55,6 @@ A scalar, the parameter \eqn{\beta} in the empirical convergence
 rate \eqn{n^-\beta} of the \code{estimator} to the true KL divergence.
 It can be used in the \code{convergence.rate} argument of \code{kld_ci_subsampling()}
 as \code{convergence.rate = function(n) n^beta}.
-
-References:
-
-Politis, Romano and Wolf, "Subsampling", Chapter 8 (1999), for theory.
-
-The implementation has been adapted from lecture notes by C. J. Geyer,
-https://www.stat.umn.edu/geyer/5601/notes/sub.pdf
 }
 \description{
 Subsampling-based confidence intervals computed by \code{kld_ci_subsampling()}
@@ -70,4 +63,17 @@ default rate of \code{0.5} assumes that the variance term dominates the bias ter
 For high-dimensional problems, depending on the data, the convergence rate
 might be lower. This function allows to empirically derive the convergence
 rate.
+}
+\examples{
+    # NN method usually has a convergence rate around 0.5:
+    set.seed(0)
+    convergence_rate(kld_est_nn, X = rnorm(1000), Y = rnorm(1000, mean = 1, sd = 2))
+
+References:
+
+Politis, Romano and Wolf, "Subsampling", Chapter 8 (1999), for theory.
+
+The implementation has been adapted from lecture notes by C. J. Geyer,
+https://www.stat.umn.edu/geyer/5601/notes/sub.pdf
+
 }

@@ -36,7 +36,14 @@ via subsampling (preferred) or bootstrapping.
 
 ## Installation
 
-You can install the development version of kldest from [GitHub](https://github.com/) with:
+You can install kldest from CRAN:
+
+```{r, eval = FALSE}
+install.packages("kldest")
+```
+
+Alternatively, can install the development version of kldest 
+from [GitHub](https://github.com/) with:
 
 ```{r, eval = FALSE}
 # install.packages("devtools")

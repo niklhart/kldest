@@ -24,6 +24,10 @@
 #'     rate \eqn{n^-\beta} of the `estimator` to the true KL divergence.
 #'     It can be used in the `convergence.rate` argument of `kld_ci_subsampling()`
 #'     as `convergence.rate = function(n) n^beta`.
+#' @examples
+#'     # NN method usually has a convergence rate around 0.5:
+#'     set.seed(0)
+#'     convergence_rate(kld_est_nn, X = rnorm(1000), Y = rnorm(1000, mean = 1, sd = 2))
 #'
 #' References:
 #'

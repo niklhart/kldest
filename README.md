@@ -28,7 +28,13 @@ also be computed, either via subsampling (preferred) or bootstrapping.
 
 ## Installation
 
-You can install the development version of kldest from
+You can install kldest from CRAN:
+
+``` r
+install.packages("kldest")
+```
+
+Alternatively, can install the development version of kldest from
 [GitHub](https://github.com/) with:
 
 ``` r
