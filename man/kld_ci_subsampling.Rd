@@ -51,14 +51,16 @@ more accurate, but also more computationally expensive.}
 defaults to \eqn{f(x) = x^{2/3}}.}
 
 \item{convergence.rate}{A function computing the convergence rate of the
-estimator as a function of sample sizes. Defaults to \eqn{f(x) = x^{1/2}}.}
+estimator as a function of sample sizes. Defaults to \eqn{f(x) = x^{1/2}}.
+If \code{convergence.rate} is \code{NULL}, it is estimated empirically from the
+sample(s) using \code{kldest::convergence_rate()}.}
 
 \item{method}{Either \code{"quantile"} (the default), also known as the reverse
 percentile method, or \code{"se"} for a normal approximation of the KL
 divergence estimator using the standard error of the subsamples.}
 
-\item{include.boot}{Boolean, \code{TRUE} means KL divergene estimates on subsamples
-are included in the returned list.}
+\item{include.boot}{Boolean, \code{TRUE} means KL divergence estimates on subsamples
+are included in the returned list. Defaults to \code{FALSE}.}
 
 \item{n.cores}{Number of cores to use in parallel computing (defaults to \code{1},
 which means that no parallel computing is used).
@@ -73,10 +75,10 @@ reset to \code{1}, with a message.}
 A list with the following fields:
 \itemize{
 \item \code{"est"} (the estimated KL divergence),
-\item \code{"boot"} (a length \code{B} numeric vector with KL divergence estimates on
-the bootstrap subsamples), only included if \code{include.boot = TRUE},
 \item \code{"ci"} (a length \code{2} vector containing the lower and upper limits of the
 estimated confidence interval).
+\item \code{"boot"} (a length \code{B} numeric vector with KL divergence estimates on
+the bootstrap subsamples), only included if \code{include.boot = TRUE},
 }
 }
 \description{
