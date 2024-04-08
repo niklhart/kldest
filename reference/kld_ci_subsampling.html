@@ -121,7 +121,9 @@ defaults to \(f(x) = x^{2/3}\).</p></dd>
 
 <dt>convergence.rate</dt>
 <dd><p>A function computing the convergence rate of the
-estimator as a function of sample sizes. Defaults to \(f(x) = x^{1/2}\).</p></dd>
+estimator as a function of sample sizes. Defaults to \(f(x) = x^{1/2}\).
+If <code>convergence.rate</code> is <code>NULL</code>, it is estimated empirically from the
+sample(s) using <code><a href="convergence_rate.html">kldest::convergence_rate()</a></code>.</p></dd>
 
 
 <dt>method</dt>
@@ -131,8 +133,8 @@ divergence estimator using the standard error of the subsamples.</p></dd>
 
 
 <dt>include.boot</dt>
-<dd><p>Boolean, <code>TRUE</code> means KL divergene estimates on subsamples
-are included in the returned list.</p></dd>
+<dd><p>Boolean, <code>TRUE</code> means KL divergence estimates on subsamples
+are included in the returned list. Defaults to <code>FALSE</code>.</p></dd>
 
 
 <dt>n.cores</dt>
@@ -153,10 +155,10 @@ reset to <code>1</code>, with a message.</p></dd>
     
 
 <p>A list with the following fields:</p><ul><li><p><code>"est"</code> (the estimated KL divergence),</p></li>
-<li><p><code>"boot"</code> (a length <code>B</code> numeric vector with KL divergence estimates on
-the bootstrap subsamples), only included if <code>include.boot = TRUE</code>,</p></li>
 <li><p><code>"ci"</code> (a length <code>2</code> vector containing the lower and upper limits of the
 estimated confidence interval).</p></li>
+<li><p><code>"boot"</code> (a length <code>B</code> numeric vector with KL divergence estimates on
+the bootstrap subsamples), only included if <code>include.boot = TRUE</code>,</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
