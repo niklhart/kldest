@@ -23,7 +23,6 @@ Suggests:
     rmarkdown,
     KernSmooth,
     testthat (>= 3.0.0)
-VignetteBuilder: knitr
 Config/testthat/edition: 3
 Config/Needs/website:
     ggplot2,
