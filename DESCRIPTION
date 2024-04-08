@@ -1,6 +1,6 @@
 Package: kldest
 Type: Package
-Title: Sample-based Estimation of Kullback-Leibler Divergence
+Title: Sample-Based Estimation of Kullback-Leibler Divergence
 Version: 0.1.3
 Authors@R: 
     person("Niklas", "Hartung", , "niklas.hartung@gmail.com", 

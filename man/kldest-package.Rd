@@ -4,7 +4,7 @@
 \name{kldest-package}
 \alias{kldest}
 \alias{kldest-package}
-\title{kldest: Sample-based Estimation of Kullback-Leibler Divergence}
+\title{kldest: Sample-Based Estimation of Kullback-Leibler Divergence}
 \description{
 Estimation algorithms for Kullback-Leibler divergence between two probability distributions, based on one or two samples, and including uncertainty quantification. Distributions can be uni- or multivariate and continuous, discrete or mixed.
 }
