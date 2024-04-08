@@ -64,16 +64,17 @@ For high-dimensional problems, depending on the data, the convergence rate
 might be lower. This function allows to empirically derive the convergence
 rate.
 }
-\examples{
-    # NN method usually has a convergence rate around 0.5:
-    set.seed(0)
-    convergence_rate(kld_est_nn, X = rnorm(1000), Y = rnorm(1000, mean = 1, sd = 2))
-
+\details{
 References:
 
 Politis, Romano and Wolf, "Subsampling", Chapter 8 (1999), for theory.
 
 The implementation has been adapted from lecture notes by C. J. Geyer,
 https://www.stat.umn.edu/geyer/5601/notes/sub.pdf
+}
+\examples{
+    # NN method usually has a convergence rate around 0.5:
+    set.seed(0)
+    convergence_rate(kld_est_nn, X = rnorm(1000), Y = rnorm(1000, mean = 1, sd = 2))
 
 }

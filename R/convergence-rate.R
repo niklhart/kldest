@@ -29,6 +29,7 @@
 #'     set.seed(0)
 #'     convergence_rate(kld_est_nn, X = rnorm(1000), Y = rnorm(1000, mean = 1, sd = 2))
 #'
+#' @details
 #' References:
 #'
 #' Politis, Romano and Wolf, "Subsampling", Chapter 8 (1999), for theory.
