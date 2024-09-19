@@ -8,6 +8,9 @@
 [![R-CMD-check](https://github.com/niklhart/kldest/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/niklhart/kldest/actions/workflows/R-CMD-check.yaml)
 [![Codecov test
 coverage](https://codecov.io/gh/niklhart/kldest/branch/master/graph/badge.svg)](https://app.codecov.io/gh/niklhart/kldest?branch=master)
+[![Monthly
+downloads](https://cranlogs.r-pkg.org/badges/kldest)](https://cranlogs.r-pkg.org/badges/kldest)
+
 <!-- badges: end -->
 
 The goal of `kldest` is to estimate Kullback-Leibler (KL) divergence

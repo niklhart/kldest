@@ -174,3 +174,257 @@ kld_est_gnn <- function(X, Y = NULL, q = NULL, l = k, k = 1, eps = 0, log.q = FA
     }
 
 }
+
+
+
+
+
+#' Neural KL divergence estimation (Donsker-Varadhan representation) using `torch`
+#'
+#' Disclaimer: this is a simple test implementation which is not optimized by
+#' any means. In particular:
+#' - it only has a single hidden layer
+#' - it uses standard gradient descient on the full dataset
+#'
+#' Estimation is done as described for mutual information in Belghazi et al.
+#' (see ref. below), except that standard gradient descent is used on the full
+#' samples X and Y instead of using batches. Indeed, in the case where X and Y
+#' have a different length, batch sampling is not that straightforward. Network
+#' architecture is a fully connected network with a single hidden layer.
+#'
+#' Reference: Belghazi et al., Mutual Information Neural Estimation,
+#'            PMLR 80:531-540, 2018.
+#'
+#' @param d_hidden Number of nodes in hidden layer (default: `32`)
+#' @param learning_rate Learning rate during gradient descent (default: `1e-4`)
+#' @param epochs Number of training epochs (default: `200`)
+#' @param device Calculation device, either `"cpu"` (default), `"cuda"` or `"mps"`.
+#'
+#' @examples
+#' # 2D example
+#' # analytical solution
+#' kld_gaussian(mu1 = rep(0,2), sigma1 = diag(2),
+#'              mu2 = rep(0,2), sigma2 = matrix(c(1,1,1,2),nrow=2))
+#' # sample generation
+#' set.seed(0)
+#' nxy <- 1000
+#' X1 <- rnorm(nxy)
+#' X2 <- rnorm(nxy)
+#' Y1 <- rnorm(nxy)
+#' Y2 <- Y1 + rnorm(nxy)
+#' X <- cbind(X1,X2)
+#' Y <- cbind(Y1,Y2)
+#' # Estimation
+#' kld_est_nn(X, Y)
+#' kld_est_neural(X, Y)
+#' @export
+kld_est_neural <- function(X, Y, d_hidden = 1024, learning_rate = 1e-4,
+                           epochs = 5000, device = "cpu") {
+
+    # Input dimensionality
+    d_in <- ncol(X) # number of dimensions, must be the same in X and Y
+    n <- nrow(X) # number of samples in X
+    m <- nrow(Y) # number of samples in Y
+
+    # check consistency of dimensions
+    stopifnot(ncol(Y) == d_in)
+
+    # turn X and Y into torch tensors
+    X <- torch::torch_tensor(X)
+    Y <- torch::torch_tensor(Y)
+
+    # output dimensionality (number of predicted features)
+    d_out <- 1
+
+    # weights connecting input to hidden layer
+    w1 <- torch::torch_randn(d_in, d_hidden, requires_grad = TRUE)
+    # weights connecting hidden to output layer
+    w2 <- torch::torch_randn(d_hidden, d_out, requires_grad = TRUE)
+
+    # hidden layer bias
+    b1 <- torch::torch_zeros(1, d_hidden, requires_grad = TRUE)
+    # output layer bias
+    b2 <- torch::torch_zeros(1, d_out, requires_grad = TRUE)
+
+    ### training loop ----------------------------------------
+
+    for (t in 1:epochs) {
+
+        ### -------- Forward pass --------
+
+        x_pred <- X$mm(w1)$add(b1)$relu()$mm(w2)$add(b2)
+        y_pred <- Y$mm(w1)$add(b1)$relu()$mm(w2)$add(b2)
+
+        ### -------- Compute loss --------
+        # L(theta) = log(mean(exp(f(Y,theta)))) - mean(f(X,theta))
+        loss <- y_pred$exp()$mean()$log()$subtract(x_pred$mean())
+
+        if (t %% 10 == 0)
+            cat("Epoch: ", t, "   Loss: ", loss$item(), "\n")
+
+        ### -------- Backpropagation --------
+
+        # compute gradient of loss w.r.t. all tensors with
+        # requires_grad = TRUE
+        loss$backward()
+
+        ### -------- Update weights --------
+
+        # Wrap in with_no_grad() because this is a part we don't
+        # want to record for automatic gradient computation
+        with_no_grad({
+            w1 <- w1$sub_(learning_rate * w1$grad)
+            w2 <- w2$sub_(learning_rate * w2$grad)
+            b1 <- b1$sub_(learning_rate * b1$grad)
+            b2 <- b2$sub_(learning_rate * b2$grad)
+
+            # Zero gradients after every pass, as they'd
+            # accumulate otherwise
+            w1$grad$zero_()
+            w2$grad$zero_()
+            b1$grad$zero_()
+            b2$grad$zero_()
+        })
+
+    }
+
+
+    # ds <- torch::dataset(
+    #     name = "samples",
+    #
+    #     initialize = function(idx) {
+    #         self$x <- torch::torch_tensor(X)
+    #         self$y <- torch::torch_tensor(Y)
+    #     },
+    #
+    #     .getbatch = function(idx) {
+    #         list(x = self$x[idx, , drop = FALSE],
+    #              y = self$y[idx])
+    #     },
+    #
+    #     .getitem = function(i) {
+    #         list(x = self$x[i, ],
+    #              y = self$y[i])
+    #     },
+    #
+    #     .length = function() {
+    #         self$y$size()[[1]]
+    #     }
+    # )
+    #
+    # dl <- torch::dataloader(ds, batch_size = 64, shuffle = TRUE)
+    #
+    # net <- torch::nn_module(
+    #
+    #     "easy mlp",
+    #
+    #     initialize = function() {
+    #
+    #         self$fc1 <- torch::nn_linear(in_features = length(X) + length(Y),
+    #                                      out_features = 128)
+    #         self$fc2 <- torch::nn_linear(in_features = 128,
+    #                                      out_features = 1)
+    #
+    #     },
+    #
+    #     forward = function(x) {
+    #
+    #         x |>
+    #             self$fc1() |>
+    #             torch::nnf_relu() |>
+    #             self$fc2() |>
+    #             torch::torch_flatten()
+    #
+    #     }
+    # )
+    #
+    # loss <- stop("TODO!!")
+    #
+    # fitted <- net |>
+    #     setup(
+    #         loss = nnf_mse_loss,
+    #         optimizer = optim_adam
+    #     ) |>
+    #     set_opt_hparams(lr = 0.0001) |>
+    #     fit(train_dl, epochs = 50, valid_data = valid_dl)
+
+
+}
+
+
+#' Neural Estimation of KL divergence (modularized)
+#'
+#' @param d_hidden Number of nodes in hidden layer (default: `32`)
+#' @param learning_rate Learning rate during gradient descent (default: `1e-4`)
+#' @param epochs Number of training epochs (default: `200`)
+#' @param device Calculation device, either `"cpu"` (default), `"cuda"` or `"mps"`.
+#' Reference:
+#' Belghazi et al., Mutual Information Neural Estimation, PMLR 80:531-540, 2018.
+kld_est_neural2 <- function(X, Y, d_hidden = 32, learning_rate = 1e-4,
+                           epochs = 200, device = "cpu") {
+
+
+    # FOR TESTING ONLY, REMOVE LATER
+    set.seed(0)
+    nxy <- 1000
+    X1 <- rnorm(nxy)
+    X2 <- rnorm(nxy)
+    Y1 <- rnorm(nxy)
+    Y2 <- Y1 + rnorm(nxy)
+    X <- cbind(X1,X2)
+    Y <- cbind(Y1,Y2)
+
+    d_hidden <- 1024
+    learning_rate <- 1e-4
+    epochs <- 5000
+
+    # Input dimensionality
+    d_in <- ncol(X) # number of dimensions, must be the same in X and Y
+    n <- nrow(X) # number of samples in X
+    m <- nrow(Y) # number of samples in Y
+
+    # check consistency of dimensions
+    stopifnot(ncol(Y) == d_in)
+
+    # turn X and Y into torch tensors
+    X <- torch::torch_tensor(X)
+    Y <- torch::torch_tensor(Y)
+
+    # neural network structure
+    net <- nn_module(
+        initialize = function(d_in,d_hidden) {
+
+            self$fc1 <- nn_linear(in_features = d_in,     out_features = d_hidden)
+            self$fc2 <- nn_linear(in_features = d_hidden, out_features = 1)
+
+        },
+        forward = function(X,Y) {
+            Xp <- X |>
+                self$fc1() |>
+                torch::nnf_relu() |>
+                self$fc2() |>
+                torch::torch_flatten()
+            Yp <- Y |>
+                self$fc1() |>
+                torch::nnf_relu() |>
+                self$fc2() |>
+                torch::torch_flatten()
+            torch::torch_cat(Xp,Yp)
+        }
+    )
+
+    # loss function
+    loss <- function(input, target) {
+        fx <- input[1:n,]
+        fy <- input[n+(1:m),]
+        fy$exp()$mean()$log()$subtract(fx$mean())
+    }
+
+    # optimizer
+
+    # Here, I'd like to use the ADAM optimizer. However, since X and Y are
+    # concatenated, I cannot simply batch sample from c(X,Y)! What to do in this
+    # case?
+
+
+}
