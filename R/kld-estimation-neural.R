@@ -4,7 +4,7 @@
 #'
 #' Estimation of KL divergence between continuous distributions based on the
 #' Donsker-Varadhan representation
-#' \deqn{D_{KL}(P||Q) = \sup_{f} E_P[f(X)] - \log\left(E[e^{f(X)}]\right)}
+#' \deqn{D_{KL}(P||Q) = \sup_{f} E_P[f(X)] - \log\left(E_Q[e^{f(X)}]\right)}
 #' using Monte Carlo averages to approximate the expectations, and optimizing
 #' over a class of neural networks. The `torch` package is required to use this
 #' function.
@@ -51,7 +51,10 @@
 #' Y <- cbind(Y1,Y2)
 #' # Estimation
 #' kld_est_nn(X, Y)
+#' \dontrun{
+#' # requires the torch package and takes ~1 min
 #' kld_est_neural(X, Y)
+#' }
 #' @export
 kld_est_neural <- function(X, Y, d_hidden = 1024, learning_rate = 1e-4,
                            epochs = 5000, device = c("cpu","cuda","mps"),

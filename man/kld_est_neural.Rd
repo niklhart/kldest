@@ -37,7 +37,7 @@ A scalar, the estimated Kullback-Leibler divergence \eqn{\hat D_{KL}(P||Q)}.
 \description{
 Estimation of KL divergence between continuous distributions based on the
 Donsker-Varadhan representation
-\deqn{D_{KL}(P||Q) = \sup_{f} E_P[f(X)] - \log\left(E[e^{f(X)}]\right)}
+\deqn{D_{KL}(P||Q) = \sup_{f} E_P[f(X)] - \log\left(E_Q[e^{f(X)}]\right)}
 using Monte Carlo averages to approximate the expectations, and optimizing
 over a class of neural networks. The \code{torch} package is required to use this
 function.
@@ -76,5 +76,8 @@ X <- cbind(X1,X2)
 Y <- cbind(Y1,Y2)
 # Estimation
 kld_est_nn(X, Y)
+\dontrun{
+# requires the torch package and takes ~1 min
 kld_est_neural(X, Y)
+}
 }
