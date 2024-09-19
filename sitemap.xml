@@ -1,114 +1,41 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://niklhart.github.io/kldest/404.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/articles/algorithm-benchmark-10d.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/articles/algorithm-benchmark-1d.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/articles/algorithm-benchmark-2d.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/articles/comparison-1sample-2sample-1D.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/articles/uncertainty-quantification-10d.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/articles/uncertainty-quantification-1d.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/index.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/news/index.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/reference/combinations.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/reference/constDiagMatrix.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/reference/convergence_rate.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/reference/is_two_sample.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/reference/kld_ci_bootstrap.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/reference/kld_ci_subsampling.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/reference/kld_discrete.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/reference/kld_est.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/reference/kld_est_brnn.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/reference/kld_est_discrete.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/reference/kld_est_kde.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/reference/kld_est_kde1.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/reference/kld_est_kde2.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/reference/kld_est_nn.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/reference/kld_exponential.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/reference/kld_gaussian.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/reference/kld_uniform.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/reference/kld_uniform_gaussian.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/reference/kldest-package.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/reference/mvdnorm.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/reference/to_uniform_scale.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/reference/tr.html</loc>
-  </url>
-  <url>
-    <loc>https://niklhart.github.io/kldest/reference/trapz.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://niklhart.github.io/kldest/404.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/LICENSE-text.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/LICENSE.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/articles/algorithm-benchmark-10d.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/articles/algorithm-benchmark-1d.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/articles/algorithm-benchmark-2d.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/articles/comparison-1sample-2sample-1D.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/articles/index.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/articles/uncertainty-quantification-10d.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/articles/uncertainty-quantification-1d.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/authors.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/index.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/news/index.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/reference/combinations.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/reference/constDiagMatrix.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/reference/convergence_rate.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/reference/index.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/reference/is_two_sample.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/reference/kld_ci_bootstrap.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/reference/kld_ci_subsampling.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/reference/kld_discrete.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/reference/kld_est.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/reference/kld_est_brnn.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/reference/kld_est_discrete.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/reference/kld_est_kde.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/reference/kld_est_kde1.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/reference/kld_est_kde2.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/reference/kld_est_neural.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/reference/kld_est_nn.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/reference/kld_exponential.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/reference/kld_gaussian.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/reference/kld_uniform.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/reference/kld_uniform_gaussian.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/reference/kldest-package.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/reference/mvdnorm.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/reference/to_uniform_scale.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/reference/tr.html</loc></url>
+<url><loc>https://niklhart.github.io/kldest/reference/trapz.html</loc></url>
 </urlset>
+
